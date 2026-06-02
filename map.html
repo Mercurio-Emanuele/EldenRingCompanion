@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mappa — Elden Ring</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/nav.css">
+<style>
+.map-shell {
+  padding-top: var(--nav-h);
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+}
+.map-header {
+  padding: 28px 24px 20px;
+  background: linear-gradient(180deg, var(--bg2), var(--bg));
+  border-bottom: 1px solid var(--border);
+}
+.map-header h1 { font-size: 26px; }
+.map-header p  { font-size: 13px; color: var(--text3); font-family: var(--font-display); letter-spacing:.1em; margin-top:4px; }
+
+/* Placeholder map area */
+.map-area {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at center, #1a1610 0%, var(--bg) 70%);
+  position: relative; overflow: hidden;
+  min-height: 560px;
+}
+.map-grid-lines {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 60px 60px;
+  opacity: .3;
+}
+.map-center {
+  position: relative; z-index: 2;
+  text-align: center; padding: 40px;
+}
+.map-center .big-icon { font-size: 64px; opacity: .25; display: block; margin-bottom: 20px; }
+.map-center h2 {
+  font-family: var(--font-display); font-size: 20px; color: var(--gold);
+  opacity: .6; margin-bottom: 12px;
+}
+.map-center p {
+  font-size: 14px; color: var(--text3); max-width: 380px; margin: 0 auto 24px;
+}
+
+/* Feature preview cards */
+.map-features {
+  display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 28px;
+}
+.feat-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  text-align: center; width: 160px;
+}
+.feat-card .feat-icon { font-size: 24px; display: block; margin-bottom: 8px; }
+.feat-card h4 { font-family: var(--font-display); font-size: 11px; color: var(--gold); letter-spacing:.06em; margin-bottom: 4px; }
+.feat-card p  { font-size: 11px; color: var(--text3); }
+
+/* Floating pins preview */
+.pin-preview {
+  position: absolute;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  animation: pulse 2.5s infinite;
+}
+.pin-preview::after {
+  content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 4px; height: 4px; background: currentColor; border-radius: 50%;
+}
+</style>
+</head>
+<body>
+<div class="map-shell">
+  <div class="map-header">
+    <h1 data-i18n="map_title">🗺️ Mappa Interattiva</h1>
+    <p data-i18n="map_sub">Localizzazione di ogni item nelle Interregnum</p>
+  </div>
+
+  <div class="map-area">
+    <div class="map-grid-lines"></div>
+
+    <!-- Decorative floating pins -->
+    <div class="pin-preview" style="top:20%;left:30%;color:#c9a94e"></div>
+    <div class="pin-preview" style="top:40%;left:60%;color:#7aaaee;animation-delay:.8s"></div>
+    <div class="pin-preview" style="top:65%;left:45%;color:#6a8a50;animation-delay:1.6s"></div>
+    <div class="pin-preview" style="top:30%;left:70%;color:#9a70c8;animation-delay:.4s"></div>
+    <div class="pin-preview" style="top:55%;left:25%;color:#c9a94e;animation-delay:1.2s"></div>
+    <div class="pin-preview" style="top:75%;left:72%;color:#7aaaee;animation-delay:2s"></div>
+
+    <div class="map-center">
+      <span class="big-icon">🗺️</span>
+      <h2 data-i18n="map_coming">In costruzione</h2>
+      <p data-i18n="map_coming_desc">La mappa interattiva con i pin di ogni item è in sviluppo. Torna presto!</p>
+
+      <div class="map-features">
+        <div class="feat-card">
+          <span class="feat-icon">📍</span>
+          <h4>Pin per ogni item</h4>
+          <p>Tutti i 469+ item sulla mappa</p>
+        </div>
+        <div class="feat-card">
+          <span class="feat-icon">🔍</span>
+          <h4>Filtri per categoria</h4>
+          <p>Mostra solo talismani, armi, ecc.</p>
+        </div>
+        <div class="feat-card">
+          <span class="feat-icon">✅</span>
+          <h4>Sync con tracker</h4>
+          <p>Item trovati marcati sulla mappa</p>
+        </div>
+        <div class="feat-card">
+          <span class="feat-icon">🗾</span>
+          <h4>Sottomappe</h4>
+          <p>Underground, Nokron, Farum…</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/i18n.js"></script>
+<script src="js/data.js"></script>
+<script src="js/nav.js"></script>
+<script>
+  buildNav('map');
+  window.addEventListener('langchange', () => buildNav('map'));
+</script>
+</body>
+</html>

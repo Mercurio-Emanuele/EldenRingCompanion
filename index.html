@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Elden Ring Item Tracker – traccia tutti gli item del gioco e del DLC Shadow of the Erdtree">
+<title>Item Tracker — Elden Ring</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/nav.css">
+<link rel="stylesheet" href="css/tracker.css">
+<style>
+/* Item image inside card */
+.card-img-wrap {
+  width: 38px; height: 38px; flex-shrink: 0;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.card-img-wrap img {
+  width: 34px; height: 34px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  transition: opacity .2s;
+}
+.card-img-wrap .img-fallback {
+  font-size: 18px;
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0;
+}
+.card-img-wrap img.errored { opacity: 0; }
+.card-img-wrap img.errored ~ .img-fallback { opacity: 1; }
+.item-card.found .card-img-wrap {
+  background: rgba(42,96,64,.3);
+  border-color: var(--green-border);
+}
+</style>
+</head>
+<body>
+
+<div class="tracker-filters">
+  <div class="tracker-filters-inner">
+    <div class="cat-tabs" id="catTabs"></div>
+    <div class="filter-row">
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="searchInput" class="search-input"
+               data-i18n-ph="search_ph" placeholder="Cerca item…">
+      </div>
+      <button class="btn active" data-filter="all"    data-i18n="filter_all">Tutti</button>
+      <button class="btn" data-filter="found"         data-i18n="filter_found">✓ Trovati</button>
+      <button class="btn" data-filter="notfound"      data-i18n="filter_notfound">✗ Non trovati</button>
+      <div class="filter-sep"></div>
+      <button class="btn" data-filter="sote"          data-i18n="filter_sote">DLC</button>
+      <button class="btn" data-filter="base"          data-i18n="filter_base">Base</button>
+      <span class="results-label" id="resultsLabel"></span>
+    </div>
+  </div>
+</div>
+
+<div class="cat-stats-bar" id="catStatsBar"></div>
+
+<div class="tracker-grid-wrap">
+  <div class="items-grid" id="itemsGrid"></div>
+</div>
+
+<footer style="text-align:center;padding:20px;border-top:1px solid var(--border)">
+  <p style="font-size:11px;color:var(--text3);font-family:var(--font-display);letter-spacing:.06em" data-i18n="footer_disclaimer"></p>
+  <p style="font-size:10px;color:var(--text3);margin-top:4px" data-i18n="footer_wiki"></p>
+</footer>
+
+<script src="js/i18n.js"></script>
+<script src="js/data.js"></script>
+<script src="js/nav.js"></script>
+<script>
+// ── CONSTANTS ────────────────────────────────────────────────
+const IMG_BASE   = "https://eldenring.wiki.fextralife.com/file/Elden-Ring/";
+const IMG_SUFFIX = "_elden_ring_wiki_guide_200px.png";
+
+// ── STATE ─────────────────────────────────────────────────────
+const state = { tab:'talismans', filter:'all', search:'' };
+
+function getFound()         { return JSON.parse(localStorage.getItem('er_found') || '{}'); }
+function setFound(o)        { localStorage.setItem('er_found', JSON.stringify(o)); }
+function itemKey(cat, name) { return cat + '::' + name; }
+function isFound(cat, name) { return !!getFound()[itemKey(cat, name)]; }
+
+// ── TOGGLE ───────────────────────────────────────────────────
+function toggleFound(cat, name, card) {
+  const f = getFound();
+  const k = itemKey(cat, name);
+  f[k] = !f[k];
+  setFound(f);
+  card.classList.toggle('found', f[k]);
+  if (f[k]) { card.classList.add('shimmer'); setTimeout(() => card.classList.remove('shimmer'), 700); }
+  const tog = card.querySelector('.found-toggle');
+  tog.textContent = f[k] ? '✓' : '';
+  tog.style.color = f[k] ? '#b0e8c0' : 'transparent';
+  updateAll();
+  window.dispatchEvent(new Event('foundchange'));
+  if (state.filter === 'found' || state.filter === 'notfound') renderGrid();
+}
+
+// ── STATS ────────────────────────────────────────────────────
+function getCatStats(catId) {
+  const items = ITEMS[catId] || [];
+  return { found: items.filter(i => isFound(catId, i.name)).length, total: items.length };
+}
+
+// ── TABS ─────────────────────────────────────────────────────
+function renderTabs() {
+  document.getElementById('catTabs').innerHTML = CATEGORIES.map(c => {
+    const { found, total } = getCatStats(c.id);
+    return `<button class="cat-tab${c.id===state.tab?' active':''}" data-cat="${c.id}">
+      ${c.icon} <span>${t(c.key)}</span>
+      <span class="cat-tab-badge">${found}/${total}</span>
+    </button>`;
+  }).join('');
+  document.querySelectorAll('.cat-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.tab = btn.dataset.cat;
+      state.search = '';
+      document.getElementById('searchInput').value = '';
+      renderAll();
+    });
+  });
+}
+
+// ── STATS BAR ─────────────────────────────────────────────────
+function renderCatStats() {
+  const { found, total } = getCatStats(state.tab);
+  const pct = total ? Math.round(found / total * 100) : 0;
+  document.getElementById('catStatsBar').innerHTML = `
+    <span class="cat-stat-found">${found}</span>
+    <span class="cat-stat-sep">/</span>
+    <span class="cat-stat-total">${total} ${t('nav_progress')}</span>
+    <div class="progress-track cat-stat-track">
+      <div class="progress-fill" style="width:${pct}%"></div>
+    </div>
+    <span class="cat-stat-pct">${pct}%</span>`;
+}
+
+// ── GRID ─────────────────────────────────────────────────────
+function getFiltered() {
+  let items = (ITEMS[state.tab] || []).slice();
+  const q = state.search.trim().toLowerCase();
+  if (q) items = items.filter(i =>
+    i.name.toLowerCase().includes(q) ||
+    i.effect.toLowerCase().includes(q) ||
+    i.loc.toLowerCase().includes(q));
+  if (state.filter==='found')    items = items.filter(i => isFound(state.tab, i.name));
+  if (state.filter==='notfound') items = items.filter(i => !isFound(state.tab, i.name));
+  if (state.filter==='sote')     items = items.filter(i => i.dlc==='SotE');
+  if (state.filter==='base')     items = items.filter(i => i.dlc==='Base');
+  return items;
+}
+
+function buildImgUrl(item) {
+  // If slug already contains full suffix hint, use as-is, else append standard suffix
+  if (!item.img) return null;
+  if (item.img.endsWith('.png') || item.img.endsWith('.jpg')) return IMG_BASE + item.img;
+  return IMG_BASE + item.img + IMG_SUFFIX;
+}
+
+function renderGrid() {
+  const items = getFiltered();
+  const catIcon = CATEGORIES.find(c => c.id === state.tab)?.icon || '📦';
+  document.getElementById('resultsLabel').textContent = items.length + ' ' + t('results');
+
+  if (!items.length) {
+    document.getElementById('itemsGrid').innerHTML = `<div class="empty-state"><p>—</p></div>`;
+    return;
+  }
+
+  document.getElementById('itemsGrid').innerHTML = items.map((item, i) => {
+    const found   = isFound(state.tab, item.name);
+    const isLeg   = item.effect.includes('Legg') || item.name.includes('Legg');
+    const imgUrl  = buildImgUrl(item);
+    const imgHtml = imgUrl
+      ? `<img src="${imgUrl}" alt="${item.name}" loading="lazy"
+              onerror="this.classList.add('errored')">`
+      : '';
+
+    return `<div class="item-card${found?' found':''}"
+         data-name="${item.name.replace(/"/g,'&quot;')}"
+         style="animation-delay:${Math.min(i*0.018,0.28)}s">
+      <div class="card-top">
+        <div class="card-img-wrap">
+          ${imgHtml}
+          <span class="img-fallback">${catIcon}</span>
+        </div>
+        <div class="card-body">
+          <div class="card-name">${item.name}</div>
+          <div class="card-effect">${item.effect}</div>
+        </div>
+        <div class="found-toggle" style="color:${found?'#b0e8c0':'transparent'}">${found?'✓':''}</div>
+      </div>
+      <div class="card-bottom">
+        <div class="card-location" title="${item.loc}">${item.loc}</div>
+        ${isLeg ? '<span class="badge badge-legend">Legg.</span>' : ''}
+        <span class="badge ${item.dlc==='SotE'?'badge-sote':'badge-base'}">${item.dlc}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.querySelectorAll('.item-card').forEach(card => {
+    card.addEventListener('click', () => toggleFound(state.tab, card.dataset.name, card));
+  });
+}
+
+function updateAll() { renderTabs(); renderCatStats(); updateNavProgress(); }
+function renderAll() { renderTabs(); renderCatStats(); renderGrid(); updateNavProgress(); }
+
+// ── FILTER CHIPS ─────────────────────────────────────────────
+document.querySelectorAll('[data-filter]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.filter = btn.dataset.filter;
+    renderGrid(); renderCatStats();
+  });
+});
+
+// ── SEARCH ───────────────────────────────────────────────────
+let searchTimer;
+document.getElementById('searchInput').addEventListener('input', e => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => { state.search = e.target.value; renderGrid(); }, 160);
+});
+
+window.addEventListener('langchange', () => renderAll());
+
+// ── INIT ─────────────────────────────────────────────────────
+buildNav('tracker');
+renderAll();
+</script>
+</body>
+</html>
