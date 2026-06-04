@@ -2,239 +2,649 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="Elden Ring Item Tracker – traccia tutti gli item del gioco e del DLC Shadow of the Erdtree">
 <title>Item Tracker — Elden Ring</title>
-<link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/nav.css">
-<link rel="stylesheet" href="css/tracker.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600&display=swap" rel="stylesheet">
 <style>
-/* Item image inside card */
-.card-img-wrap {
-  width: 38px; height: 38px; flex-shrink: 0;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  overflow: hidden;
-  display: flex; align-items: center; justify-content: center;
-  position: relative;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0c0b;--bg2:#141210;--surface:#1c1915;--surface2:#242018;
+  --border:#2e2920;--border2:#3d3628;
+  --gold:#c9a94e;--gold2:#e8c96a;--gold-dim:#7a6530;--gold-glow:rgba(201,169,78,.18);
+  --text:#d4c9b0;--text2:#8a8070;--text3:#5a5448;
+  --green:#2a6040;--green2:#3a8055;--green-bg:#1a2a1e;--green-bdr:#2a5035;
+  --sote-bg:rgba(74,48,96,.4);--sote-clr:#9a70c8;--sote-bdr:rgba(122,80,160,.3);
+  --base-bg:rgba(40,55,30,.4);--base-clr:#6a8a50;--base-bdr:rgba(80,100,60,.25);
+  --nav-h:54px;--r:6px;
+  --ff-d:'Cinzel',serif;--ff-b:'Crimson Pro',Georgia,serif;
 }
-.card-img-wrap img {
-  width: 34px; height: 34px;
-  object-fit: contain;
-  image-rendering: pixelated;
-  transition: opacity .2s;
-}
-.card-img-wrap .img-fallback {
-  font-size: 18px;
-  position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0;
-}
-.card-img-wrap img.errored { opacity: 0; }
-.card-img-wrap img.errored ~ .img-fallback { opacity: 1; }
-.item-card.found .card-img-wrap {
-  background: rgba(42,96,64,.3);
-  border-color: var(--green-border);
-}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--ff-b);font-size:16px;line-height:1.5;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.5}
+a{color:var(--gold);text-decoration:none}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+/* NAV */
+.topnav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:linear-gradient(180deg,#0a0908f0,#0d0c0bcc);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);z-index:200}
+.topnav-inner{max-width:1440px;margin:0 auto;padding:0 20px;height:100%;display:flex;align-items:center}
+.nav-logo{display:flex;align-items:center;gap:8px;font-family:var(--ff-d);font-size:14px;font-weight:700;color:var(--gold);letter-spacing:.1em;text-shadow:0 0 16px var(--gold-glow);margin-right:28px;white-space:nowrap;flex-shrink:0}
+.nav-links{display:flex;align-items:stretch;height:var(--nav-h);flex:1;overflow-x:auto;scrollbar-width:none}
+.nav-links::-webkit-scrollbar{display:none}
+.nav-link{display:flex;align-items:center;gap:5px;padding:0 14px;font-family:var(--ff-d);font-size:10px;letter-spacing:.1em;color:var(--text3);border-bottom:2px solid transparent;transition:color .2s,border-color .2s;white-space:nowrap;text-decoration:none}
+.nav-link:hover{color:var(--text2)}
+.nav-link.active{color:var(--gold);border-bottom-color:var(--gold)}
+.nav-wip{font-size:8px;background:rgba(60,100,180,.3);color:#7aaaee;border:1px solid rgba(80,130,200,.3);border-radius:3px;padding:1px 4px}
+.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
+.nav-stat{font-family:var(--ff-d);font-size:10px;letter-spacing:.06em;color:var(--text2);background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:4px 10px;white-space:nowrap}
+.lang-toggle{display:flex;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);overflow:hidden}
+.lang-btn{background:none;border:none;padding:5px 9px;font-family:var(--ff-d);font-size:10px;letter-spacing:.06em;color:var(--text3);cursor:pointer;transition:all .15s}
+.lang-btn.active{background:rgba(201,169,78,.12);color:var(--gold)}
+/* BADGES */
+.badge{display:inline-block;font-size:9px;font-family:var(--ff-d);letter-spacing:.07em;padding:2px 6px;border-radius:3px;white-space:nowrap}
+.badge-sote{background:var(--sote-bg);color:var(--sote-clr);border:1px solid var(--sote-bdr)}
+.badge-base{background:var(--base-bg);color:var(--base-clr);border:1px solid var(--base-bdr)}
+.badge-leg{background:rgba(201,169,78,.12);color:var(--gold);border:1px solid rgba(201,169,78,.3)}
+/* PROGRESS */
+.prog-track{background:var(--border2);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));border-radius:2px;transition:width .4s ease}
+/* TRACKER PAGE */
+.page-body{padding-top:var(--nav-h)}
+.filters{position:sticky;top:var(--nav-h);z-index:100;background:var(--bg2);border-bottom:1px solid var(--border)}
+.filters-inner{max-width:1440px;margin:0 auto;padding:0 20px}
+.cat-tabs{display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border)}
+.cat-tabs::-webkit-scrollbar{display:none}
+.cat-tab{background:none;border:none;padding:10px 14px;font-family:var(--ff-d);font-size:10px;letter-spacing:.1em;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.cat-tab:hover{color:var(--text2)}
+.cat-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab-cnt{display:inline-flex;align-items:center;justify-content:center;background:var(--surface2);color:var(--text3);font-size:9px;padding:1px 5px;border-radius:10px;font-family:var(--ff-b);font-weight:600;transition:background .2s,color .2s}
+.cat-tab.active .tab-cnt{background:rgba(201,169,78,.15);color:var(--gold)}
+.filter-row{display:flex;align-items:center;flex-wrap:wrap;gap:7px;padding:9px 0}
+.chip{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:5px 12px;font-size:11px;font-family:var(--ff-d);letter-spacing:.05em;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap}
+.chip:hover{border-color:var(--gold-dim);color:var(--text)}
+.chip.active{background:rgba(201,169,78,.1);border-color:var(--gold-dim);color:var(--gold)}
+.fsep{width:1px;height:18px;background:var(--border2);flex-shrink:0}
+.search-wrap{position:relative;flex:1;min-width:160px;max-width:300px}
+.search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:13px;pointer-events:none}
+.search-inp{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:6px 10px 6px 30px;color:var(--text);font-family:var(--ff-b);font-size:14px;outline:none;transition:border-color .2s}
+.search-inp::placeholder{color:var(--text3)}
+.search-inp:focus{border-color:var(--gold-dim)}
+.res-label{margin-left:auto;font-size:11px;color:var(--text3);font-family:var(--ff-d);white-space:nowrap}
+.stats-bar{max-width:1440px;margin:0 auto;padding:8px 20px;display:flex;align-items:center;gap:12px}
+.stat-found{font-family:var(--ff-d);font-size:12px;color:var(--green2)}
+.stat-sep,.stat-total{font-family:var(--ff-d);font-size:12px;color:var(--text3)}
+.stat-track{flex:1;min-width:60px;height:2px}
+.stat-pct{font-family:var(--ff-d);font-size:11px;color:var(--gold);min-width:32px;text-align:right}
+.grid-wrap{max-width:1440px;margin:0 auto;padding:12px 20px 60px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(274px,1fr));gap:8px}
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:11px 12px;cursor:pointer;position:relative;overflow:hidden;animation:fadeIn .22s ease both;transition:border-color .2s,transform .15s}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent)}
+.card:hover{border-color:var(--border2);transform:translateY(-1px)}
+.card.found{background:var(--green-bg);border-color:var(--green-bdr)}
+.card.found::before{background:linear-gradient(90deg,transparent,rgba(58,128,85,.4),transparent)}
+.card.shimmer::after{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(201,169,78,.15),transparent);animation:shimmer .6s ease;pointer-events:none}
+.card-top{display:flex;align-items:flex-start;gap:9px}
+.card-img{width:36px;height:36px;flex-shrink:0;background:var(--surface2);border:1px solid var(--border);border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative}
+.card.found .card-img{background:rgba(42,96,64,.3);border-color:var(--green-bdr)}
+.card-img img{width:32px;height:32px;object-fit:contain;display:block}
+.card-img img.err+.img-fb{opacity:1}
+.img-fb{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:17px;opacity:0;pointer-events:none;transition:opacity .15s}
+.card-body{flex:1;min-width:0}
+.card-name{font-family:var(--ff-d);font-size:11.5px;font-weight:600;color:var(--text);letter-spacing:.03em;line-height:1.3;margin-bottom:3px}
+.card.found .card-name{color:var(--green2)}
+.card-effect{font-size:13px;color:var(--text2);line-height:1.35;font-style:italic}
+.card-check{margin-left:auto;flex-shrink:0;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:10px;background:var(--surface2);transition:all .2s;color:transparent}
+.card.found .card-check{background:var(--green);border-color:var(--green2);color:#b0e8c0}
+.card-bottom{margin-top:8px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.card-loc{font-size:11px;color:var(--text3);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.empty{text-align:center;padding:60px;grid-column:1/-1}
+.empty p{font-size:13px;font-family:var(--ff-d);letter-spacing:.1em;color:var(--text3)}
+footer{text-align:center;padding:18px;border-top:1px solid var(--border)}
+footer p{font-size:10px;color:var(--text3);font-family:var(--ff-d);letter-spacing:.06em}
+@keyframes fadeIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%{left:-100%}100%{left:200%}}
+@media(max-width:900px){.nav-logo span:last-child{display:none}.nav-link span:not(:first-child){display:none}.nav-link{padding:0 10px}.nav-stat{display:none}}
+@media(max-width:600px){.filters-inner{padding:0 12px}.grid-wrap{padding:10px 12px 48px}.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
-<div class="tracker-filters">
-  <div class="tracker-filters-inner">
-    <div class="cat-tabs" id="catTabs"></div>
-    <div class="filter-row">
-      <div class="search-wrap">
-        <span class="search-icon">⌕</span>
-        <input type="text" id="searchInput" class="search-input"
-               data-i18n-ph="search_ph" placeholder="Cerca item…">
+<!-- NAV (injected by JS) -->
+<div id="nav-mount"></div>
+
+<div class="page-body">
+  <div class="filters">
+    <div class="filters-inner">
+      <div class="cat-tabs" id="catTabs"></div>
+      <div class="filter-row">
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input id="searchInp" class="search-inp" placeholder="Cerca item…">
+        </div>
+        <button class="chip active" data-f="all">Tutti</button>
+        <button class="chip" data-f="found">✓ Trovati</button>
+        <button class="chip" data-f="notfound">✗ Non trovati</button>
+        <div class="fsep"></div>
+        <button class="chip" data-f="sote">DLC</button>
+        <button class="chip" data-f="base">Base</button>
+        <span class="res-label" id="resLabel"></span>
       </div>
-      <button class="btn active" data-filter="all"    data-i18n="filter_all">Tutti</button>
-      <button class="btn" data-filter="found"         data-i18n="filter_found">✓ Trovati</button>
-      <button class="btn" data-filter="notfound"      data-i18n="filter_notfound">✗ Non trovati</button>
-      <div class="filter-sep"></div>
-      <button class="btn" data-filter="sote"          data-i18n="filter_sote">DLC</button>
-      <button class="btn" data-filter="base"          data-i18n="filter_base">Base</button>
-      <span class="results-label" id="resultsLabel"></span>
     </div>
   </div>
+  <div class="stats-bar" id="statsBar"></div>
+  <div class="grid-wrap"><div class="grid" id="grid"></div></div>
 </div>
+<footer><p>Fan project non ufficiale · Elden Ring © FromSoftware / Bandai Namco · Dati: eldenring.wiki.gg</p></footer>
 
-<div class="cat-stats-bar" id="catStatsBar"></div>
-
-<div class="tracker-grid-wrap">
-  <div class="items-grid" id="itemsGrid"></div>
-</div>
-
-<footer style="text-align:center;padding:20px;border-top:1px solid var(--border)">
-  <p style="font-size:11px;color:var(--text3);font-family:var(--font-display);letter-spacing:.06em" data-i18n="footer_disclaimer"></p>
-  <p style="font-size:10px;color:var(--text3);margin-top:4px" data-i18n="footer_wiki"></p>
-</footer>
-
-<script src="js/i18n.js"></script>
-<script src="js/data.js"></script>
-<script src="js/nav.js"></script>
 <script>
-// ── CONSTANTS ────────────────────────────────────────────────
-const IMG_BASE   = "https://eldenring.wiki.fextralife.com/file/Elden-Ring/";
-const IMG_SUFFIX = "_elden_ring_wiki_guide_200px.png";
+// ── i18n ─────────────────────────────────────────────────────────────────────
+const TR={
+  it:{nav_tracker:'Tracker',nav_map:'Mappa',nav_build:'Build Planner',nav_bestiary:'Bestiario',nav_wip:'In arrivo',nav_found:'trovati',search_ph:'Cerca item, effetto, localizzazione…',filter_all:'Tutti',filter_found:'✓ Trovati',filter_notfound:'✗ Non trovati',cat_talismans:'Talismani',cat_weapons:'Armi',cat_armor:'Armature',cat_sorceries:'Incantesimi',cat_incantations:'Incantazioni',cat_spiritashes:'Spirit Ashes',cat_shields:'Scudi',results:'risultati'},
+  en:{nav_tracker:'Tracker',nav_map:'Map',nav_build:'Build Planner',nav_bestiary:'Bestiary',nav_wip:'Coming soon',nav_found:'found',search_ph:'Search items, effects, locations…',filter_all:'All',filter_found:'✓ Found',filter_notfound:'✗ Not found',cat_talismans:'Talismans',cat_weapons:'Weapons',cat_armor:'Armor',cat_sorceries:'Sorceries',cat_incantations:'Incantations',cat_spiritashes:'Spirit Ashes',cat_shields:'Shields',results:'results'}
+};
+function getLang(){return localStorage.getItem('er_lang')||'it';}
+function setLang(l){localStorage.setItem('er_lang',l);location.reload();}
+function t(k){return (TR[getLang()]||TR.it)[k]||k;}
 
-// ── STATE ─────────────────────────────────────────────────────
-const state = { tab:'talismans', filter:'all', search:'' };
+// ── storage ───────────────────────────────────────────────────────────────────
+function getFound(){return JSON.parse(localStorage.getItem('er_found')||'{}');}
+function saveFound(o){localStorage.setItem('er_found',JSON.stringify(o));}
+function itemKey(cat,name){return cat+'::'+name;}
+function isFound(cat,name){return !!getFound()[itemKey(cat,name)];}
+function toggleFound(cat,name){
+  const f=getFound(),k=itemKey(cat,name);
+  f[k]=!f[k]; if(!f[k])delete f[k]; saveFound(f); return f[k]||false;
+}
+function totalFound(){return Object.values(getFound()).filter(Boolean).length;}
 
-function getFound()         { return JSON.parse(localStorage.getItem('er_found') || '{}'); }
-function setFound(o)        { localStorage.setItem('er_found', JSON.stringify(o)); }
-function itemKey(cat, name) { return cat + '::' + name; }
-function isFound(cat, name) { return !!getFound()[itemKey(cat, name)]; }
-
-// ── TOGGLE ───────────────────────────────────────────────────
-function toggleFound(cat, name, card) {
-  const f = getFound();
-  const k = itemKey(cat, name);
-  f[k] = !f[k];
-  setFound(f);
-  card.classList.toggle('found', f[k]);
-  if (f[k]) { card.classList.add('shimmer'); setTimeout(() => card.classList.remove('shimmer'), 700); }
-  const tog = card.querySelector('.found-toggle');
-  tog.textContent = f[k] ? '✓' : '';
-  tog.style.color = f[k] ? '#b0e8c0' : 'transparent';
-  updateAll();
-  window.dispatchEvent(new Event('foundchange'));
-  if (state.filter === 'found' || state.filter === 'notfound') renderGrid();
+// ── nav ───────────────────────────────────────────────────────────────────────
+function renderNav(activeId){
+  const lang=getLang(),tf=totalFound();
+  const pages=[
+    {id:'tracker',href:'index.html',icon:'📋',label:'nav_tracker'},
+    {id:'map',href:'map.html',icon:'🗺️',label:'nav_map'},
+    {id:'build',href:'build.html',icon:'⚙️',label:'nav_build',wip:true},
+    {id:'bestiary',href:'bestiary.html',icon:'📖',label:'nav_bestiary',wip:true},
+  ];
+  const links=pages.map(p=>`<a href="${p.href}" class="nav-link${p.id===activeId?' active':''}">
+    <span>${p.icon}</span><span>${t(p.label)}</span>
+    ${p.wip?`<span class="nav-wip">${t('nav_wip')}</span>`:''}
+  </a>`).join('');
+  document.getElementById('nav-mount').innerHTML=`<nav class="topnav">
+    <div class="topnav-inner">
+      <a href="index.html" class="nav-logo">⚔ <span>ELDEN RING</span></a>
+      <div class="nav-links">${links}</div>
+      <div class="nav-right">
+        <div class="nav-stat" id="navStat">${tf} ${t('nav_found')}</div>
+        <div class="lang-toggle">
+          <button class="lang-btn${lang==='it'?' active':''}" onclick="setLang('it')">IT</button>
+          <button class="lang-btn${lang==='en'?' active':''}" onclick="setLang('en')">EN</button>
+        </div>
+      </div>
+    </div>
+  </nav>`;
+}
+function updateNavStat(){
+  const el=document.getElementById('navStat');
+  if(el)el.textContent=totalFound()+' '+t('nav_found');
 }
 
-// ── STATS ────────────────────────────────────────────────────
-function getCatStats(catId) {
-  const items = ITEMS[catId] || [];
-  return { found: items.filter(i => isFound(catId, i.name)).length, total: items.length };
-}
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const CATEGORIES=[
+  {id:'talismans',key:'cat_talismans',icon:'🔮'},
+  {id:'weapons',key:'cat_weapons',icon:'⚔️'},
+  {id:'armor',key:'cat_armor',icon:'🛡️'},
+  {id:'sorceries',key:'cat_sorceries',icon:'✨'},
+  {id:'incantations',key:'cat_incantations',icon:'🌟'},
+  {id:'spiritashes',key:'cat_spiritashes',icon:'👻'},
+  {id:'shields',key:'cat_shields',icon:'🪖'},
+];
+const IB='https://eldenring.wiki.fextralife.com/file/Elden-Ring/';
+const IS='_elden_ring_wiki_guide_200px.png';
+</script>
+<script id="item-data">
+const ITEMS = {
+talismans:[
+  {name:"Ancestral Spirit's Horn",effect:"Ripristina FP sconfiggendo nemici",loc:"Ancestral Woods – spirit ashes",dlc:"Base",img:"ancestral_spirits_horn_talisman"},
+  {name:"Arrow's Reach Talisman",effect:"Aumenta la gittata degli archi",loc:"Dragonbarrow – Fort Faroth area",dlc:"Base",img:"arrows_reach_talisman"},
+  {name:"Arrow's Soaring Sting Talisman",effect:"+50% gittata arco, +8% danno frecce",loc:"Fog Rift Fort – torre baule",dlc:"SotE",img:"arrows_soaring_sting_talisman"},
+  {name:"Arsenal Charm",effect:"+15% carico massimo equipaggiamento",loc:"Raya Lucaria – Mooseman",dlc:"Base",img:"arsenal_charm_talisman"},
+  {name:"Arsenal Charm +1",effect:"+17% carico massimo equipaggiamento",loc:"Altus Plateau – Seethewater Cave",dlc:"Base",img:"arsenal_charm_1_talisman"},
+  {name:"Assassin's Cerulean Dagger",effect:"I colpi critici ripristinano FP",loc:"Black Knife Catacombs – boss",dlc:"Base",img:"assassins_cerulean_dagger_talisman"},
+  {name:"Assassin's Crimson Dagger",effect:"I colpi critici ripristinano HP",loc:"Deathtouched Catacombs – boss",dlc:"Base",img:"assassins_crimson_dagger_talisman"},
+  {name:"Axe Talisman",effect:"Potenzia gli attacchi caricati",loc:"Mistwood Ruins – baule sotterraneo",dlc:"Base",img:"axe_talisman"},
+  {name:"Beloved Stardust",effect:"Velocità lancio massima, +danno subito",loc:"Count Ymir – ricompensa quest",dlc:"SotE",img:"beloved_stardust_talisman"},
+  {name:"Blade of Mercy",effect:"+20% ATK per 20s dopo un colpo critico",loc:"Scorched Ruins – baule",dlc:"SotE",img:"blade_of_mercy_talisman"},
+  {name:"Blessed Blue Dew Talisman",effect:"Ripristina lentamente 0.5 FP/sec",loc:"Church of Benediction – statua Marika",dlc:"SotE",img:"blessed_blue_dew_talisman"},
+  {name:"Blessed Dew Talisman",effect:"Ripristina 2 HP/sec",loc:"Tower of Return – baule",dlc:"Base",img:"blessed_dew_talisman"},
+  {name:"Blue Dancer Charm",effect:"+ATK fisico con carico basso",loc:"Divine Tower of Limgrave",dlc:"Base",img:"blue_dancer_charm_talisman"},
+  {name:"Blue-Feathered Branchsword",effect:"+20% danno fisico con HP basso",loc:"Tombsward Cave – boss reward",dlc:"Base",img:"blue-feathered_branchsword_talisman"},
+  {name:"Boltdrake Talisman",effect:"+13% negazione danni fulmine",loc:"Limgrave – lago sotterraneo",dlc:"Base",img:"boltdrake_talisman"},
+  {name:"Boltdrake Talisman +1",effect:"+17% negazione danni fulmine",loc:"Altus Plateau",dlc:"Base",img:"boltdrake_talisman_1"},
+  {name:"Boltdrake Talisman +2",effect:"+20% negazione danni fulmine",loc:"Farum Azula",dlc:"Base",img:"boltdrake_talisman_2"},
+  {name:"Boltdrake Talisman +3",effect:"+22% negazione danni fulmine",loc:"Shadow Keep – Storehouse",dlc:"SotE",img:"boltdrake_talisman_3"},
+  {name:"Bull-Goat's Talisman",effect:"Aumenta la poise",loc:"Great Tunnel – Patches quest",dlc:"Base",img:"bull-goats_talisman"},
+  {name:"Cerulean Amber Medallion",effect:"+7% FP massimo",loc:"Weeping Peninsula – baule",dlc:"Base",img:"cerulean_amber_medallion_talisman"},
+  {name:"Cerulean Amber Medallion +1",effect:"+9% FP massimo",loc:"Raya Lucaria – baule",dlc:"Base",img:"cerulean_amber_medallion_1_talisman"},
+  {name:"Cerulean Amber Medallion +2",effect:"+11% FP massimo",loc:"Mountaintops – baule",dlc:"Base",img:"cerulean_amber_medallion_2_talisman"},
+  {name:"Cerulean Amber Medallion +3",effect:"+12.5% FP massimo",loc:"Scorpion River Catacombs – boss",dlc:"SotE",img:"cerulean_amber_medallion_3_talisman"},
+  {name:"Cerulean Seed Talisman",effect:"+20% FP dalla Flask",loc:"Murkwater Catacombs – baule",dlc:"Base",img:"cerulean_seed_talisman"},
+  {name:"Cerulean Seed Talisman +1",effect:"+30% FP dalla Flask",loc:"Finger Ruins of Dheo – campana",dlc:"SotE",img:"cerulean_seed_talisman_1"},
+  {name:"Claw Talisman",effect:"Potenzia gli attacchi in salto",loc:"Stormveil Castle – torre",dlc:"Base",img:"claw_talisman"},
+  {name:"Concealing Veil",effect:"Nasconde il giocatore accovacciato in movimento",loc:"Volcano Manor – Bernahl quest",dlc:"Base",img:"concealing_veil_talisman"},
+  {name:"Crimson Amber Medallion",effect:"+6% HP massimo",loc:"Morne Rampart – mercante",dlc:"Base",img:"crimson_amber_medallion_talisman"},
+  {name:"Crimson Amber Medallion +1",effect:"+7% HP massimo",loc:"Weeping Peninsula",dlc:"Base",img:"crimson_amber_medallion_1_talisman"},
+  {name:"Crimson Amber Medallion +2",effect:"+8% HP massimo",loc:"Mohgwyn Palace",dlc:"Base",img:"crimson_amber_medallion_2_talisman"},
+  {name:"Crimson Amber Medallion +3",effect:"+10% HP massimo",loc:"Fog Rift Catacombs – boss",dlc:"SotE",img:"crimson_amber_medallion_3_talisman"},
+  {name:"Crimson Seed Talisman",effect:"+20% HP dalla Flask",loc:"Stormveil Castle – baule",dlc:"Base",img:"crimson_seed_talisman"},
+  {name:"Crimson Seed Talisman +1",effect:"+30% HP dalla Flask",loc:"Finger Ruins of Rhia – campana",dlc:"SotE",img:"crimson_seed_talisman_1"},
+  {name:"Crusade Insignia",effect:"+15% ATK per 20s dopo kill nemico",loc:"Fire Knight Queelign – drop NPC",dlc:"SotE",img:"crusade_insignia_talisman"},
+  {name:"Dagmar Greatshield Talisman",effect:"Potenzia attacchi parati con scudo",loc:"Enir-Ilim – area profonda",dlc:"SotE",img:"dagmar_greatshield_talisman"},
+  {name:"Dragoncrest Greatshield Talisman",effect:"+20% negazione danni fisici (Legg.)",loc:"Drainage Channel – Site of Grace",dlc:"Base",img:"dragoncrest_greatshield_talisman"},
+  {name:"Dragoncrest Shield Talisman",effect:"+10% negazione danni fisici",loc:"Sages Cave",dlc:"Base",img:"dragoncrest_shield_talisman"},
+  {name:"Dragoncrest Shield Talisman +1",effect:"+13% negazione danni fisici",loc:"Auriza Hero's Grave – baule",dlc:"Base",img:"dragoncrest_shield_talisman_1"},
+  {name:"Dragoncrest Shield Talisman +2",effect:"+17% negazione danni fisici",loc:"Crumbling Farum Azula",dlc:"Base",img:"dragoncrest_shield_talisman_2"},
+  {name:"Dried Bouquet",effect:"+15% ATK per 20s quando uno spirito alleato muore",loc:"Belurat Tower Settlement – stanza nascosta",dlc:"SotE",img:"dried_bouquet_talisman"},
+  {name:"Erdtree's Favor",effect:"+3% HP, +7% Stamina, +5% Load",loc:"Fringefolk Hero's Grave – baule",dlc:"Base",img:"erdtrees_favor_talisman"},
+  {name:"Erdtree's Favor +1",effect:"+3.5% HP, +8.5% Stamina, +6.5% Load",loc:"Subterranean Shunning-Grounds",dlc:"Base",img:"erdtrees_favor_1_talisman"},
+  {name:"Erdtree's Favor +2",effect:"+4% HP, +10% Stamina, +8% Load (Legg.)",loc:"Leyndell Ashen Capital – albero morto",dlc:"Base",img:"erdtrees_favor_2_talisman"},
+  {name:"Fine Crucible Feather Talisman",effect:"Migliora le schivate, +15% danno subito",loc:"Rauh Ruins – rami d'albero",dlc:"SotE",img:"fine_crucible_feather_talisman"},
+  {name:"Flamedrake Talisman",effect:"+13% negazione danni fuoco",loc:"Gael Tunnel – boss",dlc:"Base",img:"flamedrake_talisman"},
+  {name:"Flamedrake Talisman +1",effect:"+17% negazione danni fuoco",loc:"Volcano Cave – boss",dlc:"Base",img:"flamedrake_talisman_1"},
+  {name:"Flamedrake Talisman +2",effect:"+20% negazione danni fuoco",loc:"Mt. Gelmir – baule",dlc:"Base",img:"flamedrake_talisman_2"},
+  {name:"Flamedrake Talisman +3",effect:"+22% negazione danni fuoco",loc:"Shadow Keep – gabbie – baule",dlc:"SotE",img:"flamedrake_talisman_3"},
+  {name:"Flock's Canvas Talisman",effect:"Potenzia enormemente le incantazioni",loc:"Millicent quest – Gowry's Shack",dlc:"Base",img:"flocks_canvas_talisman"},
+  {name:"Godfrey Icon",effect:"Potenzia spell e skill caricate (Legg.)",loc:"Golden Lineage Evergaol – Godefroy",dlc:"Base",img:"godfrey_icon_talisman"},
+  {name:"Godskin Swaddling Cloth",effect:"Attacchi ripetuti ripristinano HP",loc:"Mountaintops – Spiritcaller's Cave",dlc:"Base",img:"godskin_swaddling_cloth_talisman"},
+  {name:"Gold Scarab",effect:"+20% Rune dai nemici",loc:"Abandoned Cave – boss",dlc:"Base",img:"gold_scarab_talisman"},
+  {name:"Golden Braid",effect:"+22% negazione danni sacri",loc:"Scaduview – cadavere in tronco",dlc:"SotE",img:"golden_braid_talisman"},
+  {name:"Graven-Mass Talisman",effect:"Potenzia enormemente le sorcery",loc:"Albinauric Rise – baule",dlc:"Base",img:"graven-mass_talisman"},
+  {name:"Graven-School Talisman",effect:"Potenzia le sorcery",loc:"Raya Lucaria Academy – baule",dlc:"Base",img:"graven-school_talisman"},
+  {name:"Great-Jar's Arsenal",effect:"+19% carico massimo equipaggiamento",loc:"Caelid – Great-Jar knights quest",dlc:"Base",img:"great-jars_arsenal_talisman"},
+  {name:"Green Turtle Talisman",effect:"+17.7% velocità recupero stamina",loc:"Summonwater Village – baule sotterraneo",dlc:"Base",img:"green_turtle_talisman"},
+  {name:"Haligdrake Talisman",effect:"+13% negazione danni sacri",loc:"Weeping Peninsula – Tombsward Cave",dlc:"Base",img:"haligdrake_talisman"},
+  {name:"Haligdrake Talisman +1",effect:"+17% negazione danni sacri",loc:"Deeproot Depths – baule",dlc:"Base",img:"haligdrake_talisman_1"},
+  {name:"Haligdrake Talisman +2",effect:"+20% negazione danni sacri",loc:"Haligtree – baule",dlc:"Base",img:"haligdrake_talisman_2"},
+  {name:"Kindred of Rot's Exultation",effect:"Avvelenamento vicino +20% ATK",loc:"Shaded Castle – Kindred of Rot boss",dlc:"Base",img:"kindred_of_rots_exultation_talisman"},
+  {name:"Lacerating Crossed-Tree",effect:"+15% ATK attacchi in scatto (PvE)",loc:"Leda – invade Hornsent quest",dlc:"SotE",img:"lacerating_crossed-tree_talisman"},
+  {name:"Lord of Blood's Exultation",effect:"Bloodloss vicino +20% ATK",loc:"Mohgwyn Dynasty – Esgar boss",dlc:"Base",img:"lord_of_bloods_exultation_talisman"},
+  {name:"Magic Scorpion Charm",effect:"+12% danno magico, +10% danno subito",loc:"Seluvis quest – Dolores puppet",dlc:"Base",img:"magic_scorpion_charm_talisman"},
+  {name:"Marika's Scarseal",effect:"+3 Mind/Int/Faith/Arc, +10% danno subito",loc:"Siofra River – boss",dlc:"Base",img:"marikas_scarseal_talisman"},
+  {name:"Marika's Soreseal",effect:"+5 Mind/Int/Faith/Arc, +15% danno subito (Legg.)",loc:"Elphael – stanza Stonesword Key",dlc:"Base",img:"marikas_soreseal_talisman"},
+  {name:"Millicent's Prosthesis",effect:"+5 Dex, +ATK con attacchi rapidi",loc:"Millicent quest – guanto",dlc:"Base",img:"millicents_prosthesis_talisman"},
+  {name:"Moon of Nokstella",effect:"+2 slot memoria (Legg.)",loc:"Nokstella – baule sotto statua imp",dlc:"Base",img:"moon_of_nokstella_talisman"},
+  {name:"Mottled Necklace",effect:"+50 Robustezza/Immunità/Focus",loc:"Siofra Aqueduct – Valiant Gargoyle",dlc:"Base",img:"mottled_necklace_talisman"},
+  {name:"Mottled Necklace +1",effect:"+75 Robustezza/Immunità/Focus",loc:"Mountaintops – baule",dlc:"Base",img:"mottled_necklace_1_talisman"},
+  {name:"Mottled Necklace +2",effect:"+100 Robustezza/Immunità/Focus",loc:"Rauh Ancient Ruins – spirit spring",dlc:"SotE",img:"mottled_necklace_2_talisman"},
+  {name:"Old Lord's Talisman",effect:"Estende durata effetti spell (Legg.)",loc:"Crumbling Farum Azula – baule",dlc:"Base",img:"old_lords_talisman"},
+  {name:"Outer God Heirloom",effect:"+5 Arcane",loc:"Prospect Town – piccolo edificio",dlc:"SotE",img:"outer_god_heirloom_talisman"},
+  {name:"Pearl Shield Talisman",effect:"+20% negazione non-fisico mentre si para",loc:"Taylew's Ruined Forge area",dlc:"SotE",img:"pearl_shield_talisman"},
+  {name:"Pearldrake Talisman",effect:"+7% negazione danni non-fisici",loc:"Four Belfries – baule",dlc:"Base",img:"pearldrake_talisman"},
+  {name:"Pearldrake Talisman +1",effect:"+9% negazione danni non-fisici",loc:"Wyndham Catacombs – boss",dlc:"Base",img:"pearldrake_talisman_1"},
+  {name:"Pearldrake Talisman +2",effect:"+11% negazione danni non-fisici",loc:"Mountaintops – baule",dlc:"Base",img:"pearldrake_talisman_2"},
+  {name:"Pearldrake Talisman +3",effect:"+11% negazione danni non-fisici",loc:"Shadow Keep Specimen Storehouse",dlc:"SotE",img:"pearldrake_talisman_3"},
+  {name:"Prosthesis-Wearer Heirloom",effect:"+5 Destrezza",loc:"Millicent quest – Shaded Castle baule",dlc:"Base",img:"prosthesis-wearer_heirloom_talisman"},
+  {name:"Radagon Icon",effect:"Riduce tempo lancio spell (Legg.)",loc:"Raya Lucaria Academy – balcone",dlc:"Base",img:"radagon_icon_talisman"},
+  {name:"Radagon's Scarseal",effect:"+3 Vig/End/Str/Dex, +10% danno subito",loc:"Weeping Peninsula – Weeping Evergaol",dlc:"Base",img:"radagons_scarseal_talisman"},
+  {name:"Radagon's Soreseal",effect:"+5 Vig/End/Str/Dex, +15% danno subito (Legg.)",loc:"Fort Faroth – cadavere sul tetto",dlc:"Base",img:"radagons_soreseal_talisman"},
+  {name:"Red-Feathered Branchsword",effect:"+20% ATK con HP basso",loc:"Rose Church – Varre quest",dlc:"Base",img:"red-feathered_branchsword_talisman"},
+  {name:"Rellana's Cameo",effect:"+45% ATK tenendo stance per 1s",loc:"Castle Ensis – dietro NPC Moonrithyll",dlc:"SotE",img:"rellanas_cameo_talisman"},
+  {name:"Retaliatory Crossed-Tree",effect:"+17% ATK dopo schivata/backstep",loc:"Leda quest – saluto finale",dlc:"SotE",img:"retaliatory_crossed-tree_talisman"},
+  {name:"Ritual Shield Talisman",effect:"+negazione fisica con HP pieno",loc:"Wyndham Ruins – baule sotterraneo",dlc:"Base",img:"ritual_shield_talisman"},
+  {name:"Ritual Sword Talisman",effect:"+ATK con HP pieno",loc:"Limgrave – Deathtouched Catacombs",dlc:"Base",img:"ritual_sword_talisman"},
+  {name:"Sacred Scorpion Charm",effect:"+12% danno sacro, +10% danno subito",loc:"Mountaintops – Commander Niall area",dlc:"Base",img:"sacred_scorpion_charm_talisman"},
+  {name:"Shabriri's Woe",effect:"Provoca costantemente i nemici vicini",loc:"Frenzied Flame Village – Hyetta quest",dlc:"Base",img:"shabriris_woe_talisman"},
+  {name:"Shard of Alexander",effect:"Potenzia enormemente le skill",loc:"Alexander quest – Iron Fist ricompensa",dlc:"Base",img:"shard_of_alexander_talisman"},
+  {name:"Sharpshot Talisman",effect:"+12% potenza colpi mirati",loc:"Albinauric's Shack – baule",dlc:"SotE",img:"sharpshot_talisman"},
+  {name:"Silver Scarab",effect:"Aumenta il rilevamento oggetti",loc:"Consecrated Snowfield – Hidden Path",dlc:"Base",img:"silver_scarab_talisman"},
+  {name:"Smithing Talisman",effect:"+10% attacchi lanciando armi",loc:"Ruined Forge Starfall Past – cadavere",dlc:"SotE",img:"smithing_talisman"},
+  {name:"Spear Talisman",effect:"Potenzia i contrattacchi con armi da punta",loc:"Weeping Peninsula – bastioni castello",dlc:"Base",img:"spear_talisman"},
+  {name:"Spelldrake Talisman",effect:"+13% negazione danni magici",loc:"Sellia Crystal Tunnel",dlc:"Base",img:"spelldrake_talisman"},
+  {name:"Spelldrake Talisman +1",effect:"+17% negazione danni magici",loc:"Caelid – Fort Gael",dlc:"Base",img:"spelldrake_talisman_1"},
+  {name:"Spelldrake Talisman +2",effect:"+20% negazione danni magici",loc:"Mountaintops – baule",dlc:"Base",img:"spelldrake_talisman_2"},
+  {name:"Spelldrake Talisman +3",effect:"+22% negazione danni magici",loc:"Castle Ensis – storeroom cadavere",dlc:"SotE",img:"spelldrake_talisman_3"},
+  {name:"St. Trina's Smile",effect:"Sonno vicino → +20% ATK per 30s",loc:"Thiollier NPC – drop (ostile)",dlc:"SotE",img:"st_trinas_smile_talisman"},
+  {name:"Stalwart Horn Charm",effect:"+75 Robustezza",loc:"Lenne's Rise – baule",dlc:"Base",img:"stalwart_horn_charm_talisman"},
+  {name:"Stalwart Horn Charm +1",effect:"+120 Robustezza",loc:"Elphael – baule",dlc:"Base",img:"stalwart_horn_charm_1_talisman"},
+  {name:"Stalwart Horn Charm +2",effect:"+180 Robustezza",loc:"Bonny Gaol – stanza Inner Jar",dlc:"SotE",img:"stalwart_horn_charm_2_talisman"},
+  {name:"Stargazer Heirloom",effect:"+5 Intelligenza",loc:"Converted Fringe Tower – baule",dlc:"Base",img:"stargazer_heirloom_talisman"},
+  {name:"Starscourge Heirloom",effect:"+5 Forza",loc:"Fort Gael – baule",dlc:"Base",img:"starscourge_heirloom_talisman"},
+  {name:"Talisman of All Crucibles",effect:"Tutti gli effetti crucible, +45% danno subito",loc:"Ancient Ruins Grand Starway",dlc:"SotE",img:"talisman_of_all_crucibles_talisman"},
+  {name:"Talisman of Lord's Bestowal",effect:"+54% poise dopo flask tears",loc:"Shadow Keep – vicino albero dorato",dlc:"SotE",img:"talisman_of_lords_bestowal_talisman"},
+  {name:"Taker's Cameo",effect:"Sconfiggere nemici ripristina HP",loc:"Volcano Manor – Tanith ricompensa",dlc:"Base",img:"takers_cameo_talisman"},
+  {name:"Two Fingers Heirloom",effect:"+5 Fede",loc:"Purified Ruins – baule sotterraneo",dlc:"Base",img:"two_fingers_heirloom_talisman"},
+  {name:"Two-Handed Sword Talisman",effect:"+15% ATK armi a due mani",loc:"Temple Town Ruins – baule",dlc:"SotE",img:"two-handed_sword_talisman"},
+  {name:"Two-Headed Turtle Talisman",effect:"+22.5% velocità recupero stamina",loc:"Grotta sotto cascata est di Rivermouth",dlc:"SotE",img:"two-headed_turtle_talisman"},
+  {name:"Verdigris Discus",effect:"Carico pesante → meno danno subito",loc:"Ancient Rauh Ruins – area statua",dlc:"SotE",img:"verdigris_discus_talisman"},
+  {name:"Viridian Amber Medallion",effect:"+11% Stamina massima",loc:"Tombsward – mercante",dlc:"Base",img:"viridian_amber_medallion_talisman"},
+  {name:"Viridian Amber Medallion +1",effect:"+13% Stamina massima",loc:"Stormveil Castle – baule",dlc:"Base",img:"viridian_amber_medallion_1_talisman"},
+  {name:"Viridian Amber Medallion +2",effect:"+15% Stamina massima",loc:"Mountaintops – area Ordina",dlc:"Base",img:"viridian_amber_medallion_2_talisman"},
+  {name:"Viridian Amber Medallion +3",effect:"+17% Stamina massima",loc:"Darklight Catacombs – dopo primo imp",dlc:"SotE",img:"viridian_amber_medallion_3_talisman"},
+  {name:"Warrior Jar Shard",effect:"Potenzia le skill",loc:"Volcano Manor – Alexander quest",dlc:"Base",img:"warrior_jar_shard_talisman"},
+  {name:"White-Feathered Branchsword",effect:"+ATK magico con HP basso",loc:"Caria Manor – Pidia ricompensa",dlc:"Base",img:"white-feathered_branchsword_talisman"},
+  {name:"Winged Sword Insignia",effect:"+ATK con attacchi consecutivi",loc:"Stillwater Cave – Cleanrot Knight boss",dlc:"Base",img:"winged_sword_insignia_talisman"},
+],
+weapons:[
+  {name:"Blasphemous Blade",effect:"Greatsword – ripristina HP uccidendo",loc:"Enia – Ricordo del Blasfemo (Rykard)",dlc:"Base",img:"blasphemous_blade_greatsword_weapon"},
+  {name:"Black Knife",effect:"Dagger – attacco silenzioso furtivo",loc:"Black Knife Catacombs – boss assassina",dlc:"Base",img:"black_knife_dagger_weapon"},
+  {name:"Bloodhound's Fang",effect:"Curved Greatsword – bleed",loc:"Forlorn Hound Evergaol – boss",dlc:"Base",img:"bloodhounds_fang_curved_greatsword_weapon"},
+  {name:"Bolt of Gransax",effect:"Spear – fulmine, skill Ancient Lightning Spear",loc:"Leyndell Royal Capital – freccia gigante",dlc:"Base",img:"bolt_of_gransax_spear_weapon"},
+  {name:"Claymore",effect:"Greatsword – versatile, skill Lion's Claw",loc:"Mt. Gelmir – baule / Fort Gael",dlc:"Base",img:"claymore_greatsword_weapon"},
+  {name:"Coded Sword",effect:"Straight Sword – danno sacro puro",loc:"Leyndell – One Crest Chamber",dlc:"Base",img:"coded_sword_straight_sword_weapon"},
+  {name:"Commander's Standard",effect:"Halberd – skill potenzia truppe alleate",loc:"Commander Niall – boss reward",dlc:"Base",img:"commanders_standard_halberd_weapon"},
+  {name:"Cross-Naginata",effect:"Spear – bleed, ottimo scaling Dex",loc:"Gael Tunnel – baule",dlc:"Base",img:"cross-naginata_spear_weapon"},
+  {name:"Death's Poker",effect:"Greatsword – fuoco fantasma ghostflame",loc:"Leyndell – Spirit Jelly baule",dlc:"Base",img:"deaths_poker_greatsword_weapon"},
+  {name:"Dragon King's Cragblade",effect:"Heavy Thrusting Sword – fulmine drago",loc:"Dragonlord Placidusax – boss reward",dlc:"Base",img:"dragon_kings_cragblade_heavy_thrusting_sword_weapon"},
+  {name:"Dragonscale Blade",effect:"Katana – skill gelo drago",loc:"Nokstella – dragonkin soldier boss",dlc:"Base",img:"dragonscale_blade_katana_weapon"},
+  {name:"Eclipse Shotel",effect:"Curved Sword – infligge Death blight",loc:"Castle Sol – baule",dlc:"Base",img:"eclipse_shotel_curved_sword_weapon"},
+  {name:"Fallingstar Beast Jaw",effect:"Colossal – gravità, poise crusher",loc:"Altus Plateau – Full-Grown Fallingstar Beast",dlc:"Base",img:"fallingstar_beast_jaw_colossal_weapon_weapon"},
+  {name:"Flamberge",effect:"Greatsword – bleed, fire",loc:"Caelid – Redmane Knight drops",dlc:"Base",img:"flamberge_greatsword_weapon"},
+  {name:"Godslayer's Greatsword",effect:"Colossal Sword – black flame skill",loc:"Divine Tower of Caelid – baule",dlc:"Base",img:"godslayers_greatsword_colossal_sword_weapon"},
+  {name:"Golden Order Greatsword",effect:"Greatsword – sacro, Erdtree magic",loc:"Cave of the Forlorn – boss reward",dlc:"Base",img:"golden_order_greatsword_weapon"},
+  {name:"Grafted Blade Greatsword",effect:"Colossal – massive poise, skill Oath of Vengeance",loc:"Castle Morne – boss Leonine Misbegotten",dlc:"Base",img:"grafted_blade_greatsword_colossal_sword_weapon"},
+  {name:"Greatsword",effect:"Colossal Sword – base ma devastante",loc:"Caelid – carro coperto a nordest",dlc:"Base",img:"greatsword_colossal_sword_weapon"},
+  {name:"Hand of Malenia",effect:"Katana – skill Waterfowl Dance",loc:"Enia – Ricordo della Dea del Marciume",dlc:"Base",img:"hand_of_malenia_katana_weapon"},
+  {name:"Loretta's War Sickle",effect:"Halberd – magia Caria",loc:"Loretta, Knight of Haligtree – boss reward",dlc:"Base",img:"lorettas_war_sickle_halberd_weapon"},
+  {name:"Maliketh's Black Blade",effect:"Colossal Sword – riduce HP max del nemico",loc:"Enia – Ricordo della Black Blade",dlc:"Base",img:"malikeths_black_blade_colossal_sword_weapon"},
+  {name:"Marais Executioner's Sword",effect:"Colossal – skill trapano, poise break",loc:"Shaded Castle – Elemer boss",dlc:"Base",img:"marais_executioners_sword_colossal_sword_weapon"},
+  {name:"Meteoric Ore Blade",effect:"Katana – gravità + skill Gravitas",loc:"Caelid Waypoint Ruins – baule",dlc:"Base",img:"meteoric_ore_blade_katana_weapon"},
+  {name:"Misericorde",effect:"Dagger – critical hit +140%",loc:"Stormveil Castle – armeria",dlc:"Base",img:"misericorde_dagger_weapon"},
+  {name:"Mohgwyn's Sacred Spear",effect:"Spear – bloodflame, skill devastante",loc:"Enia – Ricordo del Blood Lord",dlc:"Base",img:"mohgwyns_sacred_spear_weapon"},
+  {name:"Moonveil",effect:"Katana – magic slash skill invisibile",loc:"Gael Tunnel – Magma Wyrm boss",dlc:"Base",img:"moonveil_katana_weapon"},
+  {name:"Morgott's Cursed Sword",effect:"Curved Greatsword – bleed sacro",loc:"Enia – Ricordo dell'Omen King",dlc:"Base",img:"morgotts_cursed_sword_curved_greatsword_weapon"},
+  {name:"Nagakiba",effect:"Katana – lunga portata, bleed",loc:"Bloody Finger Hunter Yura – drop",dlc:"Base",img:"nagakiba_katana_weapon"},
+  {name:"Reduvia",effect:"Dagger – bleed, skill proiettile sangue",loc:"Murkwater Cave – Bloody Finger Nerijus",dlc:"Base",img:"reduvia_dagger_weapon"},
+  {name:"Rivers of Blood",effect:"Katana – bleed, skill Corpse Piler",loc:"Mountaintops – Okina NPC drop",dlc:"Base",img:"rivers_of_blood_katana_weapon"},
+  {name:"Ruins Greatsword",effect:"Colossal Sword – gravità, skill Wave of Destruction",loc:"Redmane Castle – boss doppio",dlc:"Base",img:"ruins_greatsword_colossal_sword_weapon"},
+  {name:"Sacred Relic Sword",effect:"Greatsword – skill perfetta per farm rune",loc:"Elden Beast – boss reward",dlc:"Base",img:"sacred_relic_sword_greatsword_weapon"},
+  {name:"Starscourge Greatsword",effect:"Colossal Sword – gravità doppia",loc:"Enia – Ricordo dello Starscourge",dlc:"Base",img:"starscourge_greatsword_colossal_sword_weapon"},
+  {name:"Sword of Night and Flame",effect:"Straight Sword – skill fuoco e magia",loc:"Caria Manor – baule",dlc:"Base",img:"sword_of_night_and_flame_straight_sword_weapon"},
+  {name:"Treespear",effect:"Spear – sacro, split damage",loc:"Ainsel River Main – baule",dlc:"Base",img:"treespear_spear_weapon"},
+  {name:"Uchigatana",effect:"Katana – classe Samurai / starter versatile",loc:"Deathtouched Catacombs / partenza Samurai",dlc:"Base",img:"uchigatana_katana_weapon"},
+  {name:"Winged Scythe",effect:"Reaper – sacro, impedisce la guarigione",loc:"Tombsward Ruins – baule sotterraneo",dlc:"Base",img:"winged_scythe_reaper_weapon"},
+  {name:"Euporia",effect:"Twinblade – sacro, danza degli dei",loc:"SotE – Enir-Ilim area finale",dlc:"SotE",img:"euporia_twinblade_weapon"},
+  {name:"Sword of Night",effect:"Straight Sword – notte, SotE",loc:"Cerulean Coast – SotE",dlc:"SotE",img:"sword_of_night_straight_sword_weapon"},
+  {name:"Malenia's Blade",effect:"Katana – lifesteal su ogni hit",loc:"Enia – Ricordo della Dea del Marciume",dlc:"Base",img:"hand_of_malenia_katana_weapon"},
+],
+armor:[
+  {name:"Ansbach's Helm",effect:"Set SotE leggero elegante",loc:"SotE – Ansbach quest reward",dlc:"SotE",img:"answbachs_helm_armor_elden_ring_wiki"},
+  {name:"Ansbach's Armor",effect:"Set SotE leggero elegante",loc:"SotE – Ansbach quest reward",dlc:"SotE",img:"answbachs_armor_elden_ring_wiki"},
+  {name:"Ansbach's Gauntlets",effect:"Set SotE leggero elegante",loc:"SotE – Ansbach quest reward",dlc:"SotE",img:"answbachs_gauntlets_armor_elden_ring_wiki"},
+  {name:"Ansbach's Greaves",effect:"Set SotE leggero elegante",loc:"SotE – Ansbach quest reward",dlc:"SotE",img:"answbachs_greaves_armor_elden_ring_wiki"},
+  {name:"Black Knife Hood",effect:"Set Black Knife – silenzia i passi",loc:"Black Knife Assassin drops (solo di notte)",dlc:"Base",img:"black_knife_hood_armor_elden_ring_wiki"},
+  {name:"Black Knife Armor",effect:"Set Black Knife – silenzia i passi",loc:"Black Knife Assassin drops (solo di notte)",dlc:"Base",img:"black_knife_armor_elden_ring_wiki"},
+  {name:"Black Knife Gauntlets",effect:"Set Black Knife – silenzia i passi",loc:"Black Knife Assassin drops",dlc:"Base",img:"black_knife_gauntlets_armor_elden_ring_wiki"},
+  {name:"Black Knife Greaves",effect:"Set Black Knife – silenzia i passi",loc:"Black Knife Assassin drops",dlc:"Base",img:"black_knife_greaves_armor_elden_ring_wiki"},
+  {name:"Blaidd's Helm",effect:"Set Blaidd – alto peso e difesa",loc:"Ranni quest – Blaidd drop (ostile)",dlc:"Base",img:"blaids_helm_armor_elden_ring_wiki"},
+  {name:"Blaidd's Armor",effect:"Set Blaidd – alto peso e difesa",loc:"Ranni quest – Blaidd drop (ostile)",dlc:"Base",img:"blaids_armor_elden_ring_wiki"},
+  {name:"Blaidd's Gauntlets",effect:"Set Blaidd – alto peso e difesa",loc:"Ranni quest – Blaidd drop (ostile)",dlc:"Base",img:"blaids_gauntlets_armor_elden_ring_wiki"},
+  {name:"Blaidd's Greaves",effect:"Set Blaidd – alto peso e difesa",loc:"Ranni quest – Blaidd drop (ostile)",dlc:"Base",img:"blaids_greaves_armor_elden_ring_wiki"},
+  {name:"Bull-Goat Helm",effect:"Set Bull-Goat – massima poise",loc:"Great Tunnel – Patches quest",dlc:"Base",img:"bull-goat_helm_armor_elden_ring_wiki"},
+  {name:"Bull-Goat Armor",effect:"Set Bull-Goat – massima poise",loc:"Great Tunnel – Patches quest",dlc:"Base",img:"bull-goat_armor_elden_ring_wiki"},
+  {name:"Bull-Goat Gauntlets",effect:"Set Bull-Goat – massima poise",loc:"Great Tunnel – Patches quest",dlc:"Base",img:"bull-goat_gauntlets_armor_elden_ring_wiki"},
+  {name:"Bull-Goat Greaves",effect:"Set Bull-Goat – massima poise",loc:"Great Tunnel – Patches quest",dlc:"Base",img:"bull-goat_greaves_armor_elden_ring_wiki"},
+  {name:"Crucible Axe Helm",effect:"Set Crucible Axe – aspetto drago primordiale",loc:"Auriza Hero's Grave – boss reward",dlc:"Base",img:"crucible_axe_helm_armor_elden_ring_wiki"},
+  {name:"Crucible Axe Armor",effect:"Set Crucible Axe – aspetto drago primordiale",loc:"Auriza Hero's Grave – boss reward",dlc:"Base",img:"crucible_axe_armor_elden_ring_wiki"},
+  {name:"Crucible Axe Gauntlets",effect:"Set Crucible Axe",loc:"Auriza Hero's Grave – boss reward",dlc:"Base",img:"crucible_axe_gauntlets_armor_elden_ring_wiki"},
+  {name:"Crucible Axe Greaves",effect:"Set Crucible Axe",loc:"Auriza Hero's Grave – boss reward",dlc:"Base",img:"crucible_axe_greaves_armor_elden_ring_wiki"},
+  {name:"Fire Knight Helm",effect:"Set Fire Knight – armatura SotE",loc:"SotE – Fire Knights drop",dlc:"SotE",img:"fire_knight_helm_armor_elden_ring_wiki"},
+  {name:"Fire Knight Armor",effect:"Set Fire Knight – armatura SotE",loc:"SotE – Fire Knights drop",dlc:"SotE",img:"fire_knight_armor_elden_ring_wiki"},
+  {name:"Fire Knight Gauntlets",effect:"Set Fire Knight – armatura SotE",loc:"SotE – Fire Knights drop",dlc:"SotE",img:"fire_knight_gauntlets_armor_elden_ring_wiki"},
+  {name:"Fire Knight Greaves",effect:"Set Fire Knight – armatura SotE",loc:"SotE – Fire Knights drop",dlc:"SotE",img:"fire_knight_greaves_armor_elden_ring_wiki"},
+  {name:"Malenia's Helm",effect:"Set Malenia – leggero, +Arcane",loc:"Millicent quest – area Malenia",dlc:"Base",img:"malenias_helm_armor_elden_ring_wiki"},
+  {name:"Malenia's Armor",effect:"Set Malenia – leggero, +Arcane",loc:"Enia dopo Malenia",dlc:"Base",img:"malenias_armor_elden_ring_wiki"},
+  {name:"Malenia's Gauntlet",effect:"Set Malenia – leggero, +Arcane",loc:"Enia dopo Malenia",dlc:"Base",img:"malenias_gauntlet_armor_elden_ring_wiki"},
+  {name:"Malenia's Greaves",effect:"Set Malenia – leggero, +Arcane",loc:"Enia dopo Malenia",dlc:"Base",img:"malenias_greaves_armor_elden_ring_wiki"},
+  {name:"Raging Wolf Helm",effect:"Set Raging Wolf – aspetto lupesco",loc:"Volcano Manor – Rya quest",dlc:"Base",img:"raging_wolf_helm_armor_elden_ring_wiki"},
+  {name:"Raging Wolf Armor",effect:"Set Raging Wolf – aspetto lupesco",loc:"Volcano Manor – Rya quest",dlc:"Base",img:"raging_wolf_armor_elden_ring_wiki"},
+  {name:"Raging Wolf Gauntlets",effect:"Set Raging Wolf – aspetto lupesco",loc:"Volcano Manor – Rya quest",dlc:"Base",img:"raging_wolf_gauntlets_armor_elden_ring_wiki"},
+  {name:"Raging Wolf Greaves",effect:"Set Raging Wolf – aspetto lupesco",loc:"Volcano Manor – Rya quest",dlc:"Base",img:"raging_wolf_greaves_armor_elden_ring_wiki"},
+  {name:"Radahn's Lion Helm",effect:"Set Radahn – massiccio e iconico",loc:"Twin Maiden Husks dopo Radahn",dlc:"Base",img:"radahns_lion_helm_armor_elden_ring_wiki"},
+  {name:"Radahn's Lion Armor",effect:"Set Radahn – massiccio e iconico",loc:"Twin Maiden Husks dopo Radahn",dlc:"Base",img:"radahns_lion_armor_elden_ring_wiki"},
+  {name:"Veteran's Helm",effect:"Set Veteran – pesante, alta difesa",loc:"Commander Niall – boss reward",dlc:"Base",img:"veterans_helm_armor_elden_ring_wiki"},
+  {name:"Veteran's Armor",effect:"Set Veteran – pesante, alta difesa",loc:"Commander Niall – boss reward",dlc:"Base",img:"veterans_armor_elden_ring_wiki"},
+  {name:"Veteran's Gauntlets",effect:"Set Veteran – pesante, alta difesa",loc:"Commander Niall – boss reward",dlc:"Base",img:"veterans_gauntlets_armor_elden_ring_wiki"},
+  {name:"Veteran's Greaves",effect:"Set Veteran – pesante, alta difesa",loc:"Commander Niall – boss reward",dlc:"Base",img:"veterans_greaves_armor_elden_ring_wiki"},
+  {name:"White Reed Helm",effect:"Set White Reed – stile ninja katana",loc:"Spiritspring vicino Freezing Lake",dlc:"Base",img:"white_reed_helm_armor_elden_ring_wiki"},
+  {name:"White Reed Armor",effect:"Set White Reed – stile ninja katana",loc:"Spiritspring vicino Freezing Lake",dlc:"Base",img:"white_reed_armor_elden_ring_wiki"},
+  {name:"White Reed Gauntlets",effect:"Set White Reed – stile ninja katana",loc:"Spiritspring vicino Freezing Lake",dlc:"Base",img:"white_reed_gauntlets_armor_elden_ring_wiki"},
+  {name:"White Reed Greaves",effect:"Set White Reed – stile ninja katana",loc:"Spiritspring vicino Freezing Lake",dlc:"Base",img:"white_reed_greaves_armor_elden_ring_wiki"},
+],
+sorceries:[
+  {name:"Adula's Moonblade",effect:"Lama crescente di freddo magico",loc:"Moonfolk Ruins / Ranni quest",dlc:"Base",img:"adulas_moonblade_sorcery_elden_ring_wiki_guide"},
+  {name:"Cannon of Haima",effect:"Grande palla esplosiva di glintstone",loc:"Converted Fringe Tower – baule",dlc:"Base",img:"cannon_of_haima_sorcery_elden_ring_wiki_guide"},
+  {name:"Carian Greatsword",effect:"Crea greatsword e spacca dall'alto",loc:"Carian Study Hall – baule",dlc:"Base",img:"carian_greatsword_sorcery_elden_ring_wiki_guide"},
+  {name:"Carian Phalanx",effect:"Chiama lame magiche orbitanti difensive",loc:"Converted Tower – baule",dlc:"Base",img:"carian_phalanx_sorcery_elden_ring_wiki_guide"},
+  {name:"Carian Piercer",effect:"Trafigge con una spada gigante",loc:"Testu's Rise – puzzle",dlc:"Base",img:"carian_piercer_sorcery_elden_ring_wiki_guide"},
+  {name:"Carian Retaliation",effect:"Para e rilancia frecce magiche",loc:"Renna's Rise – baule",dlc:"Base",img:"carian_retaliation_sorcery_elden_ring_wiki_guide"},
+  {name:"Carian Slicer",effect:"Fendente rapido con lama magica",loc:"Sorcerer Rogier – Roundtable Hold",dlc:"Base",img:"carian_slicer_sorcery_elden_ring_wiki_guide"},
+  {name:"Comet",effect:"Cometa magica ad alta velocità",loc:"Caelid – Caelid Waypoint baule",dlc:"Base",img:"comet_sorcery_elden_ring_wiki_guide"},
+  {name:"Comet Azur",effect:"Enorme raffica di comete (Legg.)",loc:"Mt. Gelmir – Primeval Sorcerer Azur",dlc:"Base",img:"comet_azur_sorcery_elden_ring_wiki_guide"},
+  {name:"Crystal Torrent",effect:"Pioggia continua di cristalli",loc:"Altus Plateau – Crystalian boss",dlc:"Base",img:"crystal_torrent_sorcery_elden_ring_wiki_guide"},
+  {name:"Eternal Darkness",effect:"Buco nero risucchia proiettili",loc:"Volcano Manor – quest",dlc:"Base",img:"eternal_darkness_sorcery_elden_ring_wiki_guide"},
+  {name:"Founding Rain of Stars",effect:"Pioggia di stelle infinita dall'alto",loc:"Heretical Rise – baule",dlc:"Base",img:"founding_rain_of_stars_sorcery_elden_ring_wiki_guide"},
+  {name:"Freezing Mist",effect:"Nebbia gelida in avanti",loc:"Caria Manor – Loretta boss reward",dlc:"Base",img:"freezing_mist_sorcery_elden_ring_wiki_guide"},
+  {name:"Full Moon of Nokstella",effect:"Spara una luna blu potente",loc:"Nokstella – baule",dlc:"Base",img:"full_moon_of_nokstella_sorcery_elden_ring_wiki_guide"},
+  {name:"Gavel of Haima",effect:"Bastone di gravità colpisce il suolo",loc:"Converted Fringe Tower – boss sorcerer",dlc:"Base",img:"gavel_of_haima_sorcery_elden_ring_wiki_guide"},
+  {name:"Glintstone Icecrag",effect:"Cometa magica ghiacciata",loc:"Caria Manor – baule",dlc:"Base",img:"glintstone_icecrag_sorcery_elden_ring_wiki_guide"},
+  {name:"Glintstone Pebble",effect:"Proiettile glintstone base",loc:"Sorcerer Rogier / Merchant Kale",dlc:"Base",img:"glintstone_pebble_sorcery_elden_ring_wiki_guide"},
+  {name:"Gravity Well",effect:"Attira nemici con la gravità",loc:"Hermit Village – Demi-Human Queen boss",dlc:"Base",img:"gravity_well_sorcery_elden_ring_wiki_guide"},
+  {name:"Greatblade Phalanx",effect:"Greatsword magiche orbitanti",loc:"Seluvis's Rise – torre mago",dlc:"Base",img:"greatblade_phalanx_sorcery_elden_ring_wiki_guide"},
+  {name:"Loretta's Greatbow",effect:"Grande freccia magica",loc:"Loretta boss Caria Manor – reward",dlc:"Base",img:"lorettas_greatbow_sorcery_elden_ring_wiki_guide"},
+  {name:"Loretta's Mastery",effect:"Versione potenziata di Loretta's Greatbow",loc:"Loretta, Knight of Haligtree boss",dlc:"Base",img:"lorettas_mastery_sorcery_elden_ring_wiki_guide"},
+  {name:"Magic Downpour",effect:"Pioggia di colpi magici",loc:"Converted Fringe Tower – baule in cima",dlc:"Base",img:"magic_downpour_sorcery_elden_ring_wiki_guide"},
+  {name:"Meteorite",effect:"Tre grandi meteoriti piovono",loc:"Limgrave – dietro puzzle masso",dlc:"Base",img:"meteorite_sorcery_elden_ring_wiki_guide"},
+  {name:"Meteorite of Astel",effect:"Raffica di piccoli meteoriti",loc:"Astel, Stars of Darkness – boss reward",dlc:"Base",img:"meteorite_of_astel_sorcery_elden_ring_wiki_guide"},
+  {name:"Night Comet",effect:"Cometa invisibile ai nemici",loc:"Sellia, Town of Sorcery – baule",dlc:"Base",img:"night_comet_sorcery_elden_ring_wiki_guide"},
+  {name:"Night Shard",effect:"Frammento invisibile veloce",loc:"Sellia, Town of Sorcery – baule",dlc:"Base",img:"night_shard_sorcery_elden_ring_wiki_guide"},
+  {name:"Oracle Bubbles",effect:"Bolle magiche rimbalzanti",loc:"Siofra River – baule",dlc:"Base",img:"oracle_bubbles_sorcery_elden_ring_wiki_guide"},
+  {name:"Ranni's Dark Moon",effect:"Luna oscura riduce negazione magica",loc:"Chelona's Rise – tre tartarughe",dlc:"Base",img:"rannis_dark_moon_sorcery_elden_ring_wiki_guide"},
+  {name:"Rennala's Full Moon",effect:"Luna piena riduce negazione magica (Legg.)",loc:"Enia – Ricordo della Regina Luna",dlc:"Base",img:"rennalas_full_moon_sorcery_elden_ring_wiki_guide"},
+  {name:"Rock Sling",effect:"Lancia tre massi con gravità",loc:"Street of Sages Ruins – baule sotterraneo",dlc:"Base",img:"rock_sling_sorcery_elden_ring_wiki_guide"},
+  {name:"Stars of Ruin",effect:"12 stelle guidate (Legg.)",loc:"Master Lusat – Sellia Hideaway reward",dlc:"Base",img:"stars_of_ruin_sorcery_elden_ring_wiki_guide"},
+  {name:"Terra Magica",effect:"Crea pozza che potenzia le sorcery",loc:"Academy Crystal Cave – boss reward",dlc:"Base",img:"terra_magica_sorcery_elden_ring_wiki_guide"},
+  {name:"Vortex of Lunacy",effect:"Vortice spirale di follia",loc:"SotE – area Belurat",dlc:"SotE",img:"vortex_of_lunacy_sorcery_elden_ring_wiki_guide"},
+  {name:"Miriam's Vanishing",effect:"Teleporta indietro e spara dardo magico",loc:"Converted Tower – puzzle",dlc:"Base",img:"miriams_vanishing_sorcery_elden_ring_wiki_guide"},
+  {name:"Trina's Mist",effect:"Nebbia che induce sonno",loc:"SotE – Count Ymir area",dlc:"SotE",img:"trinas_mist_sorcery_elden_ring_wiki_guide"},
+],
+incantations:[
+  {name:"Ancient Dragons' Lightning Spear",effect:"Lancia fulmine dei dragoni antichi",loc:"Ancient Dragon Senessax / Farum Azula",dlc:"Base",img:"ancient_dragons_lightning_spear_incantation_elden_ring_wiki_guide"},
+  {name:"Aspects of the Crucible: Breath",effect:"Respiro di fuoco conico",loc:"Stormveil – Crucible Knight Ordovis boss",dlc:"Base",img:"aspects_of_the_crucible_breath_incantation_elden_ring_wiki_guide"},
+  {name:"Aspects of the Crucible: Horns",effect:"Carica con le corna del Crucible",loc:"Auriza Hero's Grave – Crucible Knight",dlc:"Base",img:"aspects_of_the_crucible_horns_incantation_elden_ring_wiki_guide"},
+  {name:"Aspects of the Crucible: Tail",effect:"Frusta con la coda bestiale",loc:"Stormhill Evergaol – Crucible Knight",dlc:"Base",img:"aspects_of_the_crucible_tail_incantation_elden_ring_wiki_guide"},
+  {name:"Barrier of Gold",effect:"Scudo dorato che riduce danno magico",loc:"Erdtree Avatar – Mountaintops",dlc:"Base",img:"barrier_of_gold_incantation_elden_ring_wiki_guide"},
+  {name:"Black Blade",effect:"Lama dorata riduce HP max del nemico",loc:"Enia – Ricordo della Black Blade",dlc:"Base",img:"black_blade_incantation_elden_ring_wiki_guide"},
+  {name:"Black Flame",effect:"Lancia fiamma nera che brucia HP",loc:"Godslayer's Evergaol – boss",dlc:"Base",img:"black_flame_incantation_elden_ring_wiki_guide"},
+  {name:"Black Flame Blade",effect:"Riveste l'arma di fiamma nera",loc:"Sorcerer Rogier / Volcano Manor",dlc:"Base",img:"black_flame_blade_incantation_elden_ring_wiki_guide"},
+  {name:"Bloodboon",effect:"Disperde sangue dalle dita",loc:"Mohgwyn Palace – Sanguine Noble drop",dlc:"Base",img:"bloodboon_incantation_elden_ring_wiki_guide"},
+  {name:"Bloodflame Blade",effect:"Riveste l'arma di bloodflame",loc:"Rose Church – White Mask Varré quest",dlc:"Base",img:"bloodflame_blade_incantation_elden_ring_wiki_guide"},
+  {name:"Bloodflame Talons",effect:"Artigli di bloodflame",loc:"Mohgwyn Palace – baule",dlc:"Base",img:"bloodflame_talons_incantation_elden_ring_wiki_guide"},
+  {name:"Burn, O Flame!",effect:"Colonna di fiamma in avanti",loc:"Volcano Manor – Demi-Human Queen Maggie",dlc:"Base",img:"burn_o_flame_incantation_elden_ring_wiki_guide"},
+  {name:"Catch Flame",effect:"Rapida fiamma dal palmo",loc:"Tutorial / Merchant Kale",dlc:"Base",img:"catch_flame_incantation_elden_ring_wiki_guide"},
+  {name:"Dragonfire",effect:"Respiro di fuoco – Dragon Communion",loc:"Dragon Communion Altar – Agheel",dlc:"Base",img:"dragonfire_incantation_elden_ring_wiki_guide"},
+  {name:"Dragonmaw",effect:"Morso del drago ad alto danno",loc:"Dragon Communion – Elder Dragon Greyoll",dlc:"Base",img:"dragonmaw_incantation_elden_ring_wiki_guide"},
+  {name:"Elden Stars",effect:"Grande sfera di luce sacra",loc:"Deeproot Depths – baule",dlc:"Base",img:"elden_stars_incantation_elden_ring_wiki_guide"},
+  {name:"Electrify Armament",effect:"Riveste l'arma di fulmine",loc:"Leyndell – baule dopo Draconic Tree Sentinel",dlc:"Base",img:"electrify_armament_incantation_elden_ring_wiki_guide"},
+  {name:"Erdtree Heal",effect:"Cura grande quantità di HP vicino",loc:"Erdtree Avatar drops",dlc:"Base",img:"erdtree_heal_incantation_elden_ring_wiki_guide"},
+  {name:"Flame of the Fell God",effect:"Lenta fiamma che esplode",loc:"Enia – Ricordo del Fell Omen (Margit)",dlc:"Base",img:"flame_of_the_fell_god_incantation_elden_ring_wiki_guide"},
+  {name:"Flame Sling",effect:"Lancia palla di fuoco",loc:"Merchant Kale – acquisto economico",dlc:"Base",img:"flame_sling_incantation_elden_ring_wiki_guide"},
+  {name:"Flame, Grant Me Strength",effect:"+danno fuoco e fisico temporaneo",loc:"Fort Gael – cadavere dietro Grafted Scion",dlc:"Base",img:"flame_grant_me_strength_incantation_elden_ring_wiki_guide"},
+  {name:"Fortissax's Lightning Spear",effect:"Due fulmini e affondo",loc:"Enia – Ricordo del Lichdragon Fortissax",dlc:"Base",img:"fortissaxs_lightning_spear_incantation_elden_ring_wiki_guide"},
+  {name:"Frenzied Burst",effect:"Raggio preciso di fiamma della follia",loc:"Frenzied Flame Proscription – Three Fingers",dlc:"Base",img:"frenzied_burst_incantation_elden_ring_wiki_guide"},
+  {name:"Giant Flame Shrouding",effect:"Aumenta notevolmente il danno fuoco",loc:"SotE – area Giant Flame",dlc:"SotE",img:"giant_flame_shrouding_incantation_elden_ring_wiki_guide"},
+  {name:"Giantsflame Take Thee",effect:"Lancia enorme palla esplosiva",loc:"Foot of the Forge – baule",dlc:"Base",img:"giantsflame_take_thee_incantation_elden_ring_wiki_guide"},
+  {name:"Golden Vow",effect:"+ATK e difesa vicino (incantazione)",loc:"Corpse-Stench Shack – Mt. Gelmir",dlc:"Base",img:"golden_vow_incantation_elden_ring_wiki_guide"},
+  {name:"Greyoll's Roar",effect:"Ruggito drago indebolisce nemici",loc:"Dragon Communion – Elder Dragon Greyoll",dlc:"Base",img:"greyolls_roar_incantation_elden_ring_wiki_guide"},
+  {name:"Howl of Shabriri",effect:"Accumula follia nei nemici vicini",loc:"Frenzied Flame Village – Shabriri NPC",dlc:"Base",img:"howl_of_shabriri_incantation_elden_ring_wiki_guide"},
+  {name:"Inescapable Frenzy",effect:"Afferra e induce follia",loc:"Frenzied Flame Proscription – three fingers",dlc:"Base",img:"inescapable_frenzy_incantation_elden_ring_wiki_guide"},
+  {name:"Law of Causality",effect:"Contrattacca con sacro dopo più colpi ricevuti",loc:"East Windmill Pasture – cadavere",dlc:"Base",img:"law_of_causality_incantation_elden_ring_wiki_guide"},
+  {name:"Lightning Spear",effect:"Lancia lancia dorata di fulmine",loc:"Stormveil Castle / Farum area",dlc:"Base",img:"lightning_spear_incantation_elden_ring_wiki_guide"},
+  {name:"Litany of Proper Death",effect:"Distrugge scheletri, impedisce la rinascita",loc:"Auriza Side Tomb – baule",dlc:"Base",img:"litany_of_proper_death_incantation_elden_ring_wiki_guide"},
+  {name:"Lord's Heal",effect:"Cura enormemente HP in area",loc:"Haligtree – Erdtree Avatar drop",dlc:"Base",img:"lords_heal_incantation_elden_ring_wiki_guide"},
+  {name:"O, Flame!",effect:"Onda di fiamma lungo il suolo",loc:"Fire Monk drops",dlc:"Base",img:"o_flame_incantation_elden_ring_wiki_guide"},
+  {name:"Pest Threads",effect:"Fili di marciume scarlatto",loc:"Gowry merchant",dlc:"Base",img:"pest_threads_incantation_elden_ring_wiki_guide"},
+  {name:"Placidusax's Ruin",effect:"Doppio raggio drago devastante",loc:"Enia – Ricordo del Dragonlord",dlc:"Base",img:"placidusaxs_ruin_incantation_elden_ring_wiki_guide"},
+  {name:"Poison Armament",effect:"Riveste l'arma di veleno",loc:"Mercanti vari",dlc:"Base",img:"poison_armament_incantation_elden_ring_wiki_guide"},
+  {name:"Rotten Breath",effect:"Respiro di marciume scarlatto",loc:"Dragon Communion – Ekzykes drop",dlc:"Base",img:"rotten_breath_incantation_elden_ring_wiki_guide"},
+  {name:"Scarlet Aeonia",effect:"Fiore esplosivo di marciume scarlatto",loc:"Enia – Ricordo della Dea del Marciume",dlc:"Base",img:"scarlet_aeonia_incantation_elden_ring_wiki_guide"},
+  {name:"Shadows of Death",effect:"Fulmini d'ombra dall'alto",loc:"SotE – area boss Messmer",dlc:"SotE",img:"shadows_of_death_incantation_elden_ring_wiki_guide"},
+  {name:"Stone of Gurranq",effect:"Lancia roccia rimbalzante",loc:"Bestial Sanctum – Gurranq (Deathroot)",dlc:"Base",img:"stone_of_gurranq_incantation_elden_ring_wiki_guide"},
+  {name:"Swarm of Flies",effect:"Sciame di mosche sanguinanti (bleed)",loc:"Mohgwyn Palace – cadavere in grotta",dlc:"Base",img:"swarm_of_flies_incantation_elden_ring_wiki_guide"},
+  {name:"The Flame of Frenzy",effect:"Raggio di fiamma della follia",loc:"Callu Baptismal Church – baule",dlc:"Base",img:"the_flame_of_frenzy_incantation_elden_ring_wiki_guide"},
+  {name:"Thunderbolt",effect:"Potente fulmine dall'alto",loc:"Dragon Cult Knight drops",dlc:"Base",img:"thunderbolt_incantation_elden_ring_wiki_guide"},
+  {name:"Urgent Heal",effect:"Cura moderata rapida",loc:"Merchant Kale / chiese – early game",dlc:"Base",img:"urgent_heal_incantation_elden_ring_wiki_guide"},
+  {name:"Vyke's Dragonbolt",effect:"Si carica e chiama fulmini",loc:"Festering Fingerprint Vyke – NPC drop",dlc:"Base",img:"vykes_dragonbolt_incantation_elden_ring_wiki_guide"},
+  {name:"Wrath of Gold",effect:"Onda d'urto dorata",loc:"Leyndell Royal Capital – mercante",dlc:"Base",img:"wrath_of_gold_incantation_elden_ring_wiki_guide"},
+  {name:"Darkness",effect:"Orb che disturba la visione",loc:"SotE – Abyssal Woods",dlc:"SotE",img:"darkness_incantation_elden_ring_wiki_guide"},
+  {name:"Frenzied Eruption",effect:"Fiamma della follia erutta dal suolo",loc:"SotE – Abyssal Woods",dlc:"SotE",img:"frenzied_eruption_incantation_elden_ring_wiki_guide"},
+  {name:"Mass of Putrescence",effect:"Lancia palla di marciume pestilenziale",loc:"SotE – Ulcerated Tree Spirit drop",dlc:"SotE",img:"mass_of_putrescence_incantation_elden_ring_wiki_guide"},
+],
+spiritashes:[
+  {name:"Ancient Dragon Knight Kristoff Ashes",effect:"Cavaliere potente con fulmine drago",loc:"Auriza Hero's Grave – boss reward",dlc:"Base",img:"ancient_dragon_knight_kristoff_ashes_spirit_elden_ring_wiki_guide"},
+  {name:"Banished Knight Oleg Ashes",effect:"Cavaliere espulso aggressivo",loc:"Fringefolk Hero's Grave – boss reward",dlc:"Base",img:"banished_knight_oleg_ashes_spirit_elden_ring_wiki_guide"},
+  {name:"Black Knife Tiche Ashes",effect:"Assassina Black Knife velocissima (Legg.)",loc:"Ringleader's Evergaol – boss reward",dlc:"Base",img:"black_knife_tiche_spirit_ashes_elden_ring_wiki_guide"},
+  {name:"Cleanrot Knight Finlay Ashes",effect:"Cavaliere Cleanrot (Legg.)",loc:"Elphael – cadavere",dlc:"Base",img:"cleanrot_knight_finlay_spirit_ashes_elden_ring_wiki_guide"},
+  {name:"Divine Bird Warrior Ashes",effect:"Guerriero uccello divino SotE",loc:"SotE – Jagged Peak area",dlc:"SotE",img:"divine_bird_warrior_ashes_spirit_elden_ring_wiki_guide"},
+  {name:"Dung Eater Puppet Ashes",effect:"Seluvis quest – Dung Eater",loc:"Seluvis quest – richiede pozione",dlc:"Base",img:"dung_eater_puppet_spirit_ashes_elden_ring_wiki_guide"},
+  {name:"Fanged Imp Ashes",effect:"Due imp con zanne",loc:"Roundtable Hold – mercante iniziale",dlc:"Base",img:"fanged_imp_ashes_spirit_elden_ring_wiki_guide"},
+  {name:"Fire Prelate Ashes",effect:"Prelato del fuoco con flagello",loc:"Giants' Mountaintop – cadavere Prelate",dlc:"Base",img:"fire_prelate_spirit_ashes_elden_ring_wiki_guide"},
+  {name:"Greatshield Soldier Ashes",effect:"Quattro soldati con scudo grande",loc:"Nokron – Night's Sacred Ground",dlc:"Base",img:"greatshield_soldier_ashes_spirit_elden_ring_wiki_guide"},
+  {name:"Horned Warrior Ashes",effect:"Guerriero cornuto SotE",loc:"SotE – Temple Town Ruins",dlc:"SotE",img:"horned_warrior_ashes_spirit_elden_ring_wiki_guide"},
+  {name:"Jellyfish Ashes",effect:"Medusa che spruzza acido",loc:"Stormhill – Irina quest cadavere",dlc:"Base",img:"jellyfish_spirit_ashes_elden_ring_wiki_guide"},
+  {name:"Knight Bernahl Ashes",effect:"Cavaliere Bernahl",loc:"Volcano Manor – Bernahl quest reward",dlc:"Base",img:"knight_bernahl_ashes_spirit_elden_ring_wiki_guide"},
+  {name:"Lhutel the Headless Ashes",effect:"Cavaliere spettrale teleportante (Legg.)",loc:"Tombsward Catacombs – boss reward",dlc:"Base",img:"lhutel_the_headless_spirit_ashes_elden_ring_wiki_guide"},
+  {name:"Lone Wolf Ashes",effect:"Tre lupi – regalo di Renna",loc:"Renna's gift / Kalé vendor",dlc:"Base",img:"lone_wolf_ashes_spirit_elden_ring_wiki_guide"},
+  {name:"Messmer Soldier Ashes",effect:"Soldato di Messmer SotE",loc:"SotE – Shadow Keep",dlc:"SotE",img:"messmer_soldier_ashes_spirit_elden_ring_wiki_guide"},
+  {name:"Mimic Tear Ashes",effect:"Copia il tuo equipaggiamento (Legg.)",loc:"Nokron – Stonesword Key baule",dlc:"Base",img:"mimic_tear_ashes_spirit_elden_ring_wiki_guide"},
+  {name:"Nightmaiden & Swordstress Ashes",effect:"Duo potente (Legg.)",loc:"Nokstella – Ghost boss reward",dlc:"Base",img:"nightmaiden_and_swordstress_ashes_spirit_elden_ring_wiki_guide"},
+  {name:"Omenkiller Rollo Ashes",effect:"Omenkiller poderoso",loc:"Volcano Manor – Rya quest reward",dlc:"Base",img:"omenkiller_rollo_spirit_ashes_elden_ring_wiki_guide"},
+  {name:"Perfumer Tricia Ashes",effect:"Guaritrice healer (Legg.)",loc:"Unsightly Catacombs – boss reward",dlc:"Base",img:"perfumer_tricia_spirit_ashes_elden_ring_wiki_guide"},
+  {name:"Redmane Knight Ogha Ashes",effect:"Arciere Redmane (Legg.)",loc:"War-Dead Catacombs – boss reward",dlc:"Base",img:"redmane_knight_ogha_spirit_ashes_elden_ring_wiki_guide"},
+  {name:"Skeletal Bandit Ashes",effect:"Banditi scheletrici – si rialzano",loc:"Nokron ruins – baule",dlc:"Base",img:"skeletal_bandit_ashes_spirit_elden_ring_wiki_guide"},
+  {name:"Soldjars of Fortune Ashes",effect:"Piccoli guerrieri-barattolo",loc:"Volcano Manor – Alexander quest",dlc:"Base",img:"soldjars_of_fortune_spirit_ashes_elden_ring_wiki_guide"},
+  {name:"Spirit Jellyfish Ashes",effect:"Medusa fantasma economica",loc:"Mercante a Stormhill",dlc:"Base",img:"spirit_jellyfish_ashes_spirit_elden_ring_wiki_guide"},
+  {name:"Stormhawk Deenh Ashes",effect:"Falco attaccante",loc:"Chapel of Anticipation – baule",dlc:"Base",img:"stormhawk_deenh_spirit_ashes_elden_ring_wiki_guide"},
+  {name:"Twinsage Sorcerer Ashes",effect:"Due maghi gemelli",loc:"Raya Lucaria Academy – baule",dlc:"Base",img:"twinsage_sorcerer_spirit_ashes_elden_ring_wiki_guide"},
+  {name:"Avionette Apostle Ashes",effect:"Apostola volante SotE",loc:"SotE – Belurat area",dlc:"SotE",img:"avionette_soldier_ashes_spirit_elden_ring_wiki_guide"},
+  {name:"Wandering Noble Ashes",effect:"Cinque nobili fantasma – economici",loc:"Vari – più economici",dlc:"Base",img:"wandering_noble_ashes_spirit_elden_ring_wiki_guide"},
+],
+shields:[
+  {name:"Brass Shield",effect:"Scudo medio – alta negazione fisica",loc:"Godrick Soldiers – Stormveil",dlc:"Base",img:"brass_shield_shields_elden_ring_wiki_guide"},
+  {name:"Dragon Towershield",effect:"Scudo grande SotE – molto potente",loc:"SotE – Ancient Ruins area",dlc:"SotE",img:"dragon_towershield_shields_elden_ring_wiki_guide"},
+  {name:"Eclipse Crest Heater Shield",effect:"Scudo piccolo – resistenza sacra",loc:"Castle Sol – baule",dlc:"Base",img:"eclipse_crest_heater_shield_shields_elden_ring_wiki_guide"},
+  {name:"Erdtree Greatshield",effect:"Scudo grande – skill riflette danno sacro",loc:"Consecrated Snowfield – baule",dlc:"Base",img:"erdtree_greatshield_shields_elden_ring_wiki_guide"},
+  {name:"Golden Epitaph",effect:"Scudo medio – Rune bonus lieve",loc:"Auriza Hero's Grave",dlc:"Base",img:"golden_epitaph_straight_sword_weapon"},
+  {name:"Haligtree Crest Greatshield",effect:"Scudo grande – protezione completa",loc:"Elphael – baule",dlc:"Base",img:"haligtree_crest_greatshield_shields_elden_ring_wiki_guide"},
+  {name:"Jellyfish Shield",effect:"Scudo grande – skill potenzia HP alleati",loc:"Weeping Peninsula – grotta",dlc:"Base",img:"jellyfish_shield_shields_elden_ring_wiki_guide"},
+  {name:"One-Eyed Shield",effect:"Scudo grande – skill lancia palla di fuoco",loc:"Redmane Castle – boss Godrick Knight",dlc:"Base",img:"one-eyed_shield_shields_elden_ring_wiki_guide"},
+  {name:"Scorpion Kite Shield",effect:"Scudo medio – veleno al contrattacco",loc:"Volcano Manor – baule",dlc:"Base",img:"scorpion_kite_shield_shields_elden_ring_wiki_guide"},
+  {name:"Shield of the Guilty",effect:"Scudo piccolo – bleed al contrattacco",loc:"Roundtable Hold – negozio",dlc:"Base",img:"shield_of_the_guilty_shields_elden_ring_wiki_guide"},
+  {name:"Silver Mirrorshield",effect:"Scudo medio – riflette la magia",loc:"Raya Lucaria – baule",dlc:"Base",img:"silver_mirrorshield_shields_elden_ring_wiki_guide"},
+  {name:"Stone-Sheathed Sword",effect:"Scudo grande – versatile combo scudo-spada",loc:"Nokron – Night's Sacred Ground",dlc:"Base",img:"stone-sheathed_sword_straight_sword_weapon"},
+  {name:"Visage Shield",effect:"Scudo grande – skill respiro di gravità",loc:"Fort Laiedd – baule",dlc:"Base",img:"visage_shield_shields_elden_ring_wiki_guide"},
+  {name:"Blue-Gold Kite Shield",effect:"Scudo medio SotE – emblema Erdtree",loc:"SotE – Castle Ensis baule",dlc:"SotE",img:"blue-gold_kite_shield_shields_elden_ring_wiki_guide"},
+  {name:"Pearl Shield",effect:"Scudo medio SotE – alta negazione magica",loc:"SotE – Taylew's Ruined Forge",dlc:"SotE",img:"pearl_shield_shields_elden_ring_wiki_guide"},
+],
+};
 
-// ── TABS ─────────────────────────────────────────────────────
-function renderTabs() {
-  document.getElementById('catTabs').innerHTML = CATEGORIES.map(c => {
-    const { found, total } = getCatStats(c.id);
-    return `<button class="cat-tab${c.id===state.tab?' active':''}" data-cat="${c.id}">
-      ${c.icon} <span>${t(c.key)}</span>
-      <span class="cat-tab-badge">${found}/${total}</span>
+</script>
+<script>
+// ── tracker logic ─────────────────────────────────────────────────────────────
+const ST={tab:'talismans',filter:'all',search:''};
+
+function catStats(id){
+  const items=ITEMS[id]||[];
+  return{found:items.filter(i=>isFound(id,i.name)).length,total:items.length};
+}
+function renderStatsBar(){
+  const{found,total}=catStats(ST.tab);
+  const pct=total?Math.round(found/total*100):0;
+  document.getElementById('statsBar').innerHTML=`
+    <span class="stat-found">${found}</span><span class="stat-sep"> / </span>
+    <span class="stat-total">${total} ${t('nav_found')}</span>
+    <div class="prog-track stat-track"><div class="prog-fill" style="width:${pct}%"></div></div>
+    <span class="stat-pct">${pct}%</span>`;
+}
+function renderTabs(){
+  document.getElementById('catTabs').innerHTML=CATEGORIES.map(c=>{
+    const{found,total}=catStats(c.id);
+    return`<button class="cat-tab${c.id===ST.tab?' active':''}" data-cat="${c.id}">
+      ${c.icon} <span>${t(c.key)}</span><span class="tab-cnt">${found}/${total}</span>
     </button>`;
   }).join('');
-  document.querySelectorAll('.cat-tab').forEach(btn => {
-    btn.addEventListener('click', () => {
-      state.tab = btn.dataset.cat;
-      state.search = '';
-      document.getElementById('searchInput').value = '';
-      renderAll();
-    });
-  });
+  document.querySelectorAll('.cat-tab').forEach(b=>b.addEventListener('click',()=>{
+    ST.tab=b.dataset.cat;ST.search='';
+    document.getElementById('searchInp').value='';
+    renderAll();
+  }));
 }
-
-// ── STATS BAR ─────────────────────────────────────────────────
-function renderCatStats() {
-  const { found, total } = getCatStats(state.tab);
-  const pct = total ? Math.round(found / total * 100) : 0;
-  document.getElementById('catStatsBar').innerHTML = `
-    <span class="cat-stat-found">${found}</span>
-    <span class="cat-stat-sep">/</span>
-    <span class="cat-stat-total">${total} ${t('nav_progress')}</span>
-    <div class="progress-track cat-stat-track">
-      <div class="progress-fill" style="width:${pct}%"></div>
-    </div>
-    <span class="cat-stat-pct">${pct}%</span>`;
-}
-
-// ── GRID ─────────────────────────────────────────────────────
-function getFiltered() {
-  let items = (ITEMS[state.tab] || []).slice();
-  const q = state.search.trim().toLowerCase();
-  if (q) items = items.filter(i =>
-    i.name.toLowerCase().includes(q) ||
-    i.effect.toLowerCase().includes(q) ||
-    i.loc.toLowerCase().includes(q));
-  if (state.filter==='found')    items = items.filter(i => isFound(state.tab, i.name));
-  if (state.filter==='notfound') items = items.filter(i => !isFound(state.tab, i.name));
-  if (state.filter==='sote')     items = items.filter(i => i.dlc==='SotE');
-  if (state.filter==='base')     items = items.filter(i => i.dlc==='Base');
+function getFiltered(){
+  let items=(ITEMS[ST.tab]||[]).slice();
+  const q=ST.search.trim().toLowerCase();
+  if(q)items=items.filter(i=>i.name.toLowerCase().includes(q)||i.effect.toLowerCase().includes(q)||i.loc.toLowerCase().includes(q));
+  if(ST.filter==='found')    items=items.filter(i=>isFound(ST.tab,i.name));
+  if(ST.filter==='notfound') items=items.filter(i=>!isFound(ST.tab,i.name));
+  if(ST.filter==='sote')     items=items.filter(i=>i.dlc==='SotE');
+  if(ST.filter==='base')     items=items.filter(i=>i.dlc==='Base');
   return items;
 }
-
-function buildImgUrl(item) {
-  // If slug already contains full suffix hint, use as-is, else append standard suffix
-  if (!item.img) return null;
-  if (item.img.endsWith('.png') || item.img.endsWith('.jpg')) return IMG_BASE + item.img;
-  return IMG_BASE + item.img + IMG_SUFFIX;
-}
-
-function renderGrid() {
-  const items = getFiltered();
-  const catIcon = CATEGORIES.find(c => c.id === state.tab)?.icon || '📦';
-  document.getElementById('resultsLabel').textContent = items.length + ' ' + t('results');
-
-  if (!items.length) {
-    document.getElementById('itemsGrid').innerHTML = `<div class="empty-state"><p>—</p></div>`;
-    return;
-  }
-
-  document.getElementById('itemsGrid').innerHTML = items.map((item, i) => {
-    const found   = isFound(state.tab, item.name);
-    const isLeg   = item.effect.includes('Legg') || item.name.includes('Legg');
-    const imgUrl  = buildImgUrl(item);
-    const imgHtml = imgUrl
-      ? `<img src="${imgUrl}" alt="${item.name}" loading="lazy"
-              onerror="this.classList.add('errored')">`
-      : '';
-
-    return `<div class="item-card${found?' found':''}"
-         data-name="${item.name.replace(/"/g,'&quot;')}"
-         style="animation-delay:${Math.min(i*0.018,0.28)}s">
+function renderGrid(){
+  const items=getFiltered();
+  const icon=CATEGORIES.find(c=>c.id===ST.tab)?.icon||'📦';
+  document.getElementById('resLabel').textContent=items.length+' '+t('results');
+  if(!items.length){document.getElementById('grid').innerHTML='<div class="empty"><p>—</p></div>';return;}
+  document.getElementById('grid').innerHTML=items.map((item,i)=>{
+    const found=isFound(ST.tab,item.name);
+    const isLeg=item.effect.includes('Legg')||item.name.includes('Legg');
+    const url=item.img?IB+item.img+IS:null;
+    const imgTag=url?`<img src="${url}" alt="" loading="lazy" onerror="this.classList.add('err');this.nextElementSibling.style.opacity=1">`:'' ;
+    return`<div class="card${found?' found':''}" data-cat="${ST.tab}" data-name="${item.name.replace(/"/g,'&quot;')}" style="animation-delay:${Math.min(i*.018,.28)}s">
       <div class="card-top">
-        <div class="card-img-wrap">
-          ${imgHtml}
-          <span class="img-fallback">${catIcon}</span>
-        </div>
+        <div class="card-img">${imgTag}<span class="img-fb">${icon}</span></div>
         <div class="card-body">
           <div class="card-name">${item.name}</div>
           <div class="card-effect">${item.effect}</div>
         </div>
-        <div class="found-toggle" style="color:${found?'#b0e8c0':'transparent'}">${found?'✓':''}</div>
+        <div class="card-check">${found?'✓':''}</div>
       </div>
       <div class="card-bottom">
-        <div class="card-location" title="${item.loc}">${item.loc}</div>
-        ${isLeg ? '<span class="badge badge-legend">Legg.</span>' : ''}
+        <div class="card-loc" title="${item.loc}">${item.loc}</div>
+        ${isLeg?'<span class="badge badge-leg">Legg.</span>':''}
         <span class="badge ${item.dlc==='SotE'?'badge-sote':'badge-base'}">${item.dlc}</span>
       </div>
     </div>`;
   }).join('');
-
-  document.querySelectorAll('.item-card').forEach(card => {
-    card.addEventListener('click', () => toggleFound(state.tab, card.dataset.name, card));
+  document.querySelectorAll('.card').forEach(card=>{
+    card.addEventListener('click',()=>{
+      const name=card.dataset.name,cat=card.dataset.cat;
+      const found=toggleFound(cat,name);
+      card.classList.toggle('found',found);
+      if(found){card.classList.add('shimmer');setTimeout(()=>card.classList.remove('shimmer'),700);}
+      card.querySelector('.card-check').textContent=found?'✓':'';
+      if(ST.filter==='found'||ST.filter==='notfound')renderGrid();
+      renderTabs();renderStatsBar();updateNavStat();
+    });
   });
 }
+function renderAll(){renderTabs();renderStatsBar();renderGrid();updateNavStat();}
 
-function updateAll() { renderTabs(); renderCatStats(); updateNavProgress(); }
-function renderAll() { renderTabs(); renderCatStats(); renderGrid(); updateNavProgress(); }
-
-// ── FILTER CHIPS ─────────────────────────────────────────────
-document.querySelectorAll('[data-filter]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    state.filter = btn.dataset.filter;
-    renderGrid(); renderCatStats();
+// chips
+document.querySelectorAll('[data-f]').forEach(c=>{
+  c.addEventListener('click',()=>{
+    document.querySelectorAll('[data-f]').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');ST.filter=c.dataset.f;renderGrid();renderStatsBar();
   });
 });
-
-// ── SEARCH ───────────────────────────────────────────────────
-let searchTimer;
-document.getElementById('searchInput').addEventListener('input', e => {
-  clearTimeout(searchTimer);
-  searchTimer = setTimeout(() => { state.search = e.target.value; renderGrid(); }, 160);
+// search
+let st2;
+document.getElementById('searchInp').addEventListener('input',e=>{
+  clearTimeout(st2);st2=setTimeout(()=>{ST.search=e.target.value;renderGrid();},160);
 });
-
-window.addEventListener('langchange', () => renderAll());
-
-// ── INIT ─────────────────────────────────────────────────────
-buildNav('tracker');
+// init
+renderNav('tracker');
 renderAll();
 </script>
 </body>

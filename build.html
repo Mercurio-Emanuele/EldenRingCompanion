@@ -2,169 +2,659 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Build Planner — Elden Ring</title>
-<link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/nav.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-.build-shell { padding-top: var(--nav-h); min-height: 100vh; }
-.build-header {
-  padding: 28px 24px 20px;
-  background: linear-gradient(180deg, var(--bg2), var(--bg));
-  border-bottom: 1px solid var(--border);
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0c0b;--bg2:#141210;--surface:#1c1915;--surface2:#242018;
+  --border:#2e2920;--border2:#3d3628;
+  --gold:#c9a94e;--gold2:#e8c96a;--gold-dim:#7a6530;--gold-glow:rgba(201,169,78,.18);
+  --text:#d4c9b0;--text2:#8a8070;--text3:#5a5448;
+  --green:#2a6040;--green2:#3a8055;
+  --nav-h:54px;--r:6px;
+  --ff-d:'Cinzel',serif;--ff-b:'Crimson Pro',Georgia,serif;
 }
-.build-header h1 { font-size: 26px; }
-.build-header p  { font-size: 13px; color: var(--text3); font-family: var(--font-display); letter-spacing:.1em; margin-top:4px; }
-
-.build-body {
-  max-width: 1100px; margin: 0 auto;
-  padding: 32px 24px 60px;
-}
-
-/* Preview mockup of what the build planner will look like */
-.build-preview {
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 16px;
-  opacity: .45;
-  pointer-events: none;
-  margin-bottom: 32px;
-}
-.bp-panel {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 18px;
-}
-.bp-panel h3 {
-  font-family: var(--font-display); font-size: 12px; letter-spacing:.12em;
-  color: var(--gold); border-bottom: 1px solid var(--border2); padding-bottom: 8px; margin-bottom: 14px;
-}
-
-/* Fake stat bars */
-.stat-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-.stat-label { font-family: var(--font-display); font-size: 10px; letter-spacing:.06em; color: var(--text2); width: 60px; flex-shrink:0; }
-.stat-value { font-family: var(--font-display); font-size: 11px; color: var(--gold); width: 28px; text-align:right; flex-shrink:0; }
-.stat-bar { flex:1; height: 3px; background: var(--border2); border-radius: 2px; overflow:hidden; }
-.stat-fill { height:100%; background: linear-gradient(90deg, var(--gold-dim), var(--gold)); border-radius:2px; }
-
-/* Fake equip slots */
-.equip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.equip-slot {
-  background: var(--surface2); border: 1px dashed var(--border2);
-  border-radius: var(--radius); padding: 10px 12px;
-  font-family: var(--font-display); font-size: 10px; letter-spacing:.05em;
-  color: var(--text3); display:flex; align-items:center; gap:8px;
-}
-.equip-slot .eq-icon { font-size:16px; opacity:.4; }
-
-/* Coming soon overlay card */
-.coming-card {
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  border-radius: var(--radius-lg);
-  padding: 32px 24px;
-  text-align: center;
-}
-.coming-card h2 { font-size: 18px; margin-bottom: 10px; }
-.coming-card p  { font-size: 14px; color: var(--text3); margin-bottom: 20px; max-width: 440px; margin-left:auto; margin-right:auto; }
-
-.features-list {
-  display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px;
-}
-.feature-pill {
-  background: var(--surface2); border: 1px solid var(--border2);
-  border-radius: 20px; padding: 6px 14px;
-  font-family: var(--font-display); font-size: 10px; letter-spacing:.07em; color: var(--text2);
-  display: flex; align-items: center; gap: 6px;
-}
-
-@media (max-width: 700px) {
-  .build-preview { grid-template-columns: 1fr; }
-}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--ff-b);font-size:16px;line-height:1.5;min-height:100vh;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.5}
+a{color:var(--gold);text-decoration:none}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.topnav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:linear-gradient(180deg,#0a0908f0,#0d0c0bcc);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);z-index:200}
+.topnav-inner{max-width:1440px;margin:0 auto;padding:0 20px;height:100%;display:flex;align-items:center}
+.nav-logo{display:flex;align-items:center;gap:8px;font-family:var(--ff-d);font-size:14px;font-weight:700;color:var(--gold);letter-spacing:.1em;margin-right:28px;white-space:nowrap;flex-shrink:0}
+.nav-links{display:flex;align-items:stretch;height:var(--nav-h);flex:1;overflow-x:auto;scrollbar-width:none}
+.nav-links::-webkit-scrollbar{display:none}
+.nav-link{display:flex;align-items:center;gap:5px;padding:0 14px;font-family:var(--ff-d);font-size:10px;letter-spacing:.1em;color:var(--text3);border-bottom:2px solid transparent;transition:color .2s,border-color .2s;white-space:nowrap}
+.nav-link:hover{color:var(--text2)}.nav-link.active{color:var(--gold);border-bottom-color:var(--gold)}
+.nav-wip{font-size:8px;background:rgba(60,100,180,.3);color:#7aaaee;border:1px solid rgba(80,130,200,.3);border-radius:3px;padding:1px 4px}
+.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
+.nav-stat{font-family:var(--ff-d);font-size:10px;color:var(--text2);background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:4px 10px;white-space:nowrap}
+.lang-toggle{display:flex;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);overflow:hidden}
+.lang-btn{background:none;border:none;padding:5px 9px;font-family:var(--ff-d);font-size:10px;color:var(--text3);cursor:pointer;transition:all .15s}
+.lang-btn.active{background:rgba(201,169,78,.12);color:var(--gold)}
+/* PAGE */
+.page{padding-top:var(--nav-h)}
+.page-header{padding:28px 24px 20px;background:linear-gradient(180deg,var(--bg2),var(--bg));border-bottom:1px solid var(--border)}
+.page-header h1{font-family:var(--ff-d);font-size:clamp(18px,3vw,26px);color:var(--gold);letter-spacing:.06em}
+.page-header p{font-size:13px;color:var(--text3);font-family:var(--ff-d);letter-spacing:.1em;margin-top:4px}
+.page-body{max-width:1100px;margin:0 auto;padding:32px 24px 80px}
+/* BUILD PLANNER LAYOUT */
+.build-grid{display:grid;grid-template-columns:300px 1fr;gap:16px;margin-bottom:24px}
+/* stat panel */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px}
+.panel-title{font-family:var(--ff-d);font-size:11px;letter-spacing:.12em;color:var(--gold);border-bottom:1px solid var(--border2);padding-bottom:8px;margin-bottom:14px}
+/* level */
+.level-row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.level-num{font-family:var(--ff-d);font-size:36px;color:var(--gold);line-height:1;min-width:60px}
+.level-info{font-size:13px;color:var(--text2)}
+.level-info span{color:var(--text);display:block}
+.class-select{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:6px 10px;color:var(--text);font-family:var(--ff-d);font-size:11px;letter-spacing:.06em;outline:none;cursor:pointer;margin-bottom:14px}
+.class-select option{background:var(--surface2)}
+/* stats */
+.stat-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.stat-label{font-family:var(--ff-d);font-size:10px;letter-spacing:.06em;color:var(--text2);width:80px;flex-shrink:0}
+.stat-controls{display:flex;align-items:center;gap:4px}
+.stat-btn{background:var(--surface2);border:1px solid var(--border2);border-radius:3px;width:20px;height:20px;color:var(--text2);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:all .1s;flex-shrink:0}
+.stat-btn:hover{border-color:var(--gold-dim);color:var(--gold)}
+.stat-val{font-family:var(--ff-d);font-size:13px;color:var(--gold);width:26px;text-align:center}
+.stat-bar-wrap{flex:1;height:3px;background:var(--border2);border-radius:2px;overflow:hidden}
+.stat-bar-fill{height:100%;border-radius:2px;transition:width .3s ease}
+.stat-bonus{font-size:10px;color:var(--green2);min-width:28px;text-align:right;font-family:var(--ff-d)}
+/* derived */
+.derived-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.derived-box{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:8px 10px}
+.derived-label{font-size:10px;color:var(--text3);font-family:var(--ff-d);letter-spacing:.06em;margin-bottom:2px}
+.derived-val{font-family:var(--ff-d);font-size:16px;color:var(--gold)}
+/* equip slots */
+.equip-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.equip-slot{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:9px 11px;cursor:pointer;transition:border-color .15s;display:flex;align-items:center;gap:8px}
+.equip-slot:hover{border-color:var(--gold-dim)}
+.equip-slot.filled{border-color:var(--border2);background:var(--surface)}
+.slot-icon{font-size:16px;flex-shrink:0;width:26px;text-align:center}
+.slot-info{flex:1;min-width:0}
+.slot-label{font-size:9px;color:var(--text3);font-family:var(--ff-d);letter-spacing:.06em}
+.slot-name{font-size:11px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* damage preview */
+.dmg-preview{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:12px;margin-top:12px}
+.dmg-title{font-family:var(--ff-d);font-size:10px;color:var(--gold);letter-spacing:.08em;margin-bottom:10px}
+.dmg-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.dmg-type{font-size:10px;font-family:var(--ff-d);color:var(--text3);width:60px;flex-shrink:0}
+.dmg-track{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.dmg-fill{height:100%;border-radius:2px;transition:width .4s ease}
+.dmg-val{font-family:var(--ff-d);font-size:11px;color:var(--text2);min-width:36px;text-align:right}
+/* talisman slots */
+.talisman-slots{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tal-slot{background:var(--surface2);border:1px dashed var(--border2);border-radius:var(--r);padding:9px 10px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:border-color .15s;min-height:44px}
+.tal-slot:hover{border-color:var(--gold-dim)}
+.tal-slot.filled{border-style:solid;border-color:var(--border2);background:var(--surface)}
+.tal-img{width:28px;height:28px;background:var(--surface);border:1px solid var(--border);border-radius:3px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
+.tal-img img{width:24px;height:24px;object-fit:contain}
+.tal-info{flex:1;min-width:0}
+.tal-name{font-size:10px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--ff-d);letter-spacing:.02em}
+.tal-effect{font-size:10px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tal-remove{font-size:10px;color:var(--text3);cursor:pointer;flex-shrink:0;padding:2px 4px}
+.tal-remove:hover{color:var(--gold)}
+/* saves */
+.saves-row{display:flex;gap:8px;margin-bottom:16px}
+.save-btn{flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:8px;font-family:var(--ff-d);font-size:10px;letter-spacing:.08em;color:var(--text2);cursor:pointer;text-align:center;transition:all .15s}
+.save-btn:hover{border-color:var(--gold-dim);color:var(--gold)}
+.save-btn.primary{background:linear-gradient(135deg,#2a2010,#1a1508);border-color:var(--gold-dim);color:var(--gold)}
+.save-btn.primary:hover{border-color:var(--gold);box-shadow:0 0 12px var(--gold-glow)}
+/* item picker modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.hidden{display:none}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;width:min(520px,94vw);max-height:80vh;display:flex;flex-direction:column;overflow:hidden}
+.modal-header{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.modal-header h3{font-family:var(--ff-d);font-size:14px;color:var(--gold);letter-spacing:.06em;flex:1}
+.modal-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:2px 6px;transition:color .15s}
+.modal-close:hover{color:var(--text)}
+.modal-search{padding:10px 18px;border-bottom:1px solid var(--border)}
+.modal-search input{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:7px 12px;color:var(--text);font-family:var(--ff-b);font-size:14px;outline:none}
+.modal-search input:focus{border-color:var(--gold-dim)}
+.modal-search input::placeholder{color:var(--text3)}
+.modal-list{overflow-y:auto;flex:1}
+.modal-item{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;transition:background .15s;border-bottom:1px solid var(--border)}
+.modal-item:hover{background:var(--surface)}
+.modal-item-img{width:32px;height:32px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
+.modal-item-img img{width:28px;height:28px;object-fit:contain}
+.modal-item-info{flex:1;min-width:0}
+.modal-item-name{font-family:var(--ff-d);font-size:11px;color:var(--text);letter-spacing:.03em}
+.modal-item-effect{font-size:12px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+footer{text-align:center;padding:18px;border-top:1px solid var(--border)}
+footer p{font-size:10px;color:var(--text3);font-family:var(--ff-d);letter-spacing:.06em}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:800px){.build-grid{grid-template-columns:1fr}.equip-grid,.talisman-slots{grid-template-columns:1fr}}
+@media(max-width:900px){.nav-logo span:last-child{display:none}.nav-link span:not(:first-child){display:none}.nav-link{padding:0 10px}.nav-stat{display:none}}
+@media(max-width:600px){.page-header,.page-body{padding-left:14px;padding-right:14px}}
 </style>
 </head>
 <body>
-<div class="build-shell">
-  <div class="build-header">
-    <h1 data-i18n="build_title">⚙️ Build Planner</h1>
-    <p data-i18n="build_sub">Pianifica il tuo personaggio</p>
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="index.html" class="nav-logo">⚔ <span>ELDEN RING</span></a>
+    <div class="nav-links">
+      <a href="index.html"    class="nav-link"><span>📋</span><span id="lbl-tracker">Tracker</span></a>
+      <a href="map.html"      class="nav-link"><span>🗺️</span><span id="lbl-map">Mappa</span></a>
+      <a href="build.html"    class="nav-link active"><span>⚙️</span><span id="lbl-build">Build Planner</span></a>
+      <a href="bestiary.html" class="nav-link"><span>📖</span><span id="lbl-bestiary">Bestiario</span><span class="nav-wip" id="lbl-wip">In arrivo</span></a>
+    </div>
+    <div class="nav-right">
+      <div class="nav-stat" id="navStat"></div>
+      <div class="lang-toggle">
+        <button class="lang-btn" id="btnIT" onclick="setLang('it')">IT</button>
+        <button class="lang-btn" id="btnEN" onclick="setLang('en')">EN</button>
+      </div>
+    </div>
   </div>
+</nav>
 
-  <div class="build-body">
+<div class="page">
+  <div class="page-header">
+    <h1 id="pg-title">⚙️ Build Planner</h1>
+    <p id="pg-sub">Pianifica il tuo personaggio</p>
+  </div>
+  <div class="page-body">
 
-    <!-- Ghost preview of the future UI -->
-    <div class="build-preview" aria-hidden="true">
+    <div class="saves-row">
+      <button class="save-btn primary" onclick="saveBuild()">💾 <span id="lbl-save">Salva build</span></button>
+      <button class="save-btn" onclick="loadBuild()">📂 <span id="lbl-load">Carica</span></button>
+      <button class="save-btn" onclick="resetBuild()">↺ <span id="lbl-reset">Reset</span></button>
+      <button class="save-btn" onclick="shareBuild()">🔗 <span id="lbl-share">Condividi URL</span></button>
+    </div>
+
+    <div class="build-grid">
+
+      <!-- LEFT: Stats -->
       <div>
-        <!-- Stats panel -->
-        <div class="bp-panel" style="margin-bottom:14px">
-          <h3>STATISTICHE</h3>
-          <div class="stat-row"><span class="stat-label">Vigore</span><div class="stat-bar"><div class="stat-fill" style="width:60%"></div></div><span class="stat-value">40</span></div>
-          <div class="stat-row"><span class="stat-label">Mente</span><div class="stat-bar"><div class="stat-fill" style="width:35%"></div></div><span class="stat-value">25</span></div>
-          <div class="stat-row"><span class="stat-label">Resistenza</span><div class="stat-bar"><div class="stat-fill" style="width:40%"></div></div><span class="stat-value">28</span></div>
-          <div class="stat-row"><span class="stat-label">Forza</span><div class="stat-bar"><div class="stat-fill" style="width:50%"></div></div><span class="stat-value">35</span></div>
-          <div class="stat-row"><span class="stat-label">Destrezza</span><div class="stat-bar"><div class="stat-fill" style="width:70%"></div></div><span class="stat-value">50</span></div>
-          <div class="stat-row"><span class="stat-label">Intelligenza</span><div class="stat-bar"><div class="stat-fill" style="width:20%"></div></div><span class="stat-value">14</span></div>
-          <div class="stat-row"><span class="stat-label">Fede</span><div class="stat-bar"><div class="stat-fill" style="width:15%"></div></div><span class="stat-value">12</span></div>
-          <div class="stat-row"><span class="stat-label">Arcane</span><div class="stat-bar"><div class="stat-fill" style="width:55%"></div></div><span class="stat-value">40</span></div>
-        </div>
-        <!-- Level -->
-        <div class="bp-panel">
-          <h3>LIVELLO &amp; CLASSE</h3>
-          <div style="display:flex;gap:10px;align-items:center">
-            <div style="font-family:var(--font-display);font-size:28px;color:var(--gold)">150</div>
-            <div style="font-size:12px;color:var(--text3)">Samurai<br><span style="color:var(--text2)">HP: 1850 / FP: 112</span></div>
+        <div class="panel" style="margin-bottom:12px">
+          <div class="panel-title" id="lbl-class">CLASSE</div>
+          <select class="class-select" id="classSelect" onchange="onClassChange()">
+            <option value="vagabond">Vagabond</option>
+            <option value="warrior">Warrior</option>
+            <option value="hero">Hero</option>
+            <option value="bandit">Bandit</option>
+            <option value="astrologer">Astrologer</option>
+            <option value="prophet">Prophet</option>
+            <option value="samurai">Samurai</option>
+            <option value="prisoner">Prisoner</option>
+            <option value="confessor">Confessor</option>
+            <option value="wretch">Wretch</option>
+          </select>
+          <div class="level-row">
+            <div class="level-num" id="levelNum">1</div>
+            <div class="level-info">
+              <span id="hpVal">HP 0</span>
+              <span id="fpVal">FP 0</span>
+              <span id="loadVal">Load 0/0</span>
+            </div>
           </div>
+          <div class="panel-title" id="lbl-stats">STATISTICHE</div>
+          <div id="statsContainer"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title" id="lbl-derived">VALORI DERIVATI</div>
+          <div class="derived-grid" id="derivedGrid"></div>
         </div>
       </div>
-      <!-- Equip panel -->
-      <div class="bp-panel">
-        <h3>EQUIPAGGIAMENTO</h3>
-        <div class="equip-grid">
-          <div class="equip-slot"><span class="eq-icon">⚔️</span> Rivers of Blood</div>
-          <div class="equip-slot"><span class="eq-icon">⚔️</span> Nagakiba</div>
-          <div class="equip-slot"><span class="eq-icon">🪖</span> White Reed Helm</div>
-          <div class="equip-slot"><span class="eq-icon">🛡️</span> White Reed Armor</div>
-          <div class="equip-slot"><span class="eq-icon">🔮</span> Lord of Blood's Ex.</div>
-          <div class="equip-slot"><span class="eq-icon">🔮</span> Winged Sword Insig.</div>
-          <div class="equip-slot"><span class="eq-icon">🔮</span> Millicent's Prosthesis</div>
-          <div class="equip-slot"><span class="eq-icon">🔮</span> Rotten Winged Sw.</div>
-        </div>
-        <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border2)">
-          <div style="font-family:var(--font-display);font-size:10px;color:var(--text2);letter-spacing:.06em;margin-bottom:8px">DANNO STIMATO</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <span class="badge badge-base">Fisico: 420</span>
-            <span class="badge badge-sote">Bleed: 80/hit</span>
-            <span class="badge badge-legend">AR Totale: ~680</span>
+
+      <!-- RIGHT: Equipment -->
+      <div>
+        <div class="panel" style="margin-bottom:12px">
+          <div class="panel-title" id="lbl-equip">EQUIPAGGIAMENTO</div>
+          <div class="equip-grid" id="equipGrid"></div>
+          <div class="dmg-preview">
+            <div class="dmg-title" id="lbl-dmg">DANNO STIMATO (Mano Destra 1)</div>
+            <div id="dmgBars"></div>
+            <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap" id="arTotal"></div>
           </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title" id="lbl-talismans">TALISMANI (4 slot)</div>
+          <div class="talisman-slots" id="talismanSlots"></div>
         </div>
       </div>
     </div>
+  </div>
+</div>
+<footer><p>Fan project non ufficiale · Elden Ring © FromSoftware / Bandai Namco</p></footer>
 
-    <!-- Coming soon -->
-    <div class="coming-card">
-      <div style="font-size:40px;margin-bottom:12px;opacity:.3">⚙️</div>
-      <h2 data-i18n="build_coming">In costruzione</h2>
-      <p data-i18n="build_coming_desc">Il calcolatore di build con scaling armi e stat è in sviluppo.</p>
-      <div class="features-list">
-        <div class="feature-pill">📊 Calcolo AR con scaling</div>
-        <div class="feature-pill">⚔️ Comparatore armi</div>
-        <div class="feature-pill">🔮 Slot talismanici</div>
-        <div class="feature-pill">📋 Condividi build via URL</div>
-        <div class="feature-pill">💾 Salva più build</div>
-        <div class="feature-pill">🎯 Ottimizzatore stat</div>
-      </div>
+<!-- ITEM PICKER MODAL -->
+<div class="modal-overlay hidden" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 id="modalTitle">Scegli item</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
-
+    <div class="modal-search"><input id="modalSearch" placeholder="Cerca…" oninput="filterModal()"></div>
+    <div class="modal-list" id="modalList"></div>
   </div>
 </div>
 
-<script src="js/i18n.js"></script>
-<script src="js/data.js"></script>
-<script src="js/nav.js"></script>
 <script>
-  buildNav('build');
-  window.addEventListener('langchange', () => buildNav('build'));
+// ── i18n ─────────────────────────────────────────────────────────────────────
+const TR={
+  it:{nav_tracker:'Tracker',nav_map:'Mappa',nav_build:'Build Planner',nav_bestiary:'Bestiario',nav_wip:'In arrivo',nav_found:'trovati',pg_title:'⚙️ Build Planner',pg_sub:'Pianifica il tuo personaggio',lbl_save:'Salva build',lbl_load:'Carica',lbl_reset:'Reset',lbl_share:'Condividi URL',lbl_class:'CLASSE',lbl_stats:'STATISTICHE',lbl_derived:'VALORI DERIVATI',lbl_equip:'EQUIPAGGIAMENTO',lbl_dmg:'DANNO STIMATO',lbl_talismans:'TALISMANI (4 slot)',lbl_tracker:'Tracker',lbl_map:'Mappa',lbl_bestiary:'Bestiario',lbl_wip:'In arrivo',stat_vig:'Vigore',stat_min:'Mente',stat_end:'Resistenza',stat_str:'Forza',stat_dex:'Destrezza',stat_int:'Intelligenza',stat_fai:'Fede',stat_arc:'Arcane',saved:'Build salvata!',shared:'URL copiato!',reset_q:'Resetta la build?'},
+  en:{nav_tracker:'Tracker',nav_map:'Map',nav_build:'Build Planner',nav_bestiary:'Bestiary',nav_wip:'Coming soon',nav_found:'found',pg_title:'⚙️ Build Planner',pg_sub:'Plan your character',lbl_save:'Save build',lbl_load:'Load',lbl_reset:'Reset',lbl_share:'Share URL',lbl_class:'CLASS',lbl_stats:'STATS',lbl_derived:'DERIVED VALUES',lbl_equip:'EQUIPMENT',lbl_dmg:'ESTIMATED DAMAGE',lbl_talismans:'TALISMANS (4 slots)',lbl_tracker:'Tracker',lbl_map:'Map',lbl_bestiary:'Bestiary',lbl_wip:'Coming soon',stat_vig:'Vigor',stat_min:'Mind',stat_end:'Endurance',stat_str:'Strength',stat_dex:'Dexterity',stat_int:'Intelligence',stat_fai:'Faith',stat_arc:'Arcane',saved:'Build saved!',shared:'URL copied!',reset_q:'Reset build?'}
+};
+function getLang(){return localStorage.getItem('er_lang')||'it';}
+function setLang(l){localStorage.setItem('er_lang',l);location.reload();}
+function t(k){return(TR[getLang()]||TR.it)[k]||k;}
+function getFound(){return JSON.parse(localStorage.getItem('er_found')||'{}');}
+function totalFound(){return Object.values(getFound()).filter(Boolean).length;}
+
+// ── APPLY LABELS ─────────────────────────────────────────────────────────────
+(function(){
+  const lang=getLang();
+  document.getElementById('btnIT').classList.toggle('active',lang==='it');
+  document.getElementById('btnEN').classList.toggle('active',lang==='en');
+  document.getElementById('navStat').textContent=totalFound()+' '+t('nav_found');
+  ['tracker','map','build','bestiary','wip','save','load','reset','share'].forEach(k=>{
+    const el=document.getElementById('lbl-'+k); if(el) el.textContent=t('lbl_'+k)||t('nav_'+k);
+  });
+  document.getElementById('pg-title').textContent=t('pg_title');
+  document.getElementById('pg-sub').textContent=t('pg_sub');
+  document.getElementById('lbl-class').textContent=t('lbl_class');
+  document.getElementById('lbl-stats').textContent=t('lbl_stats');
+  document.getElementById('lbl-derived').textContent=t('lbl_derived');
+  document.getElementById('lbl-equip').textContent=t('lbl_equip');
+  document.getElementById('lbl-dmg').textContent=t('lbl_dmg');
+  document.getElementById('lbl-talismans').textContent=t('lbl_talismans');
+})();
+
+// ── GAME DATA ─────────────────────────────────────────────────────────────────
+const CLASSES={
+  vagabond: {level:9,  vig:15,min:10,end:11,str:14,dex:13,int:9, fai:9, arc:7},
+  warrior:  {level:8,  vig:11,min:12,end:11,str:10,dex:16,int:10,fai:8, arc:9},
+  hero:     {level:7,  vig:14,min:9, end:12,str:16,dex:9, int:7, fai:8, arc:11},
+  bandit:   {level:5,  vig:10,min:11,end:10,str:9, dex:13,int:9, fai:8, arc:14},
+  astrologer:{level:6, vig:9, min:15,end:9, str:8, dex:12,int:16,fai:7, arc:9},
+  prophet:  {level:7,  vig:10,min:14,end:8, str:11,dex:10,int:7, fai:16,arc:10},
+  samurai:  {level:9,  vig:12,min:11,end:13,str:12,dex:15,int:9, fai:8, arc:8},
+  prisoner: {level:9,  vig:11,min:12,end:11,str:11,dex:14,int:14,fai:6, arc:9},
+  confessor:{level:10, vig:10,min:13,end:10,str:12,dex:12,int:9, fai:14,arc:9},
+  wretch:   {level:1,  vig:10,min:10,end:10,str:10,dex:10,int:10,fai:10,arc:10},
+};
+const STAT_KEYS=['vig','min','end','str','dex','int','fai','arc'];
+const STAT_COLORS={vig:'#c84040',min:'#4080c8',end:'#50a050',str:'#c87828',dex:'#70b870',int:'#7060d0',fai:'#d0b030',arc:'#c870a8'};
+
+// HP formula (simplified approximation)
+function calcHP(vig,level){
+  if(vig<=25) return Math.floor(300+500*(vig/25));
+  if(vig<=40) return Math.floor(800+650*((vig-25)/15));
+  if(vig<=60) return Math.floor(1450+450*((vig-40)/20));
+  return Math.floor(1900+200*((vig-60)/39));
+}
+function calcFP(min){return Math.floor(50+45*Math.min(min,60)/60*3);}
+function calcStamina(end){return Math.floor(80+25*Math.min(end,60)/60*3);}
+function calcLoad(end){return Math.floor(45+30*Math.min(end,99)/99*2);}
+
+// ── BUILD STATE ───────────────────────────────────────────────────────────────
+const IB='https://eldenring.wiki.fextralife.com/file/Elden-Ring/';
+const IS='_elden_ring_wiki_guide_200px.png';
+
+let BUILD={
+  classId:'vagabond',
+  stats:{vig:15,min:10,end:11,str:14,dex:13,int:9,fai:9,arc:7},
+  equip:{rh1:null,rh2:null,lh1:null,lh2:null,head:null,chest:null,arms:null,legs:null},
+  talismans:[null,null,null,null],
+};
+
+// Load from localStorage
+function loadSaved(){
+  try{const s=localStorage.getItem('er_build');if(s)BUILD=JSON.parse(s);}catch(e){}
+}
+loadSaved();
+
+// ── WEAPON DATA (subset for picker) ──────────────────────────────────────────
+const WEAPONS_LIST=[
+  {name:"Uchigatana",type:"Katana",str:11,dex:15,int:0,fai:0,arc:0,phys:115,mag:0,fire:0,light:0,holy:0,img:"uchigatana_katana_weapon"},
+  {name:"Moonveil",type:"Katana",str:12,dex:18,int:23,fai:0,arc:0,phys:73,mag:87,fire:0,light:0,holy:0,img:"moonveil_katana_weapon"},
+  {name:"Rivers of Blood",type:"Katana",str:12,dex:18,int:0,fai:0,arc:20,phys:76,mag:0,fire:76,light:0,holy:0,img:"rivers_of_blood_katana_weapon"},
+  {name:"Nagakiba",type:"Katana",str:11,dex:16,int:0,fai:0,arc:0,phys:138,mag:0,fire:0,light:0,holy:0,img:"nagakiba_katana_weapon"},
+  {name:"Claymore",type:"Greatsword",str:16,dex:13,int:0,fai:0,arc:0,phys:138,mag:0,fire:0,light:0,holy:0,img:"claymore_greatsword_weapon"},
+  {name:"Greatsword",type:"Colossal",str:31,dex:12,int:0,fai:0,arc:0,phys:164,mag:0,fire:0,light:0,holy:0,img:"greatsword_colossal_sword_weapon"},
+  {name:"Blasphemous Blade",type:"Greatsword",str:22,dex:15,int:0,fai:21,arc:0,phys:121,mag:0,fire:121,light:0,holy:0,img:"blasphemous_blade_greatsword_weapon"},
+  {name:"Bloodhound's Fang",type:"Curved GS",str:17,dex:22,int:0,fai:0,arc:0,phys:141,mag:0,fire:0,light:0,holy:0,img:"bloodhounds_fang_curved_greatsword_weapon"},
+  {name:"Sacred Relic Sword",type:"Greatsword",str:14,dex:24,int:0,fai:22,arc:0,phys:118,mag:0,fire:0,light:0,holy:118,img:"sacred_relic_sword_greatsword_weapon"},
+  {name:"Misericorde",type:"Dagger",str:7,dex:12,int:0,fai:0,arc:0,phys:92,mag:0,fire:0,light:0,holy:0,img:"misericorde_dagger_weapon"},
+  {name:"Reduvia",type:"Dagger",str:5,dex:13,int:0,fai:0,arc:13,phys:79,mag:0,fire:0,light:0,holy:0,img:"reduvia_dagger_weapon"},
+  {name:"Hand of Malenia",type:"Katana",str:16,dex:48,int:0,fai:0,arc:0,phys:130,mag:0,fire:0,light:0,holy:0,img:"hand_of_malenia_katana_weapon"},
+  {name:"Bolt of Gransax",type:"Spear",str:20,dex:40,int:0,fai:0,arc:0,phys:130,mag:0,fire:0,light:130,holy:0,img:"bolt_of_gransax_spear_weapon"},
+  {name:"Winged Scythe",type:"Reaper",str:16,dex:16,int:0,fai:24,arc:0,phys:87,mag:0,fire:0,light:0,holy:87,img:"winged_scythe_reaper_weapon"},
+];
+const TALISMANS_LIST=[
+  {name:"Arsenal Charm",effect:"+15% equip load",img:"arsenal_charm_talisman"},
+  {name:"Arsenal Charm +1",effect:"+17% equip load",img:"arsenal_charm_1_talisman"},
+  {name:"Radagon Icon",effect:"Riduce tempo lancio",img:"radagon_icon_talisman"},
+  {name:"Shard of Alexander",effect:"Potenzia le skill",img:"shard_of_alexander_talisman"},
+  {name:"Winged Sword Insignia",effect:"+ATK consecutivo",img:"winged_sword_insignia_talisman"},
+  {name:"Lord of Blood's Exultation",effect:"+20% ATK bloodloss",img:"lord_of_bloods_exultation_talisman"},
+  {name:"Millicent's Prosthesis",effect:"+5 Dex, +ATK cons.",img:"millicents_prosthesis_talisman"},
+  {name:"Erdtree's Favor +2",effect:"+HP +Stamina +Load",img:"erdtrees_favor_2_talisman"},
+  {name:"Dragoncrest Greatshield Talisman",effect:"+20% phys negation",img:"dragoncrest_greatshield_talisman"},
+  {name:"Green Turtle Talisman",effect:"+17% stamina regen",img:"green_turtle_talisman"},
+  {name:"Ritual Sword Talisman",effect:"+ATK HP pieno",img:"ritual_sword_talisman"},
+  {name:"Godfrey Icon",effect:"+charged ATK/skill",img:"godfrey_icon_talisman"},
+  {name:"Moon of Nokstella",effect:"+2 memory slots",img:"moon_of_nokstella_talisman"},
+  {name:"Old Lord's Talisman",effect:"+durata spell",img:"old_lords_talisman"},
+  {name:"Marika's Soreseal",effect:"+5 Int/Fai/Arc/Min",img:"marikas_soreseal_talisman"},
+  {name:"Radagon's Soreseal",effect:"+5 Vig/End/Str/Dex",img:"radagons_soreseal_talisman"},
+  {name:"Bull-Goat's Talisman",effect:"+Poise",img:"bull-goats_talisman"},
+  {name:"Gold Scarab",effect:"+20% Rune",img:"gold_scarab_talisman"},
+];
+const ARMOR_HEAD=[
+  {name:"Bull-Goat Helm",img:"bull-goat_helm_armor_elden_ring_wiki"},
+  {name:"Malenia's Helm",img:"malenias_helm_armor_elden_ring_wiki"},
+  {name:"Blaidd's Helm",img:"blaids_helm_armor_elden_ring_wiki"},
+  {name:"Raging Wolf Helm",img:"raging_wolf_helm_armor_elden_ring_wiki"},
+  {name:"White Reed Helm",img:"white_reed_helm_armor_elden_ring_wiki"},
+  {name:"Black Knife Hood",img:"black_knife_hood_armor_elden_ring_wiki"},
+  {name:"Veteran's Helm",img:"veterans_helm_armor_elden_ring_wiki"},
+  {name:"Fire Knight Helm",img:"fire_knight_helm_armor_elden_ring_wiki"},
+];
+const ARMOR_CHEST=[
+  {name:"Bull-Goat Armor",img:"bull-goat_armor_elden_ring_wiki"},
+  {name:"Malenia's Armor",img:"malenias_armor_elden_ring_wiki"},
+  {name:"Blaidd's Armor",img:"blaids_armor_elden_ring_wiki"},
+  {name:"Raging Wolf Armor",img:"raging_wolf_armor_elden_ring_wiki"},
+  {name:"White Reed Armor",img:"white_reed_armor_elden_ring_wiki"},
+  {name:"Black Knife Armor",img:"black_knife_armor_elden_ring_wiki"},
+  {name:"Veteran's Armor",img:"veterans_armor_elden_ring_wiki"},
+  {name:"Fire Knight Armor",img:"fire_knight_armor_elden_ring_wiki"},
+];
+const ARMOR_ARMS=[
+  {name:"Bull-Goat Gauntlets",img:"bull-goat_gauntlets_armor_elden_ring_wiki"},
+  {name:"Malenia's Gauntlet",img:"malenias_gauntlet_armor_elden_ring_wiki"},
+  {name:"Blaidd's Gauntlets",img:"blaids_gauntlets_armor_elden_ring_wiki"},
+  {name:"Raging Wolf Gauntlets",img:"raging_wolf_gauntlets_armor_elden_ring_wiki"},
+  {name:"White Reed Gauntlets",img:"white_reed_gauntlets_armor_elden_ring_wiki"},
+  {name:"Black Knife Gauntlets",img:"black_knife_gauntlets_armor_elden_ring_wiki"},
+  {name:"Veteran's Gauntlets",img:"veterans_gauntlets_armor_elden_ring_wiki"},
+  {name:"Fire Knight Gauntlets",img:"fire_knight_gauntlets_armor_elden_ring_wiki"},
+];
+const ARMOR_LEGS=[
+  {name:"Bull-Goat Greaves",img:"bull-goat_greaves_armor_elden_ring_wiki"},
+  {name:"Malenia's Greaves",img:"malenias_greaves_armor_elden_ring_wiki"},
+  {name:"Blaidd's Greaves",img:"blaids_greaves_armor_elden_ring_wiki"},
+  {name:"Raging Wolf Greaves",img:"raging_wolf_greaves_armor_elden_ring_wiki"},
+  {name:"White Reed Greaves",img:"white_reed_greaves_armor_elden_ring_wiki"},
+  {name:"Black Knife Greaves",img:"black_knife_greaves_armor_elden_ring_wiki"},
+  {name:"Veteran's Greaves",img:"veterans_greaves_armor_elden_ring_wiki"},
+  {name:"Fire Knight Greaves",img:"fire_knight_greaves_armor_elden_ring_wiki"},
+];
+const SHIELDS_LIST=[
+  {name:"Brass Shield",img:"brass_shield_shields_elden_ring_wiki_guide"},
+  {name:"Erdtree Greatshield",img:"erdtree_greatshield_shields_elden_ring_wiki_guide"},
+  {name:"Haligtree Crest Greatshield",img:"haligtree_crest_greatshield_shields_elden_ring_wiki_guide"},
+  {name:"Jellyfish Shield",img:"jellyfish_shield_shields_elden_ring_wiki_guide"},
+  {name:"Silver Mirrorshield",img:"silver_mirrorshield_shields_elden_ring_wiki_guide"},
+];
+
+const SLOT_META={
+  rh1:{label:'Arma Dx 1', icon:'⚔️', list:'weapons'},
+  rh2:{label:'Arma Dx 2', icon:'⚔️', list:'weapons'},
+  lh1:{label:'Arma Sx 1', icon:'🛡️', list:'shields'},
+  lh2:{label:'Arma Sx 2', icon:'🛡️', list:'shields'},
+  head: {label:'Testa',   icon:'🪖', list:'head'},
+  chest:{label:'Petto',   icon:'🛡️', list:'chest'},
+  arms: {label:'Braccia', icon:'🧤', list:'arms'},
+  legs: {label:'Gambe',   icon:'👢', list:'legs'},
+};
+
+// ── CALC level from stats ─────────────────────────────────────────────────────
+function calcLevel(){
+  const cls=CLASSES[BUILD.classId];
+  const base=Object.values(cls).slice(1).reduce((a,b)=>a+b,0);
+  const cur=Object.values(BUILD.stats).reduce((a,b)=>a+b,0);
+  return cls.level+(cur-base);
+}
+
+// ── TALISMAN BONUSES ─────────────────────────────────────────────────────────
+function getTalismanBonuses(){
+  const b={str:0,dex:0,int:0,fai:0,arc:0,vig:0,end:0,min:0};
+  BUILD.talismans.forEach(tal=>{
+    if(!tal)return;
+    if(tal.name==="Marika's Soreseal"||tal.name==="Marika's Scarseal"){b.min+=tal.name.includes('Sore')?5:3;b.int+=tal.name.includes('Sore')?5:3;b.fai+=tal.name.includes('Sore')?5:3;b.arc+=tal.name.includes('Sore')?5:3;}
+    if(tal.name==="Radagon's Soreseal"||tal.name==="Radagon's Scarseal"){b.vig+=tal.name.includes('Sore')?5:3;b.end+=tal.name.includes('Sore')?5:3;b.str+=tal.name.includes('Sore')?5:3;b.dex+=tal.name.includes('Sore')?5:3;}
+    if(tal.name==="Millicent's Prosthesis") b.dex+=5;
+  });
+  return b;
+}
+
+// ── RENDER STATS ─────────────────────────────────────────────────────────────
+function renderStats(){
+  const bonus=getTalismanBonuses();
+  const cont=document.getElementById('statsContainer');
+  cont.innerHTML=STAT_KEYS.map(k=>{
+    const v=BUILD.stats[k], bon=bonus[k]||0, tot=v+bon;
+    const pct=Math.min((v/99)*100,100);
+    const label=t('stat_'+k)||k;
+    return`<div class="stat-row">
+      <span class="stat-label">${label}</span>
+      <div class="stat-controls">
+        <button class="stat-btn" onclick="adjStat('${k}',-1)">−</button>
+        <span class="stat-val">${v}</span>
+        <button class="stat-btn" onclick="adjStat('${k}',1)">+</button>
+      </div>
+      <div class="stat-bar-wrap"><div class="stat-bar-fill" style="width:${pct}%;background:${STAT_COLORS[k]}"></div></div>
+      ${bon>0?`<span class="stat-bonus">+${bon}</span>`:'<span class="stat-bonus"></span>'}
+    </div>`;
+  }).join('');
+}
+function adjStat(k,d){
+  const cls=CLASSES[BUILD.classId];
+  const min=cls[k]||1;
+  BUILD.stats[k]=Math.max(min,Math.min(99,BUILD.stats[k]+d));
+  renderAll();
+}
+
+// ── RENDER DERIVED ────────────────────────────────────────────────────────────
+function renderDerived(){
+  const b=getTalismanBonuses();
+  const vig=BUILD.stats.vig+(b.vig||0);
+  const end=BUILD.stats.end+(b.end||0);
+  const min=BUILD.stats.min+(b.min||0);
+  const hp=calcHP(vig,calcLevel());
+  const fp=calcFP(min);
+  const stam=calcStamina(end);
+  const load=calcLoad(end);
+  const lvl=calcLevel();
+  document.getElementById('levelNum').textContent=lvl;
+  document.getElementById('hpVal').textContent='HP '+hp;
+  document.getElementById('fpVal').textContent='FP '+fp;
+  document.getElementById('loadVal').textContent='Load '+load;
+  document.getElementById('derivedGrid').innerHTML=`
+    <div class="derived-box"><div class="derived-label">HP</div><div class="derived-val" style="color:#c84040">${hp}</div></div>
+    <div class="derived-box"><div class="derived-label">FP</div><div class="derived-val" style="color:#4080c8">${fp}</div></div>
+    <div class="derived-box"><div class="derived-label">Stamina</div><div class="derived-val" style="color:#50a050">${stam}</div></div>
+    <div class="derived-box"><div class="derived-label">Max Load</div><div class="derived-val" style="color:#c87828">${load}</div></div>
+    <div class="derived-box"><div class="derived-label">Livello</div><div class="derived-val" style="color:var(--gold)">${lvl}</div></div>
+    <div class="derived-box"><div class="derived-label">Poise</div><div class="derived-val" style="color:var(--text2)">~</div></div>`;
+}
+
+// ── RENDER EQUIP SLOTS ────────────────────────────────────────────────────────
+function renderEquip(){
+  const slots=['rh1','rh2','lh1','lh2','head','chest','arms','legs'];
+  document.getElementById('equipGrid').innerHTML=slots.map(s=>{
+    const meta=SLOT_META[s];
+    const item=BUILD.equip[s];
+    const imgUrl=item&&item.img?IB+item.img+IS:null;
+    const imgHtml=imgUrl?`<img src="${imgUrl}" style="width:24px;height:24px;object-fit:contain" onerror="this.style.display='none'">`:`<span>${meta.icon}</span>`;
+    return`<div class="equip-slot${item?' filled':''}" onclick="openPicker('${s}')">
+      <div class="slot-icon">${imgHtml}</div>
+      <div class="slot-info">
+        <div class="slot-label">${meta.label}</div>
+        <div class="slot-name">${item?item.name:'—'}</div>
+      </div>
+    </div>`;
+  }).join('');
+  renderDamage();
+}
+
+// ── RENDER DAMAGE ─────────────────────────────────────────────────────────────
+function renderDamage(){
+  const w=BUILD.equip.rh1;
+  if(!w||!w.phys){
+    document.getElementById('dmgBars').innerHTML='<div style="font-size:12px;color:var(--text3);font-family:var(--ff-d)">— Nessuna arma equipaggiata —</div>';
+    document.getElementById('arTotal').innerHTML='';
+    return;
+  }
+  const types=[{k:'phys',c:'#d4a060',l:'Fisico'},{k:'mag',c:'#7080e0',l:'Magico'},{k:'fire',c:'#e06030',l:'Fuoco'},{k:'light',c:'#e0c030',l:'Fulmine'},{k:'holy',c:'#d0c080',l:'Sacro'}];
+  const maxDmg=Math.max(...types.map(tp=>w[tp.k]||0),1);
+  const ar=types.reduce((s,tp)=>s+(w[tp.k]||0),0);
+  document.getElementById('dmgBars').innerHTML=types.filter(tp=>(w[tp.k]||0)>0).map(tp=>`
+    <div class="dmg-bar-row">
+      <span class="dmg-type">${tp.l}</span>
+      <div class="dmg-track"><div class="dmg-fill" style="width:${((w[tp.k]||0)/maxDmg)*100}%;background:${tp.c}"></div></div>
+      <span class="dmg-val">${w[tp.k]||0}</span>
+    </div>`).join('');
+  document.getElementById('arTotal').innerHTML=`<span style="font-family:var(--ff-d);font-size:11px;color:var(--gold);background:rgba(201,169,78,.1);border:1px solid rgba(201,169,78,.2);border-radius:3px;padding:3px 8px">AR Totale: ~${ar}</span>`;
+}
+
+// ── RENDER TALISMANS ──────────────────────────────────────────────────────────
+function renderTalismans(){
+  document.getElementById('talismanSlots').innerHTML=BUILD.talismans.map((tal,i)=>{
+    if(!tal) return`<div class="tal-slot" onclick="openTalismanPicker(${i})">
+      <div class="tal-img">🔮</div>
+      <div class="tal-info"><div class="tal-name" style="color:var(--text3)">— Vuoto —</div></div>
+    </div>`;
+    const imgUrl=tal.img?IB+tal.img+IS:null;
+    const imgHtml=imgUrl?`<img src="${imgUrl}" onerror="this.outerHTML='🔮'">`:'🔮';
+    return`<div class="tal-slot filled" onclick="openTalismanPicker(${i})">
+      <div class="tal-img">${imgHtml}</div>
+      <div class="tal-info">
+        <div class="tal-name">${tal.name}</div>
+        <div class="tal-effect">${tal.effect}</div>
+      </div>
+      <span class="tal-remove" onclick="event.stopPropagation();removeTalisman(${i})">✕</span>
+    </div>`;
+  }).join('');
+}
+function removeTalisman(i){BUILD.talismans[i]=null;renderAll();}
+
+// ── RENDER ALL ────────────────────────────────────────────────────────────────
+function renderAll(){renderStats();renderDerived();renderEquip();renderTalismans();}
+
+// ── CLASS CHANGE ──────────────────────────────────────────────────────────────
+function onClassChange(){
+  BUILD.classId=document.getElementById('classSelect').value;
+  const cls=CLASSES[BUILD.classId];
+  STAT_KEYS.forEach(k=>BUILD.stats[k]=cls[k]);
+  renderAll();
+}
+
+// ── ITEM PICKER MODAL ─────────────────────────────────────────────────────────
+let pickerCtx=null;
+function openPicker(slotId){
+  const meta=SLOT_META[slotId];
+  pickerCtx={type:'equip',slotId};
+  let list=[];
+  if(meta.list==='weapons') list=WEAPONS_LIST;
+  else if(meta.list==='shields') list=SHIELDS_LIST;
+  else if(meta.list==='head') list=ARMOR_HEAD;
+  else if(meta.list==='chest') list=ARMOR_CHEST;
+  else if(meta.list==='arms') list=ARMOR_ARMS;
+  else if(meta.list==='legs') list=ARMOR_LEGS;
+  document.getElementById('modalTitle').textContent=meta.label;
+  document.getElementById('modalSearch').value='';
+  renderModalList(list,'');
+  document.getElementById('modalOverlay').classList.remove('hidden');
+  document.getElementById('modalSearch').focus();
+}
+function openTalismanPicker(idx){
+  pickerCtx={type:'talisman',idx};
+  document.getElementById('modalTitle').textContent='Talismano slot '+(idx+1);
+  document.getElementById('modalSearch').value='';
+  renderModalList(TALISMANS_LIST,'');
+  document.getElementById('modalOverlay').classList.remove('hidden');
+  document.getElementById('modalSearch').focus();
+}
+function renderModalList(list,q){
+  const filtered=q?list.filter(i=>i.name.toLowerCase().includes(q.toLowerCase())):list;
+  document.getElementById('modalList').innerHTML=filtered.map((item,i)=>{
+    const url=item.img?IB+item.img+IS:null;
+    const imgHtml=url?`<img src="${url}" style="width:28px;height:28px;object-fit:contain" onerror="this.style.display='none'">`:
+      (item.type?'⚔️':item.effect?'🔮':'🛡️');
+    return`<div class="modal-item" onclick="selectItem(${i})">
+      <div class="modal-item-img">${imgHtml}</div>
+      <div class="modal-item-info">
+        <div class="modal-item-name">${item.name}</div>
+        <div class="modal-item-effect">${item.type||item.effect||''}</div>
+      </div>
+    </div>`;
+  }).join('');
+  // store filtered for click index
+  document.getElementById('modalList')._filtered=filtered;
+}
+function filterModal(){
+  const q=document.getElementById('modalSearch').value;
+  const meta=pickerCtx?.type==='talisman'?null:SLOT_META[pickerCtx?.slotId];
+  let list=TALISMANS_LIST;
+  if(pickerCtx?.type==='equip'){
+    const m=meta.list;
+    if(m==='weapons') list=WEAPONS_LIST;
+    else if(m==='shields') list=SHIELDS_LIST;
+    else if(m==='head') list=ARMOR_HEAD;
+    else if(m==='chest') list=ARMOR_CHEST;
+    else if(m==='arms') list=ARMOR_ARMS;
+    else if(m==='legs') list=ARMOR_LEGS;
+  }
+  renderModalList(list,q);
+}
+function selectItem(i){
+  const filtered=document.getElementById('modalList')._filtered||[];
+  const item=filtered[i];
+  if(!item)return;
+  if(pickerCtx?.type==='equip') BUILD.equip[pickerCtx.slotId]=item;
+  else if(pickerCtx?.type==='talisman') BUILD.talismans[pickerCtx.idx]=item;
+  closeModal();renderAll();
+}
+function closeModal(e){
+  if(e&&e.target!==document.getElementById('modalOverlay'))return;
+  document.getElementById('modalOverlay').classList.add('hidden');
+}
+
+// ── SAVE / LOAD / SHARE ───────────────────────────────────────────────────────
+function saveBuild(){
+  localStorage.setItem('er_build',JSON.stringify(BUILD));
+  const btn=document.querySelector('.save-btn.primary');
+  const orig=btn.textContent;
+  btn.textContent='✓ '+t('saved');
+  setTimeout(()=>btn.innerHTML=`💾 <span>${t('lbl_save')}</span>`,1500);
+}
+function loadBuild(){
+  try{const s=localStorage.getItem('er_build');if(s){BUILD=JSON.parse(s);document.getElementById('classSelect').value=BUILD.classId;renderAll();}}catch(e){}
+}
+function resetBuild(){
+  if(!confirm(t('reset_q')))return;
+  const cls=CLASSES['vagabond'];
+  BUILD={classId:'vagabond',stats:{vig:cls.vig,min:cls.min,end:cls.end,str:cls.str,dex:cls.dex,int:cls.int,fai:cls.fai,arc:cls.arc},equip:{rh1:null,rh2:null,lh1:null,lh2:null,head:null,chest:null,arms:null,legs:null},talismans:[null,null,null,null]};
+  document.getElementById('classSelect').value='vagabond';
+  renderAll();
+}
+function shareBuild(){
+  const enc=btoa(JSON.stringify(BUILD));
+  const url=location.origin+location.pathname+'?build='+enc;
+  navigator.clipboard.writeText(url).then(()=>{
+    const btn=document.querySelectorAll('.save-btn')[3];
+    btn.textContent='✓ '+t('shared');
+    setTimeout(()=>btn.innerHTML=`🔗 <span>${t('lbl_share')}</span>`,2000);
+  });
+}
+// Load from URL param
+(function(){
+  const p=new URLSearchParams(location.search).get('build');
+  if(p){try{BUILD=JSON.parse(atob(p));document.getElementById('classSelect').value=BUILD.classId;}catch(e){}}
+})();
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+document.getElementById('classSelect').value=BUILD.classId;
+renderAll();
 </script>
 </body>
 </html>

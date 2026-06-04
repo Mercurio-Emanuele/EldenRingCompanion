@@ -2,137 +2,543 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Mappa — Elden Ring</title>
-<link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/nav.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <style>
-.map-shell {
-  padding-top: var(--nav-h);
-  min-height: 100vh;
-  display: flex; flex-direction: column;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0c0b;--bg2:#141210;--surface:#1c1915;--surface2:#242018;
+  --border:#2e2920;--border2:#3d3628;
+  --gold:#c9a94e;--gold2:#e8c96a;--gold-dim:#7a6530;--gold-glow:rgba(201,169,78,.18);
+  --text:#d4c9b0;--text2:#8a8070;--text3:#5a5448;
+  --green:#2a6040;--green2:#3a8055;--green-bg:#1a2a1e;--green-bdr:#2a5035;
+  --sote-bg:rgba(74,48,96,.4);--sote-clr:#9a70c8;--sote-bdr:rgba(122,80,160,.3);
+  --base-bg:rgba(40,55,30,.4);--base-clr:#6a8a50;--base-bdr:rgba(80,100,60,.25);
+  --nav-h:54px;--r:6px;
+  --ff-d:'Cinzel',serif;--ff-b:'Crimson Pro',Georgia,serif;
+  --panel:260px;
 }
-.map-header {
-  padding: 28px 24px 20px;
-  background: linear-gradient(180deg, var(--bg2), var(--bg));
-  border-bottom: 1px solid var(--border);
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--ff-b);-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.5}
+a{color:var(--gold);text-decoration:none}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+/* NAV */
+.topnav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:linear-gradient(180deg,#0a0908f0,#0d0c0bcc);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);z-index:500}
+.topnav-inner{max-width:100%;padding:0 20px;height:100%;display:flex;align-items:center}
+.nav-logo{display:flex;align-items:center;gap:8px;font-family:var(--ff-d);font-size:14px;font-weight:700;color:var(--gold);letter-spacing:.1em;margin-right:28px;white-space:nowrap;flex-shrink:0;text-decoration:none}
+.nav-links{display:flex;align-items:stretch;height:var(--nav-h);flex:1;overflow-x:auto;scrollbar-width:none}
+.nav-links::-webkit-scrollbar{display:none}
+.nav-link{display:flex;align-items:center;gap:5px;padding:0 14px;font-family:var(--ff-d);font-size:10px;letter-spacing:.1em;color:var(--text3);border-bottom:2px solid transparent;transition:color .2s,border-color .2s;white-space:nowrap;text-decoration:none}
+.nav-link:hover{color:var(--text2)}
+.nav-link.active{color:var(--gold);border-bottom-color:var(--gold)}
+.nav-wip{font-size:8px;background:rgba(60,100,180,.3);color:#7aaaee;border:1px solid rgba(80,130,200,.3);border-radius:3px;padding:1px 4px}
+.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
+.nav-stat{font-family:var(--ff-d);font-size:10px;color:var(--text2);background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:4px 10px;white-space:nowrap}
+.lang-toggle{display:flex;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);overflow:hidden}
+.lang-btn{background:none;border:none;padding:5px 9px;font-family:var(--ff-d);font-size:10px;color:var(--text3);cursor:pointer;transition:all .15s}
+.lang-btn.active{background:rgba(201,169,78,.12);color:var(--gold)}
+/* LAYOUT */
+.map-layout{position:fixed;top:var(--nav-h);left:0;right:0;bottom:0;display:flex}
+/* SIDE PANEL */
+.side-panel{width:var(--panel);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;z-index:10}
+.side-header{padding:14px;border-bottom:1px solid var(--border)}
+.side-header h2{font-family:var(--ff-d);font-size:13px;color:var(--gold);letter-spacing:.08em;margin-bottom:10px}
+.search-wrap{position:relative}
+.search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:12px;pointer-events:none}
+.search-inp{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:6px 8px 6px 28px;color:var(--text);font-family:var(--ff-b);font-size:13px;outline:none;transition:border-color .2s}
+.search-inp::placeholder{color:var(--text3);font-size:12px}
+.search-inp:focus{border-color:var(--gold-dim)}
+/* Category filter pills */
+.cat-pills{display:flex;flex-wrap:wrap;gap:4px;padding:10px 14px;border-bottom:1px solid var(--border)}
+.cat-pill{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:3px 9px;font-size:10px;font-family:var(--ff-d);letter-spacing:.05em;color:var(--text3);cursor:pointer;transition:all .15s;white-space:nowrap}
+.cat-pill:hover{border-color:var(--gold-dim);color:var(--text2)}
+.cat-pill.active{background:rgba(201,169,78,.1);border-color:var(--gold-dim);color:var(--gold)}
+/* DLC + Found toggles */
+.toggle-row{display:flex;gap:6px;padding:8px 14px;border-bottom:1px solid var(--border)}
+.toggle-btn{flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:5px 6px;font-size:10px;font-family:var(--ff-d);letter-spacing:.05em;color:var(--text3);cursor:pointer;transition:all .15s;text-align:center}
+.toggle-btn:hover{border-color:var(--gold-dim);color:var(--text2)}
+.toggle-btn.active{background:rgba(201,169,78,.1);border-color:var(--gold-dim);color:var(--gold)}
+.toggle-btn.on-green.active{background:rgba(42,96,64,.2);border-color:var(--green-bdr);color:var(--green2)}
+/* Pin list */
+.pin-list{flex:1;overflow-y:auto;padding:6px 0}
+.pin-item{display:flex;align-items:center;gap:8px;padding:7px 14px;cursor:pointer;transition:background .15s;border-left:2px solid transparent}
+.pin-item:hover{background:var(--surface)}
+.pin-item.active-pin{background:var(--surface);border-left-color:var(--gold)}
+.pin-item.found-pin{background:rgba(26,42,30,.4);border-left-color:var(--green-bdr)}
+.pin-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;border:1px solid currentColor;opacity:.9}
+.pin-img{width:24px;height:24px;flex-shrink:0;background:var(--surface2);border-radius:3px;border:1px solid var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:11px}
+.pin-img img{width:22px;height:22px;object-fit:contain}
+.pin-info{flex:1;min-width:0}
+.pin-name{font-family:var(--ff-d);font-size:10px;color:var(--text);letter-spacing:.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pin-item.found-pin .pin-name{color:var(--green2)}
+.pin-cat{font-size:10px;color:var(--text3)}
+.pin-check{font-size:10px;color:var(--green2);flex-shrink:0;width:14px;text-align:center}
+.pin-count{padding:6px 14px;font-size:10px;font-family:var(--ff-d);color:var(--text3);letter-spacing:.05em;border-top:1px solid var(--border);flex-shrink:0}
+/* MAP */
+.map-container{flex:1;position:relative}
+#map{width:100%;height:100%;background:#0a0908}
+/* Leaflet overrides */
+.leaflet-container{background:#0a0908;font-family:var(--ff-b)}
+.leaflet-control-zoom a{background:var(--surface)!important;color:var(--gold)!important;border-color:var(--border2)!important;font-family:var(--ff-d)}
+.leaflet-control-zoom a:hover{background:var(--surface2)!important}
+.leaflet-control-attribution{background:rgba(13,12,11,.8)!important;color:var(--text3)!important;font-size:9px}
+.leaflet-control-attribution a{color:var(--text2)!important}
+/* Custom marker */
+.map-marker{width:28px;height:28px;border-radius:50%;border:2px solid currentColor;background:rgba(13,12,11,.85);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s,box-shadow .15s;backdrop-filter:blur(4px)}
+.map-marker:hover{transform:scale(1.25);box-shadow:0 0 10px currentColor}
+.map-marker.found-marker{opacity:.55}
+.map-marker.found-marker::after{content:'✓';position:absolute;font-size:10px;bottom:-2px;right:-2px;background:var(--green);border-radius:50%;width:12px;height:12px;display:flex;align-items:center;justify-content:center;color:#b0e8c0;font-family:var(--ff-d)}
+.marker-inner{width:20px;height:20px;object-fit:contain;pointer-events:none}
+.marker-inner-emoji{font-size:13px;line-height:1}
+/* Popup */
+.leaflet-popup-content-wrapper{background:var(--surface)!important;border:1px solid var(--border2)!important;border-radius:8px!important;box-shadow:0 8px 32px rgba(0,0,0,.6)!important;padding:0!important}
+.leaflet-popup-content{margin:0!important;width:220px!important}
+.leaflet-popup-tip{background:var(--surface)!important}
+.popup-inner{padding:12px}
+.popup-img-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.popup-img{width:40px;height:40px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px}
+.popup-img img{width:36px;height:36px;object-fit:contain}
+.popup-title{font-family:var(--ff-d);font-size:12px;color:var(--gold);letter-spacing:.04em;line-height:1.3}
+.popup-loc{font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.4}
+.popup-badges{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.badge{display:inline-block;font-size:9px;font-family:var(--ff-d);letter-spacing:.06em;padding:2px 6px;border-radius:3px;white-space:nowrap}
+.badge-sote{background:var(--sote-bg);color:var(--sote-clr);border:1px solid var(--sote-bdr)}
+.badge-base{background:var(--base-bg);color:var(--base-clr);border:1px solid var(--base-bdr)}
+.popup-btn{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:7px;font-family:var(--ff-d);font-size:10px;letter-spacing:.08em;color:var(--text2);cursor:pointer;transition:all .15s;text-align:center}
+.popup-btn:hover{border-color:var(--gold-dim);color:var(--gold)}
+.popup-btn.found-btn{background:rgba(42,96,64,.25);border-color:var(--green-bdr);color:var(--green2)}
+/* Legend */
+.map-legend{position:absolute;bottom:20px;right:12px;z-index:400;background:rgba(20,18,16,.92);backdrop-filter:blur(8px);border:1px solid var(--border2);border-radius:var(--r);padding:10px 12px;min-width:140px}
+.legend-title{font-family:var(--ff-d);font-size:10px;color:var(--gold);letter-spacing:.08em;margin-bottom:8px}
+.legend-item{display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:11px;color:var(--text2)}
+.legend-dot{width:10px;height:10px;border-radius:50%;border:1.5px solid currentColor;flex-shrink:0}
+/* Colors per category */
+.c-talismans{color:#c9a94e} .c-weapons{color:#e07070} .c-armor{color:#7099c8}
+.c-sorceries{color:#9070e8} .c-incantations{color:#e8c048} .c-spiritashes{color:#70c8b0} .c-shields{color:#80a870}
+/* Mobile */
+@media(max-width:700px){
+  :root{--panel:0px}
+  .side-panel{display:none}
+  .topnav-inner{padding:0 12px}
 }
-.map-header h1 { font-size: 26px; }
-.map-header p  { font-size: 13px; color: var(--text3); font-family: var(--font-display); letter-spacing:.1em; margin-top:4px; }
-
-/* Placeholder map area */
-.map-area {
-  flex: 1;
-  display: flex; align-items: center; justify-content: center;
-  background: radial-gradient(ellipse at center, #1a1610 0%, var(--bg) 70%);
-  position: relative; overflow: hidden;
-  min-height: 560px;
-}
-.map-grid-lines {
-  position: absolute; inset: 0;
-  background-image:
-    linear-gradient(var(--border) 1px, transparent 1px),
-    linear-gradient(90deg, var(--border) 1px, transparent 1px);
-  background-size: 60px 60px;
-  opacity: .3;
-}
-.map-center {
-  position: relative; z-index: 2;
-  text-align: center; padding: 40px;
-}
-.map-center .big-icon { font-size: 64px; opacity: .25; display: block; margin-bottom: 20px; }
-.map-center h2 {
-  font-family: var(--font-display); font-size: 20px; color: var(--gold);
-  opacity: .6; margin-bottom: 12px;
-}
-.map-center p {
-  font-size: 14px; color: var(--text3); max-width: 380px; margin: 0 auto 24px;
-}
-
-/* Feature preview cards */
-.map-features {
-  display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 28px;
-}
-.feat-card {
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  border-radius: var(--radius);
-  padding: 14px 18px;
-  text-align: center; width: 160px;
-}
-.feat-card .feat-icon { font-size: 24px; display: block; margin-bottom: 8px; }
-.feat-card h4 { font-family: var(--font-display); font-size: 11px; color: var(--gold); letter-spacing:.06em; margin-bottom: 4px; }
-.feat-card p  { font-size: 11px; color: var(--text3); }
-
-/* Floating pins preview */
-.pin-preview {
-  position: absolute;
-  width: 10px; height: 10px;
-  border-radius: 50%;
-  border: 1px solid currentColor;
-  animation: pulse 2.5s infinite;
-}
-.pin-preview::after {
-  content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-  width: 4px; height: 4px; background: currentColor; border-radius: 50%;
+@media(max-width:900px){
+  .nav-logo span:last-child{display:none}
+  .nav-link span:not(:first-child){display:none}
+  .nav-link{padding:0 10px}
+  .nav-stat{display:none}
 }
 </style>
 </head>
 <body>
-<div class="map-shell">
-  <div class="map-header">
-    <h1 data-i18n="map_title">🗺️ Mappa Interattiva</h1>
-    <p data-i18n="map_sub">Localizzazione di ogni item nelle Interregnum</p>
+
+<!-- NAV -->
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="index.html" class="nav-logo">⚔ <span>ELDEN RING</span></a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link"><span>📋</span><span id="lbl-tracker">Tracker</span></a>
+      <a href="map.html"   class="nav-link active"><span>🗺️</span><span id="lbl-map">Mappa</span></a>
+      <a href="build.html" class="nav-link"><span>⚙️</span><span id="lbl-build">Build Planner</span><span class="nav-wip" id="lbl-wip">In arrivo</span></a>
+      <a href="bestiary.html" class="nav-link"><span>📖</span><span id="lbl-bestiary">Bestiario</span><span class="nav-wip">In arrivo</span></a>
+    </div>
+    <div class="nav-right">
+      <div class="nav-stat" id="navStat"></div>
+      <div class="lang-toggle">
+        <button class="lang-btn" id="btnIT" onclick="setLang('it')">IT</button>
+        <button class="lang-btn" id="btnEN" onclick="setLang('en')">EN</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="map-layout">
+  <!-- SIDE PANEL -->
+  <div class="side-panel">
+    <div class="side-header">
+      <h2 id="map-title">🗺️ Mappa Interattiva</h2>
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input id="mapSearch" class="search-inp" placeholder="Cerca item sulla mappa…">
+      </div>
+    </div>
+    <div class="cat-pills" id="catPills"></div>
+    <div class="toggle-row">
+      <button class="toggle-btn active" id="btnDlcAll"  onclick="setDlcFilter('all')">Tutti</button>
+      <button class="toggle-btn" id="btnDlcBase" onclick="setDlcFilter('base')">Base</button>
+      <button class="toggle-btn" id="btnDlcSote" onclick="setDlcFilter('sote')">DLC</button>
+      <button class="toggle-btn on-green" id="btnFound" onclick="toggleFoundFilter()">✓ Trovati</button>
+    </div>
+    <div class="pin-list" id="pinList"></div>
+    <div class="pin-count" id="pinCount"></div>
   </div>
 
-  <div class="map-area">
-    <div class="map-grid-lines"></div>
-
-    <!-- Decorative floating pins -->
-    <div class="pin-preview" style="top:20%;left:30%;color:#c9a94e"></div>
-    <div class="pin-preview" style="top:40%;left:60%;color:#7aaaee;animation-delay:.8s"></div>
-    <div class="pin-preview" style="top:65%;left:45%;color:#6a8a50;animation-delay:1.6s"></div>
-    <div class="pin-preview" style="top:30%;left:70%;color:#9a70c8;animation-delay:.4s"></div>
-    <div class="pin-preview" style="top:55%;left:25%;color:#c9a94e;animation-delay:1.2s"></div>
-    <div class="pin-preview" style="top:75%;left:72%;color:#7aaaee;animation-delay:2s"></div>
-
-    <div class="map-center">
-      <span class="big-icon">🗺️</span>
-      <h2 data-i18n="map_coming">In costruzione</h2>
-      <p data-i18n="map_coming_desc">La mappa interattiva con i pin di ogni item è in sviluppo. Torna presto!</p>
-
-      <div class="map-features">
-        <div class="feat-card">
-          <span class="feat-icon">📍</span>
-          <h4>Pin per ogni item</h4>
-          <p>Tutti i 469+ item sulla mappa</p>
-        </div>
-        <div class="feat-card">
-          <span class="feat-icon">🔍</span>
-          <h4>Filtri per categoria</h4>
-          <p>Mostra solo talismani, armi, ecc.</p>
-        </div>
-        <div class="feat-card">
-          <span class="feat-icon">✅</span>
-          <h4>Sync con tracker</h4>
-          <p>Item trovati marcati sulla mappa</p>
-        </div>
-        <div class="feat-card">
-          <span class="feat-icon">🗾</span>
-          <h4>Sottomappe</h4>
-          <p>Underground, Nokron, Farum…</p>
-        </div>
-      </div>
+  <!-- MAP -->
+  <div class="map-container">
+    <div id="map"></div>
+    <div class="map-legend">
+      <div class="legend-title" id="legend-title">Legenda</div>
+      <div class="legend-item c-talismans"><div class="legend-dot c-talismans"></div><span id="leg-tal">Talismani</span></div>
+      <div class="legend-item c-weapons">  <div class="legend-dot c-weapons"></div>  <span id="leg-wep">Armi</span></div>
+      <div class="legend-item c-armor">    <div class="legend-dot c-armor"></div>    <span id="leg-arm">Armature</span></div>
+      <div class="legend-item c-sorceries"><div class="legend-dot c-sorceries"></div><span id="leg-sor">Incantesimi</span></div>
+      <div class="legend-item c-incantations"><div class="legend-dot c-incantations"></div><span id="leg-inc">Incantazioni</span></div>
+      <div class="legend-item c-spiritashes"><div class="legend-dot c-spiritashes"></div><span id="leg-spi">Spirit Ashes</span></div>
+      <div class="legend-item c-shields">  <div class="legend-dot c-shields"></div>  <span id="leg-shi">Scudi</span></div>
     </div>
   </div>
 </div>
 
-<script src="js/i18n.js"></script>
-<script src="js/data.js"></script>
-<script src="js/nav.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
-  buildNav('map');
-  window.addEventListener('langchange', () => buildNav('map'));
+// ── i18n ─────────────────────────────────────────────────────────────────────
+const TR={
+  it:{nav_tracker:'Tracker',nav_map:'Mappa',nav_build:'Build Planner',nav_bestiary:'Bestiario',nav_wip:'In arrivo',nav_found:'trovati',map_title:'🗺️ Mappa Interattiva',search_ph:'Cerca item sulla mappa…',legend:'Legenda',cat_talismans:'Talismani',cat_weapons:'Armi',cat_armor:'Armature',cat_sorceries:'Incantesimi',cat_incantations:'Incantazioni',cat_spiritashes:'Spirit Ashes',cat_shields:'Scudi',found_btn:'✓ Segna trovato',unfound_btn:'✗ Non trovato'},
+  en:{nav_tracker:'Tracker',nav_map:'Map',nav_build:'Build Planner',nav_bestiary:'Bestiary',nav_wip:'Coming soon',nav_found:'found',map_title:'🗺️ Interactive Map',search_ph:'Search items on map…',legend:'Legend',cat_talismans:'Talismans',cat_weapons:'Weapons',cat_armor:'Armor',cat_sorceries:'Sorceries',cat_incantations:'Incantations',cat_spiritashes:'Spirit Ashes',cat_shields:'Shields',found_btn:'✓ Mark found',unfound_btn:'✗ Not found'}
+};
+function getLang(){return localStorage.getItem('er_lang')||'it';}
+function setLang(l){localStorage.setItem('er_lang',l);location.reload();}
+function t(k){return (TR[getLang()]||TR.it)[k]||k;}
+
+// ── storage ───────────────────────────────────────────────────────────────────
+function getFound(){return JSON.parse(localStorage.getItem('er_found')||'{}');}
+function saveFound(o){localStorage.setItem('er_found',JSON.stringify(o));}
+function itemKey(cat,name){return cat+'::'+name;}
+function isFound(cat,name){return !!getFound()[itemKey(cat,name)];}
+function toggleFound(cat,name){
+  const f=getFound(),k=itemKey(cat,name);
+  f[k]=!f[k];if(!f[k])delete f[k];saveFound(f);return f[k]||false;
+}
+function totalFound(){return Object.values(getFound()).filter(Boolean).length;}
+
+// ── init lang UI ─────────────────────────────────────────────────────────────
+(function(){
+  const lang=getLang();
+  document.getElementById('btnIT').classList.toggle('active',lang==='it');
+  document.getElementById('btnEN').classList.toggle('active',lang==='en');
+  document.getElementById('navStat').textContent=totalFound()+' '+t('nav_found');
+  document.getElementById('map-title').textContent=t('map_title');
+  document.getElementById('mapSearch').placeholder=t('search_ph');
+  document.getElementById('legend-title').textContent=t('legend');
+  document.getElementById('lbl-tracker').textContent=t('nav_tracker');
+  document.getElementById('lbl-map').textContent=t('nav_map');
+  document.getElementById('lbl-build').textContent=t('nav_build');
+  document.getElementById('lbl-bestiary').textContent=t('nav_bestiary');
+  document.getElementById('lbl-wip').textContent=t('nav_wip');
+  document.getElementById('leg-tal').textContent=t('cat_talismans');
+  document.getElementById('leg-wep').textContent=t('cat_weapons');
+  document.getElementById('leg-arm').textContent=t('cat_armor');
+  document.getElementById('leg-sor').textContent=t('cat_sorceries');
+  document.getElementById('leg-inc').textContent=t('cat_incantations');
+  document.getElementById('leg-spi').textContent=t('cat_spiritashes');
+  document.getElementById('leg-shi').textContent=t('cat_shields');
+})();
+
+// ── CATEGORIES ────────────────────────────────────────────────────────────────
+const CAT_META={
+  talismans:   {icon:'🔮',color:'#c9a94e',labelKey:'cat_talismans'},
+  weapons:     {icon:'⚔️',color:'#e07070',labelKey:'cat_weapons'},
+  armor:       {icon:'🛡️',color:'#7099c8',labelKey:'cat_armor'},
+  sorceries:   {icon:'✨',color:'#9070e8',labelKey:'cat_sorceries'},
+  incantations:{icon:'🌟',color:'#e8c048',labelKey:'cat_incantations'},
+  spiritashes: {icon:'👻',color:'#70c8b0',labelKey:'cat_spiritashes'},
+  shields:     {icon:'🪖',color:'#80a870',labelKey:'cat_shields'},
+};
+
+// ── MAP PINS DATA ─────────────────────────────────────────────────────────────
+// Map image: 4096×4096px coordinate system
+// Using publicly available Elden Ring fan map from wikimedia/community sources
+// Map bounds set to match pixel coordinates
+const MAP_IMG = 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Elden_Ring_Map.jpg/2048px-Elden_Ring_Map.jpg';
+
+const PINS=[
+  // Talismans
+  {id:'t001',name:"Gold Scarab",           cat:'talismans',   dlc:'Base',y:2580,x:2820,loc:"Abandoned Cave – Caelid",         img:"gold_scarab_talisman"},
+  {id:'t002',name:"Crimson Seed Talisman", cat:'talismans',   dlc:'Base',y:2450,x:1780,loc:"Stormveil Castle – baule",        img:"crimson_seed_talisman"},
+  {id:'t003',name:"Arsenal Charm",         cat:'talismans',   dlc:'Base',y:1920,x:1680,loc:"Raya Lucaria – Mooseman",         img:"arsenal_charm_talisman"},
+  {id:'t004',name:"Green Turtle Talisman", cat:'talismans',   dlc:'Base',y:2720,x:2150,loc:"Summonwater Village",             img:"green_turtle_talisman"},
+  {id:'t005',name:"Blessed Dew Talisman",  cat:'talismans',   dlc:'Base',y:3050,x:1750,loc:"Tower of Return",                 img:"blessed_dew_talisman"},
+  {id:'t006',name:"Erdtree's Favor +2",    cat:'talismans',   dlc:'Base',y:1820,x:2360,loc:"Leyndell Ashen Capital",          img:"erdtrees_favor_2_talisman"},
+  {id:'t007',name:"Dragoncrest Greatshield Talisman",cat:'talismans',dlc:'Base',y:2120,x:2080,loc:"Drainage Channel",         img:"dragoncrest_greatshield_talisman"},
+  {id:'t008',name:"Radagon Icon",          cat:'talismans',   dlc:'Base',y:1940,x:1640,loc:"Raya Lucaria Academy",            img:"radagon_icon_talisman"},
+  {id:'t009',name:"Moon of Nokstella",     cat:'talismans',   dlc:'Base',y:2580,x:2050,loc:"Nokstella – baule",               img:"moon_of_nokstella_talisman"},
+  {id:'t010',name:"Marika's Soreseal",     cat:'talismans',   dlc:'Base',y:700, x:1350,loc:"Elphael – Stonesword Key",        img:"marikas_soreseal_talisman"},
+  {id:'t011',name:"Radagon's Soreseal",    cat:'talismans',   dlc:'Base',y:2480,x:2860,loc:"Fort Faroth – tetto",             img:"radagons_soreseal_talisman"},
+  {id:'t012',name:"Shard of Alexander",    cat:'talismans',   dlc:'Base',y:820, x:3100,loc:"Crumbling Farum Azula",           img:"shard_of_alexander_talisman"},
+  {id:'t013',name:"Godfrey Icon",          cat:'talismans',   dlc:'Base',y:1780,x:2050,loc:"Golden Lineage Evergaol",         img:"godfrey_icon_talisman"},
+  {id:'t014',name:"Old Lord's Talisman",   cat:'talismans',   dlc:'Base',y:750, x:3180,loc:"Crumbling Farum Azula",           img:"old_lords_talisman"},
+  {id:'t015',name:"Silver Scarab",         cat:'talismans',   dlc:'Base',y:980, x:1500,loc:"Consecrated Snowfield",           img:"silver_scarab_talisman"},
+  {id:'t016',name:"Winged Sword Insignia", cat:'talismans',   dlc:'Base',y:2180,x:1880,loc:"Stillwater Cave",                 img:"winged_sword_insignia_talisman"},
+  {id:'t017',name:"Lord of Blood's Exultation",cat:'talismans',dlc:'Base',y:2220,x:880,loc:"Mohgwyn Dynasty",                img:"lord_of_bloods_exultation_talisman"},
+  {id:'t018',name:"Millicent's Prosthesis",cat:'talismans',   dlc:'Base',y:700, x:1300,loc:"Haligtree – guanto",              img:"millicents_prosthesis_talisman"},
+  {id:'t019',name:"Bull-Goat's Talisman",  cat:'talismans',   dlc:'Base',y:2250,x:2550,loc:"Great Tunnel – Patches",          img:"bull-goats_talisman"},
+  {id:'t020',name:"Talisman of All Crucibles",cat:'talismans',dlc:'SotE',y:3080,x:3520,loc:"Ancient Ruins – SotE",            img:"talisman_of_all_crucibles_talisman"},
+  {id:'t021',name:"Rellana's Cameo",       cat:'talismans',   dlc:'SotE',y:2950,x:3380,loc:"Castle Ensis – SotE",             img:"rellanas_cameo_talisman"},
+  {id:'t022',name:"Golden Braid",          cat:'talismans',   dlc:'SotE',y:3150,x:3600,loc:"Scaduview – SotE",                img:"golden_braid_talisman"},
+  {id:'t023',name:"Two-Handed Sword Talisman",cat:'talismans',dlc:'SotE',y:2880,x:3480,loc:"Temple Town Ruins – SotE",        img:"two-handed_sword_talisman"},
+  {id:'t024',name:"Crusade Insignia",      cat:'talismans',   dlc:'SotE',y:3200,x:3450,loc:"Fire Knight Queelign – SotE",     img:"crusade_insignia_talisman"},
+  // Weapons
+  {id:'w001',name:"Moonveil",              cat:'weapons',     dlc:'Base',y:2540,x:2750,loc:"Gael Tunnel – Magma Wyrm",        img:"moonveil_katana_weapon"},
+  {id:'w002',name:"Rivers of Blood",       cat:'weapons',     dlc:'Base',y:960, x:2900,loc:"Mountaintops – Okina NPC",        img:"rivers_of_blood_katana_weapon"},
+  {id:'w003',name:"Bloodhound's Fang",     cat:'weapons',     dlc:'Base',y:2720,x:1580,loc:"Forlorn Hound Evergaol",          img:"bloodhounds_fang_curved_greatsword_weapon"},
+  {id:'w004',name:"Greatsword",            cat:'weapons',     dlc:'Base',y:2400,x:2760,loc:"Caelid – carro coperto",          img:"greatsword_colossal_sword_weapon"},
+  {id:'w005',name:"Blasphemous Blade",     cat:'weapons',     dlc:'Base',y:1450,x:1480,loc:"Enia – Rykard",                   img:"blasphemous_blade_greatsword_weapon"},
+  {id:'w006',name:"Grafted Blade Greatsword",cat:'weapons',   dlc:'Base',y:3280,x:1980,loc:"Castle Morne",                    img:"grafted_blade_greatsword_colossal_sword_weapon"},
+  {id:'w007',name:"Bolt of Gransax",       cat:'weapons',     dlc:'Base',y:1840,x:2380,loc:"Leyndell – freccia gigante",      img:"bolt_of_gransax_spear_weapon"},
+  {id:'w008',name:"Reduvia",               cat:'weapons',     dlc:'Base',y:2760,x:2020,loc:"Murkwater Cave – Nerijus",        img:"reduvia_dagger_weapon"},
+  {id:'w009',name:"Misericorde",           cat:'weapons',     dlc:'Base',y:2460,x:1780,loc:"Stormveil Castle – armeria",      img:"misericorde_dagger_weapon"},
+  {id:'w010',name:"Sword of Night and Flame",cat:'weapons',   dlc:'Base',y:1480,x:1240,loc:"Caria Manor",                    img:"sword_of_night_and_flame_straight_sword_weapon"},
+  {id:'w011',name:"Ruins Greatsword",      cat:'weapons',     dlc:'Base',y:2680,x:2860,loc:"Redmane Castle",                  img:"ruins_greatsword_colossal_sword_weapon"},
+  {id:'w012',name:"Mohgwyn's Sacred Spear",cat:'weapons',     dlc:'Base',y:2200,x:900, loc:"Enia – Mohg",                     img:"mohgwyns_sacred_spear_weapon"},
+  {id:'w013',name:"Hand of Malenia",       cat:'weapons',     dlc:'Base',y:680, x:1220,loc:"Enia – Malenia",                  img:"hand_of_malenia_katana_weapon"},
+  {id:'w014',name:"Maliketh's Black Blade",cat:'weapons',     dlc:'Base',y:750, x:3200,loc:"Enia – Maliketh",                 img:"malikeths_black_blade_colossal_sword_weapon"},
+  {id:'w015',name:"Sacred Relic Sword",    cat:'weapons',     dlc:'Base',y:1850,x:2400,loc:"Elden Beast",                     img:"sacred_relic_sword_greatsword_weapon"},
+  {id:'w016',name:"Meteoric Ore Blade",    cat:'weapons',     dlc:'Base',y:2560,x:2380,loc:"Caelid Waypoint Ruins",           img:"meteoric_ore_blade_katana_weapon"},
+  {id:'w017',name:"Nagakiba",              cat:'weapons',     dlc:'Base',y:2200,x:1500,loc:"Yura – drop",                     img:"nagakiba_katana_weapon"},
+  {id:'w018',name:"Death's Poker",         cat:'weapons',     dlc:'Base',y:1820,x:2320,loc:"Leyndell",                        img:"deaths_poker_greatsword_weapon"},
+  {id:'w019',name:"Euporia",               cat:'weapons',     dlc:'SotE',y:3250,x:3700,loc:"SotE – Enir-Ilim finale",         img:"euporia_twinblade_weapon"},
+  {id:'w020',name:"Sword of Night",        cat:'weapons',     dlc:'SotE',y:3100,x:3350,loc:"SotE – Cerulean Coast",           img:"sword_of_night_straight_sword_weapon"},
+  // Armor
+  {id:'a001',name:"Bull-Goat Armor",       cat:'armor',       dlc:'Base',y:2250,x:2540,loc:"Great Tunnel – Patches",          img:"bull-goat_armor_elden_ring_wiki"},
+  {id:'a002',name:"Blaidd's Armor",        cat:'armor',       dlc:'Base',y:1480,x:1230,loc:"Ranni quest – Blaidd",            img:"blaids_armor_elden_ring_wiki"},
+  {id:'a003',name:"Black Knife Armor",     cat:'armor',       dlc:'Base',y:2700,x:2560,loc:"Black Knife Assassin (notte)",    img:"black_knife_armor_elden_ring_wiki"},
+  {id:'a004',name:"Malenia's Armor",       cat:'armor',       dlc:'Base',y:680, x:1220,loc:"Enia dopo Malenia",               img:"malenias_armor_elden_ring_wiki"},
+  {id:'a005',name:"Raging Wolf Armor",     cat:'armor',       dlc:'Base',y:1440,x:1500,loc:"Volcano Manor – Rya",             img:"raging_wolf_armor_elden_ring_wiki"},
+  {id:'a006',name:"Veteran's Armor",       cat:'armor',       dlc:'Base',y:880, x:2750,loc:"Commander Niall",                 img:"veterans_armor_elden_ring_wiki"},
+  {id:'a007',name:"Radahn's Lion Armor",   cat:'armor',       dlc:'Base',y:2680,x:2870,loc:"Twin Maiden Husks – Radahn",      img:"radahns_lion_armor_elden_ring_wiki"},
+  {id:'a008',name:"Crucible Axe Armor",    cat:'armor',       dlc:'Base',y:1780,x:2300,loc:"Auriza Hero's Grave",             img:"crucible_axe_armor_elden_ring_wiki"},
+  {id:'a009',name:"Fire Knight Armor",     cat:'armor',       dlc:'SotE',y:3100,x:3480,loc:"SotE – Fire Knights drop",        img:"fire_knight_armor_elden_ring_wiki"},
+  {id:'a010',name:"White Reed Armor",      cat:'armor',       dlc:'Base',y:920, x:2780,loc:"Spiritspring vicino Freezing Lake",img:"white_reed_armor_elden_ring_wiki"},
+  // Sorceries
+  {id:'s001',name:"Comet Azur",            cat:'sorceries',   dlc:'Base',y:1420,x:1440,loc:"Mt. Gelmir – Sorcerer Azur",      img:"comet_azur_sorcery_elden_ring_wiki_guide"},
+  {id:'s002',name:"Rock Sling",            cat:'sorceries',   dlc:'Base',y:2460,x:2380,loc:"Street of Sages Ruins",           img:"rock_sling_sorcery_elden_ring_wiki_guide"},
+  {id:'s003',name:"Stars of Ruin",         cat:'sorceries',   dlc:'Base',y:2160,x:2580,loc:"Master Lusat – Sellia Hideaway",  img:"stars_of_ruin_sorcery_elden_ring_wiki_guide"},
+  {id:'s004',name:"Rennala's Full Moon",   cat:'sorceries',   dlc:'Base',y:1920,x:1650,loc:"Enia – Rennala",                  img:"rennalas_full_moon_sorcery_elden_ring_wiki_guide"},
+  {id:'s005',name:"Founding Rain of Stars",cat:'sorceries',   dlc:'Base',y:900, x:2200,loc:"Heretical Rise",                  img:"founding_rain_of_stars_sorcery_elden_ring_wiki_guide"},
+  {id:'s006',name:"Ranni's Dark Moon",     cat:'sorceries',   dlc:'Base',y:1320,x:1180,loc:"Chelona's Rise",                  img:"rannis_dark_moon_sorcery_elden_ring_wiki_guide"},
+  {id:'s007',name:"Night Comet",           cat:'sorceries',   dlc:'Base',y:2280,x:2640,loc:"Sellia, Town of Sorcery",         img:"night_comet_sorcery_elden_ring_wiki_guide"},
+  // Incantations
+  {id:'i001',name:"Flame, Grant Me Strength",cat:'incantations',dlc:'Base',y:2580,x:2820,loc:"Fort Gael",                    img:"flame_grant_me_strength_incantation_elden_ring_wiki_guide"},
+  {id:'i002',name:"Golden Vow",            cat:'incantations', dlc:'Base',y:1450,x:1480,loc:"Corpse-Stench Shack",            img:"golden_vow_incantation_elden_ring_wiki_guide"},
+  {id:'i003',name:"Elden Stars",           cat:'incantations', dlc:'Base',y:2780,x:1750,loc:"Deeproot Depths",                img:"elden_stars_incantation_elden_ring_wiki_guide"},
+  {id:'i004',name:"Giantsflame Take Thee", cat:'incantations', dlc:'Base',y:950, x:2600,loc:"Foot of the Forge",              img:"giantsflame_take_thee_incantation_elden_ring_wiki_guide"},
+  {id:'i005',name:"Swarm of Flies",        cat:'incantations', dlc:'Base',y:2200,x:900, loc:"Mohgwyn Palace",                  img:"swarm_of_flies_incantation_elden_ring_wiki_guide"},
+  {id:'i006',name:"Black Flame",           cat:'incantations', dlc:'Base',y:1880,x:1960,loc:"Godslayer's Evergaol",            img:"black_flame_incantation_elden_ring_wiki_guide"},
+  {id:'i007',name:"Placidusax's Ruin",     cat:'incantations', dlc:'Base',y:760, x:3180,loc:"Farum Azula – Dragonlord",        img:"placidusaxs_ruin_incantation_elden_ring_wiki_guide"},
+  {id:'i008',name:"Scarlet Aeonia",        cat:'incantations', dlc:'Base',y:680, x:1230,loc:"Enia – Malenia",                  img:"scarlet_aeonia_incantation_elden_ring_wiki_guide"},
+  // Spirit Ashes
+  {id:'sp01',name:"Mimic Tear Ashes",      cat:'spiritashes',  dlc:'Base',y:2580,x:2300,loc:"Nokron – Stonesword Key",         img:"mimic_tear_ashes_spirit_elden_ring_wiki_guide"},
+  {id:'sp02',name:"Black Knife Tiche Ashes",cat:'spiritashes', dlc:'Base',y:1350,x:1350,loc:"Ringleader's Evergaol",           img:"black_knife_tiche_spirit_ashes_elden_ring_wiki_guide"},
+  {id:'sp03',name:"Lhutel the Headless",   cat:'spiritashes',  dlc:'Base',y:3050,x:1900,loc:"Tombsward Catacombs",             img:"lhutel_the_headless_spirit_ashes_elden_ring_wiki_guide"},
+  {id:'sp04',name:"Lone Wolf Ashes",       cat:'spiritashes',  dlc:'Base',y:2650,x:1900,loc:"Renna / Kalé vendor",             img:"lone_wolf_ashes_spirit_elden_ring_wiki_guide"},
+  {id:'sp05',name:"Cleanrot Knight Finlay",cat:'spiritashes',  dlc:'Base',y:720, x:1280,loc:"Elphael – cadavere",              img:"cleanrot_knight_finlay_spirit_ashes_elden_ring_wiki_guide"},
+  // Shields
+  {id:'sh01',name:"Erdtree Greatshield",   cat:'shields',      dlc:'Base',y:980, x:1500,loc:"Consecrated Snowfield",           img:"erdtree_greatshield_shields_elden_ring_wiki_guide"},
+  {id:'sh02',name:"Haligtree Crest Greatshield",cat:'shields', dlc:'Base',y:720, x:1260,loc:"Elphael",                         img:"haligtree_crest_greatshield_shields_elden_ring_wiki_guide"},
+  {id:'sh03',name:"One-Eyed Shield",       cat:'shields',      dlc:'Base',y:2680,x:2870,loc:"Redmane Castle",                  img:"one-eyed_shield_shields_elden_ring_wiki_guide"},
+  {id:'sh04',name:"Dragon Towershield",    cat:'shields',      dlc:'SotE',y:3200,x:3600,loc:"SotE – Ancient Ruins",            img:"dragon_towershield_shields_elden_ring_wiki_guide"},
+];
+
+// ── FILTER STATE ─────────────────────────────────────────────────────────────
+const FT={cats:new Set(Object.keys(CAT_META)),dlc:'all',found:false,search:''};
+
+// ── LEAFLET MAP ───────────────────────────────────────────────────────────────
+// Use a simple image overlay with CRS.Simple
+// Map image is 2048×2048 for display; our pin coordinates are in 4096×4096 space
+// so we divide by 2
+
+const SCALE=0.5; // our coords are 4096-space, image is 2048
+const mapH=2048, mapW=2048;
+const bounds=[[0,0],[mapH,mapW]];
+
+const map=L.map('map',{
+  crs:L.CRS.Simple,
+  minZoom:-2,maxZoom:3,
+  zoomControl:true,
+  attributionControl:true,
+});
+
+// Try to load the map image; fallback to a dark canvas if it fails
+const imgLayer=L.imageOverlay(MAP_IMG, bounds, {
+  attribution:'Map © FromSoftware · Fan art/data: eldenring.wiki.gg',
+  errorOverlayUrl:''
+}).addTo(map);
+map.fitBounds(bounds);
+map.setView([mapH/2,mapW/2],-1);
+
+// ── MARKERS ───────────────────────────────────────────────────────────────────
+const IB='https://eldenring.wiki.fextralife.com/file/Elden-Ring/';
+const IS='_elden_ring_wiki_guide_200px.png';
+const markerMap={};   // id → leaflet marker
+const markerLayer=L.layerGroup().addTo(map);
+
+function makeMarker(pin){
+  const meta=CAT_META[pin.cat]||{icon:'📦',color:'#888'};
+  const found=isFound(pin.cat,pin.name);
+  const imgUrl=pin.img?IB+pin.img+IS:null;
+  const inner=imgUrl
+    ? `<img class="marker-inner" src="${imgUrl}" onerror="this.outerHTML='<span class=marker-inner-emoji>${meta.icon}</span>'">`
+    : `<span class="marker-inner-emoji">${meta.icon}</span>`;
+  const html=`<div class="map-marker${found?' found-marker':''}" style="color:${meta.color};border-color:${meta.color}">${inner}</div>`;
+  const icon=L.divIcon({html,className:'',iconSize:[28,28],iconAnchor:[14,14]});
+  // Convert 4096-space to 2048-space
+  const latLng=[mapH-(pin.y*SCALE), pin.x*SCALE];
+  const marker=L.marker(latLng,{icon}).addTo(markerLayer);
+  marker.bindPopup(makePopup(pin),{maxWidth:240,className:'er-popup'});
+  marker.on('click',()=>{ highlightPin(pin.id); });
+  markerMap[pin.id]=marker;
+}
+
+function makePopup(pin){
+  const meta=CAT_META[pin.cat]||{icon:'📦',color:'#888'};
+  const found=isFound(pin.cat,pin.name);
+  const imgUrl=pin.img?IB+pin.img+IS:null;
+  const imgHtml=imgUrl
+    ? `<img src="${imgUrl}" style="width:36px;height:36px;object-fit:contain" onerror="this.outerHTML='<span style=font-size:20px>${meta.icon}</span>'">`
+    : `<span style="font-size:24px">${meta.icon}</span>`;
+  return `<div class="popup-inner">
+    <div class="popup-img-row">
+      <div class="popup-img">${imgHtml}</div>
+      <div class="popup-title">${pin.name}</div>
+    </div>
+    <div class="popup-loc">📍 ${pin.loc}</div>
+    <div class="popup-badges">
+      <span class="badge ${pin.dlc==='SotE'?'badge-sote':'badge-base'}">${pin.dlc}</span>
+      <span class="badge" style="background:rgba(0,0,0,.3);color:var(--text2);border:1px solid var(--border2)">${t('cat_'+pin.cat.replace('spiritashes','spiritashes'))}</span>
+    </div>
+    <button class="popup-btn${found?' found-btn':''}" onclick="handlePopupToggle('${pin.id}','${pin.cat}','${pin.name.replace(/'/g,'\\\'')}')" id="pbtn-${pin.id}">
+      ${found?t('unfound_btn'):t('found_btn')}
+    </button>
+  </div>`;
+}
+
+function handlePopupToggle(id,cat,name){
+  const found=toggleFound(cat,name);
+  refreshMarker(id,cat,name,found);
+  document.getElementById('navStat').textContent=totalFound()+' '+t('nav_found');
+  renderPinList();
+}
+
+function refreshMarker(id,cat,name,found){
+  const pin=PINS.find(p=>p.id===id);
+  if(!pin)return;
+  const marker=markerMap[id];
+  if(!marker)return;
+  const meta=CAT_META[cat]||{icon:'📦',color:'#888'};
+  const imgUrl=pin.img?IB+pin.img+IS:null;
+  const inner=imgUrl
+    ? `<img class="marker-inner" src="${imgUrl}" onerror="this.outerHTML='<span class=marker-inner-emoji>${meta.icon}</span>'">`
+    : `<span class="marker-inner-emoji">${meta.icon}</span>`;
+  const html=`<div class="map-marker${found?' found-marker':''}" style="color:${meta.color};border-color:${meta.color}">${inner}</div>`;
+  const icon=L.divIcon({html,className:'',iconSize:[28,28],iconAnchor:[14,14]});
+  marker.setIcon(icon);
+  marker.setPopupContent(makePopup(pin));
+  // update list item
+  const li=document.getElementById('li-'+id);
+  if(li){ li.classList.toggle('found-pin',found); li.querySelector('.pin-check').textContent=found?'✓':''; }
+}
+
+// ── SIDEBAR ───────────────────────────────────────────────────────────────────
+function getVisiblePins(){
+  let pins=PINS.slice();
+  // category filter
+  pins=pins.filter(p=>FT.cats.has(p.cat));
+  // dlc filter
+  if(FT.dlc==='base') pins=pins.filter(p=>p.dlc==='Base');
+  if(FT.dlc==='sote') pins=pins.filter(p=>p.dlc==='SotE');
+  // found filter
+  if(FT.found) pins=pins.filter(p=>isFound(p.cat,p.name));
+  // search
+  const q=FT.search.toLowerCase();
+  if(q) pins=pins.filter(p=>p.name.toLowerCase().includes(q)||p.loc.toLowerCase().includes(q));
+  return pins;
+}
+
+function renderPinList(){
+  const visible=getVisiblePins();
+  const visibleIds=new Set(visible.map(p=>p.id));
+  // Show/hide markers
+  PINS.forEach(p=>{
+    const m=markerMap[p.id];
+    if(!m)return;
+    if(visibleIds.has(p.id)) markerLayer.addLayer(m);
+    else markerLayer.removeLayer(m);
+  });
+  // Render list
+  const list=document.getElementById('pinList');
+  list.innerHTML=visible.map(pin=>{
+    const meta=CAT_META[pin.cat]||{icon:'📦',color:'#888'};
+    const found=isFound(pin.cat,pin.name);
+    const imgUrl=pin.img?IB+pin.img+IS:null;
+    const imgHtml=imgUrl?`<img src="${imgUrl}" style="width:22px;height:22px;object-fit:contain" onerror="this.outerHTML='${meta.icon}'">`:`<span>${meta.icon}</span>`;
+    return`<div class="pin-item${found?' found-pin':''}" id="li-${pin.id}" onclick="flyToPin('${pin.id}')">
+      <div class="pin-dot" style="color:${meta.color};border-color:${meta.color}"></div>
+      <div class="pin-img">${imgHtml}</div>
+      <div class="pin-info">
+        <div class="pin-name">${pin.name}</div>
+        <div class="pin-cat">${pin.loc.split('–')[0].trim()}</div>
+      </div>
+      <div class="pin-check">${found?'✓':''}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('pinCount').textContent=`${visible.length} pin visibili`;
+}
+
+function flyToPin(id){
+  const pin=PINS.find(p=>p.id===id);
+  if(!pin)return;
+  const latLng=[mapH-(pin.y*SCALE),pin.x*SCALE];
+  map.flyTo(latLng,1,{duration:.8});
+  setTimeout(()=>{ const m=markerMap[id]; if(m)m.openPopup(); },900);
+  document.querySelectorAll('.pin-item').forEach(li=>li.classList.remove('active-pin'));
+  const li=document.getElementById('li-'+id);
+  if(li){li.classList.add('active-pin');li.scrollIntoView({block:'nearest',behavior:'smooth'});}
+}
+function highlightPin(id){
+  document.querySelectorAll('.pin-item').forEach(li=>li.classList.remove('active-pin'));
+  const li=document.getElementById('li-'+id);
+  if(li){li.classList.add('active-pin');li.scrollIntoView({block:'nearest',behavior:'smooth'});}
+}
+
+// ── CATEGORY PILLS ────────────────────────────────────────────────────────────
+function renderCatPills(){
+  document.getElementById('catPills').innerHTML=Object.entries(CAT_META).map(([id,m])=>`
+    <button class="cat-pill${FT.cats.has(id)?' active':''}" data-cat="${id}" onclick="toggleCat('${id}')">
+      ${m.icon} ${t(m.labelKey)}
+    </button>`).join('');
+}
+function toggleCat(id){
+  if(FT.cats.has(id)&&FT.cats.size>1) FT.cats.delete(id);
+  else FT.cats.add(id);
+  renderCatPills(); renderPinList();
+}
+
+// ── FILTER CONTROLS ───────────────────────────────────────────────────────────
+function setDlcFilter(v){
+  FT.dlc=v;
+  document.getElementById('btnDlcAll').classList.toggle('active',v==='all');
+  document.getElementById('btnDlcBase').classList.toggle('active',v==='base');
+  document.getElementById('btnDlcSote').classList.toggle('active',v==='sote');
+  renderPinList();
+}
+function toggleFoundFilter(){
+  FT.found=!FT.found;
+  document.getElementById('btnFound').classList.toggle('active',FT.found);
+  renderPinList();
+}
+let st; document.getElementById('mapSearch').addEventListener('input',e=>{
+  clearTimeout(st); st=setTimeout(()=>{FT.search=e.target.value;renderPinList();},160);
+});
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+PINS.forEach(makeMarker);
+renderCatPills();
+renderPinList();
 </script>
 </body>
 </html>

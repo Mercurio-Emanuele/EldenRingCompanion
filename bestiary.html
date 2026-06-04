@@ -2,169 +2,295 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Bestiario — Elden Ring</title>
-<link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/nav.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-.bestiary-shell { padding-top: var(--nav-h); min-height: 100vh; }
-.bestiary-header {
-  padding: 28px 24px 20px;
-  background: linear-gradient(180deg, var(--bg2), var(--bg));
-  border-bottom: 1px solid var(--border);
-}
-.bestiary-header h1 { font-size: 26px; }
-.bestiary-header p  { font-size: 13px; color: var(--text3); font-family: var(--font-display); letter-spacing:.1em; margin-top:4px; }
-
-.bestiary-body {
-  max-width: 1100px; margin: 0 auto;
-  padding: 32px 24px 60px;
-}
-
-/* Ghost preview boss cards */
-.boss-preview {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 12px;
-  opacity: .35;
-  pointer-events: none;
-  margin-bottom: 32px;
-}
-.boss-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-.boss-thumb {
-  height: 80px;
-  background: radial-gradient(ellipse at center, var(--surface2), var(--bg));
-  display: flex; align-items: center; justify-content: center;
-  font-size: 36px; border-bottom: 1px solid var(--border);
-}
-.boss-info { padding: 12px; }
-.boss-name { font-family: var(--font-display); font-size: 11px; color: var(--gold); letter-spacing:.05em; margin-bottom:6px; }
-.boss-meta { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px; }
-.boss-hp { font-size: 11px; color: var(--text2); }
-.weakness-row { display:flex; gap:4px; margin-top:6px; }
-.weak-dot { width:16px; height:16px; border-radius:3px; display:flex;align-items:center;justify-content:center; font-size:9px; }
-
-/* Coming soon card */
-.coming-card {
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  border-radius: var(--radius-lg);
-  padding: 32px 24px; text-align: center;
-}
-.coming-card h2 { font-size: 18px; margin-bottom: 10px; }
-.coming-card p  { font-size: 14px; color: var(--text3); margin-bottom: 20px; max-width: 440px; margin-left:auto; margin-right:auto; }
-
-.features-list {
-  display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px;
-}
-.feature-pill {
-  background: var(--surface2); border: 1px solid var(--border2);
-  border-radius: 20px; padding: 6px 14px;
-  font-family: var(--font-display); font-size: 10px; letter-spacing:.07em; color: var(--text2);
-  display: flex; align-items: center; gap: 6px;
-}
-
-@media(max-width:600px){ .bestiary-body{padding:20px 14px 48px} }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d0c0b;--bg2:#141210;--surface:#1c1915;--surface2:#242018;--border:#2e2920;--border2:#3d3628;--gold:#c9a94e;--gold2:#e8c96a;--gold-dim:#7a6530;--gold-glow:rgba(201,169,78,.18);--text:#d4c9b0;--text2:#8a8070;--text3:#5a5448;--green:#2a6040;--green2:#3a8055;--sote-bg:rgba(74,48,96,.4);--sote-clr:#9a70c8;--sote-bdr:rgba(122,80,160,.3);--nav-h:54px;--r:6px;--ff-d:'Cinzel',serif;--ff-b:'Crimson Pro',Georgia,serif;}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--ff-b);font-size:16px;line-height:1.5;min-height:100vh;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.5}
+a{color:var(--gold);text-decoration:none}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.topnav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:linear-gradient(180deg,#0a0908f0,#0d0c0bcc);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);z-index:200}
+.topnav-inner{max-width:1440px;margin:0 auto;padding:0 20px;height:100%;display:flex;align-items:center}
+.nav-logo{display:flex;align-items:center;gap:8px;font-family:var(--ff-d);font-size:14px;font-weight:700;color:var(--gold);letter-spacing:.1em;margin-right:28px;white-space:nowrap;flex-shrink:0}
+.nav-links{display:flex;align-items:stretch;height:var(--nav-h);flex:1;overflow-x:auto;scrollbar-width:none}
+.nav-links::-webkit-scrollbar{display:none}
+.nav-link{display:flex;align-items:center;gap:5px;padding:0 14px;font-family:var(--ff-d);font-size:10px;letter-spacing:.1em;color:var(--text3);border-bottom:2px solid transparent;transition:color .2s,border-color .2s;white-space:nowrap}
+.nav-link:hover{color:var(--text2)}.nav-link.active{color:var(--gold);border-bottom-color:var(--gold)}
+.nav-wip{font-size:8px;background:rgba(60,100,180,.3);color:#7aaaee;border:1px solid rgba(80,130,200,.3);border-radius:3px;padding:1px 4px}
+.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
+.nav-stat{font-family:var(--ff-d);font-size:10px;color:var(--text2);background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:4px 10px;white-space:nowrap}
+.lang-toggle{display:flex;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);overflow:hidden}
+.lang-btn{background:none;border:none;padding:5px 9px;font-family:var(--ff-d);font-size:10px;color:var(--text3);cursor:pointer;transition:all .15s}
+.lang-btn.active{background:rgba(201,169,78,.12);color:var(--gold)}
+.badge{display:inline-block;font-size:9px;font-family:var(--ff-d);letter-spacing:.07em;padding:2px 6px;border-radius:3px;white-space:nowrap}
+.badge-sote{background:var(--sote-bg);color:var(--sote-clr);border:1px solid var(--sote-bdr)}
+.badge-major{background:rgba(180,60,60,.2);color:#e07070;border:1px solid rgba(180,60,60,.3)}
+.badge-field{background:rgba(60,100,60,.2);color:#70b870;border:1px solid rgba(60,100,60,.3)}
+.badge-optional{background:rgba(80,80,160,.2);color:#9090e0;border:1px solid rgba(80,80,160,.3)}
+.page{padding-top:var(--nav-h)}
+.page-header{padding:28px 24px 20px;background:linear-gradient(180deg,var(--bg2),var(--bg));border-bottom:1px solid var(--border)}
+.page-header h1{font-family:var(--ff-d);font-size:clamp(18px,3vw,26px);color:var(--gold);letter-spacing:.06em}
+.page-header p{font-size:13px;color:var(--text3);font-family:var(--ff-d);letter-spacing:.1em;margin-top:4px}
+/* FILTERS */
+.filters{position:sticky;top:var(--nav-h);z-index:100;background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 24px}
+.filter-row{max-width:1440px;margin:0 auto;display:flex;align-items:center;flex-wrap:wrap;gap:7px}
+.chip{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:5px 12px;font-size:11px;font-family:var(--ff-d);letter-spacing:.05em;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap}
+.chip:hover{border-color:var(--gold-dim);color:var(--text)}
+.chip.active{background:rgba(201,169,78,.1);border-color:var(--gold-dim);color:var(--gold)}
+.search-wrap{position:relative;flex:1;min-width:160px;max-width:300px}
+.search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:13px;pointer-events:none}
+.search-inp{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:6px 10px 6px 30px;color:var(--text);font-family:var(--ff-b);font-size:14px;outline:none;transition:border-color .2s}
+.search-inp::placeholder{color:var(--text3)}
+.search-inp:focus{border-color:var(--gold-dim)}
+.res-label{margin-left:auto;font-size:11px;color:var(--text3);font-family:var(--ff-d);white-space:nowrap}
+/* GRID */
+.grid-wrap{max-width:1440px;margin:0 auto;padding:16px 24px 60px}
+.boss-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+/* BOSS CARD */
+.boss-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:border-color .2s,transform .15s;animation:fadeIn .22s ease both;position:relative}
+.boss-card:hover{border-color:var(--border2);transform:translateY(-1px)}
+.boss-card.defeated{background:#1a2a1e;border-color:#2a5035}
+.boss-card.defeated .boss-name{color:var(--green2)}
+.boss-banner{height:72px;background:radial-gradient(ellipse at 60% 40%,var(--banner-color,#2a2015) 0%,var(--bg) 70%);display:flex;align-items:center;justify-content:flex-end;padding:0 16px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+.boss-banner::before{content:attr(data-icon);position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:52px;opacity:.12;pointer-events:none}
+.boss-banner-badges{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.boss-body{padding:12px 14px}
+.boss-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+.boss-icon-wrap{width:44px;height:44px;background:var(--surface2);border:1px solid var(--border2);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.boss-info{flex:1;min-width:0}
+.boss-name{font-family:var(--ff-d);font-size:12px;font-weight:600;color:var(--text);letter-spacing:.04em;line-height:1.3;margin-bottom:3px}
+.boss-zone{font-size:12px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.boss-defeated-check{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:10px;background:var(--surface2);transition:all .2s;color:transparent;flex-shrink:0}
+.boss-card.defeated .boss-defeated-check{background:var(--green);border-color:var(--green2);color:#b0e8c0}
+/* stats row */
+.boss-stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.bstat{font-size:11px;font-family:var(--ff-d);color:var(--text2)}
+.bstat span{color:var(--text)}
+/* weakness dots */
+.weakness-row{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.weak-label{font-size:10px;color:var(--text3);font-family:var(--ff-d);margin-right:2px}
+.wdot{width:18px;height:18px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:default}
+/* drops */
+.drops-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+.drop-tag{font-size:9px;font-family:var(--ff-d);letter-spacing:.04em;background:var(--surface2);border:1px solid var(--border2);border-radius:3px;padding:2px 6px;color:var(--text3);white-space:nowrap}
+.drop-tag.remembrance{background:rgba(201,169,78,.08);border-color:rgba(201,169,78,.25);color:var(--gold)}
+/* expand panel */
+.boss-expand{max-height:0;overflow:hidden;transition:max-height .3s ease;background:var(--surface2);border-top:1px solid var(--border)}
+.boss-card.expanded .boss-expand{max-height:200px}
+.boss-expand-inner{padding:12px 14px}
+.strategy-title{font-family:var(--ff-d);font-size:10px;color:var(--gold);letter-spacing:.08em;margin-bottom:6px}
+.strategy-text{font-size:13px;color:var(--text2);line-height:1.5}
+/* shimmer */
+@keyframes shimmer{0%{left:-100%}100%{left:200%}}
+.boss-card.shimmer::after{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(58,128,85,.12),transparent);animation:shimmer .6s ease;pointer-events:none}
+footer{text-align:center;padding:18px;border-top:1px solid var(--border)}
+footer p{font-size:10px;color:var(--text3);font-family:var(--ff-d);letter-spacing:.06em}
+@keyframes fadeIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:900px){.nav-logo span:last-child{display:none}.nav-link span:not(:first-child){display:none}.nav-link{padding:0 10px}.nav-stat{display:none}}
+@media(max-width:600px){.filters,.grid-wrap{padding-left:14px;padding-right:14px}.boss-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<div class="bestiary-shell">
-  <div class="bestiary-header">
-    <h1 data-i18n="bestiary_title">📖 Bestiario</h1>
-    <p data-i18n="bestiary_sub">Nemici, boss, drop e strategie</p>
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="index.html" class="nav-logo">⚔ <span>ELDEN RING</span></a>
+    <div class="nav-links">
+      <a href="index.html"    class="nav-link"><span>📋</span><span id="lbl-tracker">Tracker</span></a>
+      <a href="map.html"      class="nav-link"><span>🗺️</span><span id="lbl-map">Mappa</span></a>
+      <a href="build.html"    class="nav-link"><span>⚙️</span><span id="lbl-build">Build Planner</span></a>
+      <a href="bestiary.html" class="nav-link active"><span>📖</span><span id="lbl-bestiary">Bestiario</span></a>
+    </div>
+    <div class="nav-right">
+      <div class="nav-stat" id="navStat"></div>
+      <div class="lang-toggle">
+        <button class="lang-btn" id="btnIT" onclick="setLang('it')">IT</button>
+        <button class="lang-btn" id="btnEN" onclick="setLang('en')">EN</button>
+      </div>
+    </div>
   </div>
-
-  <div class="bestiary-body">
-
-    <!-- Ghost boss cards preview -->
-    <div class="boss-preview" aria-hidden="true">
-      <div class="boss-card">
-        <div class="boss-thumb">🐺</div>
-        <div class="boss-info">
-          <div class="boss-name">Margit, the Fell Omen</div>
-          <div class="boss-meta">
-            <span class="badge badge-base">Boss Maggiore</span>
-          </div>
-          <div class="boss-hp">HP: 3,283 (NG)</div>
-          <div class="weakness-row">
-            <div class="weak-dot" style="background:rgba(201,169,78,.2);color:var(--gold)" title="Sacro">✝</div>
-            <div class="weak-dot" style="background:rgba(100,140,200,.2);color:#7aaaee" title="Magia">✦</div>
-          </div>
-        </div>
+</nav>
+<div class="page">
+  <div class="page-header">
+    <h1 id="pg-title">📖 Bestiario</h1>
+    <p id="pg-sub">Boss, nemici, drop e strategie</p>
+  </div>
+  <div class="filters">
+    <div class="filter-row">
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input id="searchInp" class="search-inp" placeholder="Cerca boss…">
       </div>
-      <div class="boss-card">
-        <div class="boss-thumb">🐉</div>
-        <div class="boss-info">
-          <div class="boss-name">Godrick the Grafted</div>
-          <div class="boss-meta">
-            <span class="badge badge-base">Boss Principale</span>
-          </div>
-          <div class="boss-hp">HP: 4,842 (NG)</div>
-          <div class="weakness-row">
-            <div class="weak-dot" style="background:rgba(200,100,100,.2);color:#c87070" title="Fuoco">🔥</div>
-            <div class="weak-dot" style="background:rgba(100,180,100,.2);color:#70b870" title="Veleno">☠</div>
-          </div>
-        </div>
-      </div>
-      <div class="boss-card">
-        <div class="boss-thumb">🌙</div>
-        <div class="boss-info">
-          <div class="boss-name">Rennala, Queen of the Full Moon</div>
-          <div class="boss-meta">
-            <span class="badge badge-base">Boss Principale</span>
-          </div>
-          <div class="boss-hp">HP: 3,587 (NG)</div>
-          <div class="weakness-row">
-            <div class="weak-dot" style="background:rgba(200,100,100,.2);color:#c87070" title="Fuoco">🔥</div>
-            <div class="weak-dot" style="background:rgba(201,169,78,.2);color:var(--gold)" title="Bleed">💧</div>
-          </div>
-        </div>
-      </div>
-      <div class="boss-card">
-        <div class="boss-thumb">⚔️</div>
-        <div class="boss-info">
-          <div class="boss-name">Starscourge Radahn</div>
-          <div class="boss-meta">
-            <span class="badge badge-base">Boss Principale</span>
-          </div>
-          <div class="boss-hp">HP: 9,044 (NG)</div>
-          <div class="weakness-row">
-            <div class="weak-dot" style="background:rgba(100,140,200,.2);color:#7aaaee" title="Magia">✦</div>
-          </div>
-        </div>
-      </div>
+      <button class="chip active" data-f="all">Tutti</button>
+      <button class="chip" data-f="major">Boss Principali</button>
+      <button class="chip" data-f="field">Field Boss</button>
+      <button class="chip" data-f="optional">Opzionali</button>
+      <button class="chip" data-f="sote">DLC</button>
+      <button class="chip" data-f="defeated">✓ Sconfitti</button>
+      <span class="res-label" id="resLabel"></span>
     </div>
-
-    <!-- Coming soon -->
-    <div class="coming-card">
-      <div style="font-size:40px;margin-bottom:12px;opacity:.3">📖</div>
-      <h2 data-i18n="bestiary_coming">In costruzione</h2>
-      <p data-i18n="bestiary_coming_desc">L'enciclopedia di nemici e boss con strategie e drop table è in sviluppo.</p>
-      <div class="features-list">
-        <div class="feature-pill">👹 Tutti i 165+ boss</div>
-        <div class="feature-pill">💀 Nemici normali per zona</div>
-        <div class="feature-pill">🎁 Drop table completa</div>
-        <div class="feature-pill">⚡ Debolezze e resistenze</div>
-        <div class="feature-pill">📖 Strategie di combattimento</div>
-        <div class="feature-pill">🎮 Video guide embed</div>
-        <div class="feature-pill">✅ Segna boss sconfitti</div>
-      </div>
-    </div>
-
+  </div>
+  <div class="grid-wrap">
+    <div class="boss-grid" id="bossGrid"></div>
   </div>
 </div>
+<footer><p>Fan project non ufficiale · Elden Ring © FromSoftware / Bandai Namco · Dati: eldenring.wiki.gg</p></footer>
 
-<script src="js/i18n.js"></script>
-<script src="js/data.js"></script>
-<script src="js/nav.js"></script>
 <script>
-  buildNav('bestiary');
-  window.addEventListener('langchange', () => buildNav('bestiary'));
+const TR={
+  it:{nav_tracker:'Tracker',nav_map:'Mappa',nav_build:'Build Planner',nav_bestiary:'Bestiario',nav_found:'trovati',pg_title:'📖 Bestiario',pg_sub:'Boss, nemici, drop e strategie',results:'risultati',filter_all:'Tutti',filter_major:'Boss Principali',filter_field:'Field Boss',filter_optional:'Opzionali',filter_sote:'DLC',filter_defeated:'✓ Sconfitti',strategy:'Strategia'},
+  en:{nav_tracker:'Tracker',nav_map:'Map',nav_build:'Build Planner',nav_bestiary:'Bestiary',nav_found:'found',pg_title:'📖 Bestiary',pg_sub:'Bosses, enemies, drops & strategies',results:'results',filter_all:'All',filter_major:'Main Bosses',filter_field:'Field Bosses',filter_optional:'Optional',filter_sote:'DLC',filter_defeated:'✓ Defeated',strategy:'Strategy'}
+};
+function getLang(){return localStorage.getItem('er_lang')||'it';}
+function setLang(l){localStorage.setItem('er_lang',l);location.reload();}
+function t(k){return(TR[getLang()]||TR.it)[k]||k;}
+function getFound(){return JSON.parse(localStorage.getItem('er_found')||'{}');}
+function totalFound(){return Object.values(getFound()).filter(Boolean).length;}
+function getDefeated(){return JSON.parse(localStorage.getItem('er_defeated')||'{}');}
+function saveDefeated(o){localStorage.setItem('er_defeated',JSON.stringify(o));}
+function isDefeated(id){return !!getDefeated()[id];}
+function toggleDefeated(id){const d=getDefeated();d[id]=!d[id];if(!d[id])delete d[id];saveDefeated(d);return d[id]||false;}
+
+(function(){
+  const lang=getLang();
+  document.getElementById('btnIT').classList.toggle('active',lang==='it');
+  document.getElementById('btnEN').classList.toggle('active',lang==='en');
+  document.getElementById('navStat').textContent=totalFound()+' '+t('nav_found');
+  document.getElementById('pg-title').textContent=t('pg_title');
+  document.getElementById('pg-sub').textContent=t('pg_sub');
+  ['tracker','map','build','bestiary'].forEach(k=>{
+    const el=document.getElementById('lbl-'+k);if(el)el.textContent=t('nav_'+k);
+  });
+})();
+
+// weakness icons
+const WEAK={phys:'💥',fire:'🔥',magic:'✦',lightning:'⚡',holy:'✝',bleed:'🩸',poison:'☠',frost:'❄',sleep:'💤',madness:'🌀',gravity:'⬇',sacred:'✝'};
+const WEAK_COLORS={phys:'rgba(200,150,80,.25)',fire:'rgba(220,80,40,.25)',magic:'rgba(80,80,220,.25)',lightning:'rgba(220,200,40,.25)',holy:'rgba(200,200,80,.25)',bleed:'rgba(180,40,80,.25)',poison:'rgba(80,180,80,.25)',frost:'rgba(100,180,220,.25)',sleep:'rgba(120,120,200,.25)',madness:'rgba(160,80,200,.25)',gravity:'rgba(120,100,80,.25)',sacred:'rgba(200,180,80,.25)'};
+
+const BOSSES=[
+  {id:'margit',   name:"Margit, the Fell Omen",   zone:"Stormhill – Stormveil",    type:'major',  dlc:false, icon:'🐺', color:'#3a2a1a', hp:3283,  runes:12000, weakness:['magic','fire'],       resist:['holy'],      drops:["Remembrance of the Grafted","Margit's Shackle"],        strategy:"Tenete distanza media, aspettate le aperture dopo i combo a 3 colpi. Il coltello d'oro può essere parato. La seconda fase introduce un martello – state al lato sinistro."},
+  {id:'godrick',  name:"Godrick the Grafted",      zone:"Stormveil Castle",         type:'major',  dlc:false, icon:'👁', color:'#2a3a1a', hp:4842,  runes:20000, weakness:['fire','bleed'],       resist:['lightning'], drops:["Remembrance of the Grafted","Godrick's Great Rune"],     strategy:"Fase 1: sfruttate i fendenti lenti per colpire. Fase 2: attenzione al respiro di drago, tenetevi sul lato sinistro del braccio innestato."},
+  {id:'rennala',  name:"Rennala, Queen of the Full Moon", zone:"Raya Lucaria Academy", type:'major', dlc:false, icon:'🌕', color:'#1a1a3a', hp:3587, runes:40000, weakness:['fire','bleed'],    resist:['magic'],     drops:["Remembrance of the Full Moon Queen","Great Rune of the Unborn"], strategy:"Fase 1: uccidete gli studenti dorati per far cadere Rennala. Fase 2: usate la distanza, schivate sotto i proiettili lunari."},
+  {id:'radahn',   name:"Starscourge Radahn",       zone:"Redmane Castle – Caelid",  type:'major',  dlc:false, icon:'⭐', color:'#3a1a1a', hp:9044,  runes:70000, weakness:['magic','frost'],     resist:['lightning'], drops:["Remembrance of the Starscourge","Radahn's Great Rune"],  strategy:"Usate i PNG convocabili per distrarlo. Cavalcate Torrent per le cariche. Fase 2 (meteora): avvicinatevi subito per evitare i missili."},
+  {id:'morgott',  name:"Morgott, the Omen King",   zone:"Leyndell Royal Capital",   type:'major',  dlc:false, icon:'👑', color:'#3a2a0a', hp:8912,  runes:90000, weakness:['fire','bleed'],      resist:['holy'],      drops:["Remembrance of the Omen King","Morgott's Great Rune"],   strategy:"Versione potenziata di Margit: stessa logica ma combo più veloci. In fase 2 appaiono attacchi di lancia e pioggia di coltelli."},
+  {id:'malenia',  name:"Malenia, Blade of Miquella", zone:"Elphael – Haligtree",  type:'major',  dlc:false, icon:'🌺', color:'#3a1a2a', hp:33251, runes:480000,weakness:['frost','fire'],      resist:['scarlet_rot'],drops:["Remembrance of the Rot Goddess","Malenia's Great Rune"],  strategy:"Il boss più difficile. Non parate mai – drena HP anche parati. Imparate Waterfowl Dance: schivate verso di lei le prime 4 lame, poi indietro. Fase 2: nuovi attacchi aerei."},
+  {id:'mohg',     name:"Mohg, Lord of Blood",      zone:"Mohgwyn Dynasty Mausoleum",type:'major',  dlc:false, icon:'🩸', color:'#2a0a1a', hp:18000, runes:420000,weakness:['holy','frost'],      resist:['fire'],      drops:["Remembrance of the Blood Lord","Mohg's Great Rune"],     strategy:"Usate Purifying Crystal Tear per annullare la maledizione in fase 2. Schivate i geyser di sangue. Non bloccate con gli scudi – usate la schivata."},
+  {id:'rykard',   name:"Rykard, Lord of Blasphemy", zone:"Volcano Manor",          type:'major',  dlc:false, icon:'🐍', color:'#3a1a0a', hp:13710, runes:130000,weakness:['serp_hunter'],      resist:['fire'],      drops:["Remembrance of the Blasphemous","Rykard's Great Rune"],  strategy:"USATE la Serpent-Hunter trovata vicino all'ingresso. Le sue hitbox normali sono quasi immuni. Schivate il vomito di lava."},
+  {id:'maliketh', name:"Maliketh, the Black Blade", zone:"Crumbling Farum Azula", type:'major',  dlc:false, icon:'🖤', color:'#1a1a1a', hp:12621, runes:220000,weakness:['fire','bleed'],      resist:['holy'],      drops:["Remembrance of the Black Blade"],                         strategy:"Fase 1 (Gurranq): semplice, usate attacchi standard. Fase 2: MOLTO veloce, schivate verso di lui. Priorità: colpi veloci dopo i balzi."},
+  {id:'elden_beast',name:"Elden Beast",             zone:"Erdtree – Finale",        type:'major',  dlc:false, icon:'✨', color:'#2a2a3a', hp:22039, runes:500000,weakness:['bleed','frost'],     resist:['holy'],      drops:["Elden Remembrance"],                                     strategy:"Portate Estus extra (combattete Radagon prima). Schivate i missili sacri avvicinandovi. Nuotate verso i cerchi d'onda. Bleed build molto efficace."},
+  {id:'fire_giant',name:"Fire Giant",               zone:"Mountaintops of the Giants",type:'major',dlc:false, icon:'🔥', color:'#3a1a0a', hp:26217, runes:180000,weakness:['frost','bleed'],    resist:['fire'],      drops:["Remembrance of the Fire Giant"],                         strategy:"Fase 1: attaccate il tallone/piede sinistro. Fase 2: si strappa il busto – attaccate il teschio nel torace. Usate Torrent per restare mobili."},
+  {id:'godfrey_hg',name:"Godfrey, First Elden Lord (Shade)", zone:"Leyndell Ashen Capital",type:'field',dlc:false,icon:'🪓',color:'#2a2010',hp:10985,runes:80000,weakness:['magic','frost'],resist:['lightning'],drops:["Talisman – Erdtree's Favor +1"],                       strategy:"Attacco basato su asce e ascia. Fase 1 spettrale: imparate i timing, è quasi identico alla fase 2 corporea. Stayate aggressivi."},
+  {id:'crucible_knight',name:"Crucible Knight",     zone:"Stormhill Evergaol",      type:'field',  dlc:false, icon:'🛡', color:'#1a2a1a', hp:2062,  runes:3200,  weakness:['bleed','magic'],    resist:['fire'],      drops:["Aspects of the Crucible: Tail"],                          strategy:"Molto aggressivo. Schivate verso il suo scudo (lato sinistro vostro). Non siate avidi con i colpi: 1-2 hit per apertura."},
+  {id:'draconic_sentinel',name:"Draconic Tree Sentinel",zone:"Leyndell – Outer Wall",type:'field',dlc:false, icon:'🐉', color:'#2a1a0a', hp:8400,  runes:50000, weakness:['lightning','magic'], resist:['fire'],      drops:["Dragon Greatclaw","Crucible Hornshield"],                strategy:"Schivate il lightning strike avvicinandovi. I colpi di scudo sono parabili. Attaccate le gambe dopo i combo."},
+  {id:'night_cavalry',name:"Night's Cavalry",       zone:"Varie – solo di notte",   type:'field',  dlc:false, icon:'🌙', color:'#0a0a2a', hp:3200,  runes:8000,  weakness:['holy','bleed'],    resist:['frost'],     drops:["Night Rider Flail","Ash of War"],                         strategy:"Combattete a cavallo su Torrent per eguagliarne la mobilità. Colpite il cavallo per farlo cadere."},
+  {id:'astel',    name:"Astel, Naturalborn of the Void",zone:"Lake of Rot",        type:'major',  dlc:false, icon:'🌌', color:'#0a0a3a', hp:9493,  runes:80000, weakness:['bleed'],             resist:['magic'],     drops:["Remembrance of the Naturalborn"],                         strategy:"Schivate le onde gravitazionali rotolando verso il centro. Colpite la testa. Attenzione al grab attack – tiene per 5 secondi."},
+  {id:'placidusax',name:"Dragonlord Placidusax",    zone:"Crumbling Farum Azula",   type:'major',  dlc:false, icon:'⚡', color:'#2a1a0a', hp:17364, runes:280000,weakness:['frost','bleed'],    resist:['lightning'], drops:["Remembrance of the Dragonlord"],                          strategy:"Il boss segreto di Farum. Due teste, attacchi al fulmine dorato. Stayate appiccicati alla zampa anteriore sinistra. Fase 2: raggi laser dorati."},
+  {id:'messmer',  name:"Messmer the Impaler",       zone:"Shadow Keep – SotE",      type:'major',  dlc:true,  icon:'🔱', color:'#3a1a0a', hp:22000, runes:380000,weakness:['holy','frost'],    resist:['fire'],      drops:["Remembrance of the Impaler"],                             strategy:"DLC – Boss di fuoco e serpenti. Schivate verso di lui (non lontano). Fase 2: trasformazione serpente – colpite il corpo. Build sacra molto efficace."},
+  {id:'dancing_lion',name:"Divine Beast Dancing Lion",zone:"Belurat Tower Settlement – SotE",type:'major',dlc:true,icon:'🦁',color:'#2a2a1a',hp:18500,runes:250000,weakness:['lightning','bleed'],resist:['frost'],drops:["Remembrance of the Dancing Lion"],strategy:"Primo boss del DLC. Attacchi elementali variabili (vento, fulmine, neve). Stayate ai fianchi. Attenzione al ruggito – stordisce."},
+  {id:'bayle',    name:"Bayle the Dread",           zone:"Jagged Peak – SotE",      type:'major',  dlc:true,  icon:'🐲', color:'#3a0a0a', hp:28000, runes:500000,weakness:['lightning'],        resist:['fire'],      drops:["Remembrance of Bayle"],                                   strategy:"Drago opzionale del DLC, uno dei più difficili del gioco. Igon è convocabile. Build fulmine consigliata. Schivate verso il corpo."},
+  {id:'rellana',  name:"Rellana, Twin Moon Knight", zone:"Castle Ensis – SotE",     type:'major',  dlc:true,  icon:'🌙', color:'#1a1a3a', hp:16000, runes:220000,weakness:['bleed','frost'],   resist:['magic'],     drops:["Remembrance of Rellana"],                                 strategy:"Due spade (luna piena e luna oscura). Schivate i combo di lame verso di lei. In fase 2 combinazioni di magia."},
+  {id:'romina',   name:"Romina, Saint of the Bud",  zone:"Church of the Bud – SotE",type:'major', dlc:true,  icon:'🌸', color:'#1a2a1a', hp:18500, runes:300000,weakness:['fire','frost'],    resist:['scarlet_rot'],drops:["Remembrance of Romina"],                                   strategy:"Attacchi veloci con scarlet rot. Usate una build fuoco. Seconda fase: vola e lancia grandi petali esplosivi."},
+  // Field bosses
+  {id:'tree_sentinel',name:"Tree Sentinel",         zone:"Limgrave – Plains",        type:'field',  dlc:false, icon:'🌳', color:'#2a3a0a', hp:2302,  runes:3200,  weakness:['lightning','magic'],resist:['holy'],      drops:["Golden Halberd"],                                         strategy:"Primo boss incontrato, opzionale all'inizio. Usate Torrent. Attaccate il cavallo durante le cariche. Build sacra debole – usate fisica."},
+  {id:'tibia_mariner',name:"Tibia Mariner",         zone:"Summonwater Village",      type:'field',  dlc:false, icon:'💀', color:'#1a2a2a', hp:1100,  runes:2400,  weakness:['holy','sacred'],   resist:['frost'],     drops:["Deathroot","Skeletal Militiaman Ashes"],                  strategy:"Invoca scheletri infiniti. Ignorateli e attaccate il boss. Si immerge per spostarsi – stayate in attesa."},
+  {id:'magma_wyrm',name:"Magma Wyrm Makar",        zone:"Ruin-Strewn Precipice",    type:'field',  dlc:false, icon:'🌋', color:'#3a1a00', hp:7568,  runes:18000, weakness:['bleed','frost'],    resist:['fire'],      drops:["Moonveil","Dragon Heart"],                                strategy:"Schivate la lava strisciata rotolando verso il corpo. Quando si erge colpite il ventre."},
+];
+
+const ST={filter:'all',search:''};
+
+function getFiltered(){
+  let b=BOSSES.slice();
+  const q=ST.search.toLowerCase();
+  if(q) b=b.filter(x=>x.name.toLowerCase().includes(q)||x.zone.toLowerCase().includes(q));
+  if(ST.filter==='major')    b=b.filter(x=>x.type==='major');
+  if(ST.filter==='field')    b=b.filter(x=>x.type==='field');
+  if(ST.filter==='optional') b=b.filter(x=>x.type==='optional');
+  if(ST.filter==='sote')     b=b.filter(x=>x.dlc);
+  if(ST.filter==='defeated') b=b.filter(x=>isDefeated(x.id));
+  return b;
+}
+
+function renderGrid(){
+  const bosses=getFiltered();
+  document.getElementById('resLabel').textContent=bosses.length+' '+t('results');
+  if(!bosses.length){document.getElementById('bossGrid').innerHTML='<div style="text-align:center;padding:60px;color:var(--text3);font-family:var(--ff-d);letter-spacing:.1em;grid-column:1/-1">—</div>';return;}
+  document.getElementById('bossGrid').innerHTML=bosses.map((boss,i)=>{
+    const def=isDefeated(boss.id);
+    const typeBadge=boss.type==='major'?'badge-major':boss.type==='field'?'badge-field':'badge-optional';
+    const typeLabel=boss.type==='major'?'Boss Principale':boss.type==='field'?'Field Boss':'Opzionale';
+    const weakHtml=boss.weakness.map(w=>`<div class="wdot" style="background:${WEAK_COLORS[w]||'rgba(100,100,100,.2)'}" title="${w}">${WEAK[w]||w}</div>`).join('');
+    const dropHtml=boss.drops.map(d=>`<span class="drop-tag${d.startsWith('Remembrance')?'remembrance':''}">${d}</span>`).join('');
+    return`<div class="boss-card${def?' defeated':''}" data-id="${boss.id}" style="--banner-color:${boss.color}" style="animation-delay:${Math.min(i*.015,.25)}s">
+      <div class="boss-banner" data-icon="${boss.icon}">
+        <div class="boss-banner-badges">
+          <span class="badge ${typeBadge}">${typeLabel}</span>
+          ${boss.dlc?'<span class="badge badge-sote">SotE</span>':''}
+        </div>
+      </div>
+      <div class="boss-body">
+        <div class="boss-top">
+          <div class="boss-icon-wrap">${boss.icon}</div>
+          <div class="boss-info">
+            <div class="boss-name">${boss.name}</div>
+            <div class="boss-zone">📍 ${boss.zone}</div>
+          </div>
+          <div class="boss-defeated-check">${def?'✓':''}</div>
+        </div>
+        <div class="boss-stats">
+          <span class="bstat">HP <span>${boss.hp.toLocaleString()}</span></span>
+          <span class="bstat">Rune <span>${boss.runes.toLocaleString()}</span></span>
+        </div>
+        <div class="weakness-row">
+          <span class="weak-label">Debole:</span>${weakHtml}
+        </div>
+        <div class="drops-row">${dropHtml}</div>
+      </div>
+      <div class="boss-expand">
+        <div class="boss-expand-inner">
+          <div class="strategy-title">💡 ${t('strategy')}</div>
+          <div class="strategy-text">${boss.strategy}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.querySelectorAll('.boss-card').forEach(card=>{
+    card.addEventListener('click',e=>{
+      const id=card.dataset.id;
+      // Toggle defeat on check area
+      const check=card.querySelector('.boss-defeated-check');
+      const rect=check.getBoundingClientRect();
+      const inCheck=e.clientX>=rect.left-10&&e.clientX<=rect.right+10&&e.clientY>=rect.top-10&&e.clientY<=rect.bottom+10;
+      if(inCheck){
+        const def=toggleDefeated(id);
+        card.classList.toggle('defeated',def);
+        if(def){card.classList.add('shimmer');setTimeout(()=>card.classList.remove('shimmer'),700);}
+        check.textContent=def?'✓':'';
+        if(ST.filter==='defeated')renderGrid();
+        return;
+      }
+      // Expand strategy
+      card.classList.toggle('expanded');
+    });
+  });
+}
+
+// chips
+document.querySelectorAll('[data-f]').forEach(c=>{
+  c.addEventListener('click',()=>{
+    document.querySelectorAll('[data-f]').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active'); ST.filter=c.dataset.f; renderGrid();
+  });
+});
+let st; document.getElementById('searchInp').addEventListener('input',e=>{
+  clearTimeout(st);st=setTimeout(()=>{ST.search=e.target.value;renderGrid();},160);
+});
+
+renderGrid();
 </script>
 </body>
 </html>
