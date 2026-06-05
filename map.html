@@ -12,31 +12,27 @@
 :root{
   --bg:#0d0c0b;--bg2:#141210;--surface:#1c1915;--surface2:#242018;
   --border:#2e2920;--border2:#3d3628;
-  --gold:#c9a94e;--gold2:#e8c96a;--gold-dim:#7a6530;--gold-glow:rgba(201,169,78,.18);
+  --gold:#c9a94e;--gold-dim:#7a6530;--gold-glow:rgba(201,169,78,.18);
   --text:#d4c9b0;--text2:#8a8070;--text3:#5a5448;
   --green:#2a6040;--green2:#3a8055;--green-bg:#1a2a1e;--green-bdr:#2a5035;
   --sote-bg:rgba(74,48,96,.4);--sote-clr:#9a70c8;--sote-bdr:rgba(122,80,160,.3);
   --base-bg:rgba(40,55,30,.4);--base-clr:#6a8a50;--base-bdr:rgba(80,100,60,.25);
-  --nav-h:54px;--r:6px;
+  --nav-h:54px;--r:6px;--panel:260px;
   --ff-d:'Cinzel',serif;--ff-b:'Crimson Pro',Georgia,serif;
-  --panel:260px;
 }
 html,body{height:100%;overflow:hidden}
 body{background:var(--bg);color:var(--text);font-family:var(--ff-b);-webkit-font-smoothing:antialiased}
 body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.5}
 a{color:var(--gold);text-decoration:none}
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:var(--bg2)}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 /* NAV */
 .topnav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:linear-gradient(180deg,#0a0908f0,#0d0c0bcc);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);z-index:500}
-.topnav-inner{max-width:100%;padding:0 20px;height:100%;display:flex;align-items:center}
-.nav-logo{display:flex;align-items:center;gap:8px;font-family:var(--ff-d);font-size:14px;font-weight:700;color:var(--gold);letter-spacing:.1em;margin-right:28px;white-space:nowrap;flex-shrink:0;text-decoration:none}
+.topnav-inner{padding:0 20px;height:100%;display:flex;align-items:center}
+.nav-logo{display:flex;align-items:center;gap:8px;font-family:var(--ff-d);font-size:14px;font-weight:700;color:var(--gold);letter-spacing:.1em;margin-right:28px;white-space:nowrap;flex-shrink:0}
 .nav-links{display:flex;align-items:stretch;height:var(--nav-h);flex:1;overflow-x:auto;scrollbar-width:none}
 .nav-links::-webkit-scrollbar{display:none}
 .nav-link{display:flex;align-items:center;gap:5px;padding:0 14px;font-family:var(--ff-d);font-size:10px;letter-spacing:.1em;color:var(--text3);border-bottom:2px solid transparent;transition:color .2s,border-color .2s;white-space:nowrap;text-decoration:none}
-.nav-link:hover{color:var(--text2)}
-.nav-link.active{color:var(--gold);border-bottom-color:var(--gold)}
+.nav-link:hover{color:var(--text2)}.nav-link.active{color:var(--gold);border-bottom-color:var(--gold)}
 .nav-wip{font-size:8px;background:rgba(60,100,180,.3);color:#7aaaee;border:1px solid rgba(80,130,200,.3);border-radius:3px;padding:1px 4px}
 .nav-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
 .nav-stat{font-family:var(--ff-d);font-size:10px;color:var(--text2);background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:4px 10px;white-space:nowrap}
@@ -48,63 +44,58 @@ a{color:var(--gold);text-decoration:none}
 /* SIDE PANEL */
 .side-panel{width:var(--panel);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;z-index:10}
 .side-header{padding:14px;border-bottom:1px solid var(--border)}
-.side-header h2{font-family:var(--ff-d);font-size:13px;color:var(--gold);letter-spacing:.08em;margin-bottom:10px}
+.side-title{font-family:var(--ff-d);font-size:13px;color:var(--gold);letter-spacing:.08em;margin-bottom:10px}
 .search-wrap{position:relative}
 .search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:12px;pointer-events:none}
 .search-inp{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:6px 8px 6px 28px;color:var(--text);font-family:var(--ff-b);font-size:13px;outline:none;transition:border-color .2s}
 .search-inp::placeholder{color:var(--text3);font-size:12px}
 .search-inp:focus{border-color:var(--gold-dim)}
-/* Category filter pills */
-.cat-pills{display:flex;flex-wrap:wrap;gap:4px;padding:10px 14px;border-bottom:1px solid var(--border)}
+.cat-pills{display:flex;flex-wrap:wrap;gap:4px;padding:8px 14px;border-bottom:1px solid var(--border)}
 .cat-pill{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:3px 9px;font-size:10px;font-family:var(--ff-d);letter-spacing:.05em;color:var(--text3);cursor:pointer;transition:all .15s;white-space:nowrap}
 .cat-pill:hover{border-color:var(--gold-dim);color:var(--text2)}
 .cat-pill.active{background:rgba(201,169,78,.1);border-color:var(--gold-dim);color:var(--gold)}
-/* DLC + Found toggles */
 .toggle-row{display:flex;gap:6px;padding:8px 14px;border-bottom:1px solid var(--border)}
-.toggle-btn{flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:5px 6px;font-size:10px;font-family:var(--ff-d);letter-spacing:.05em;color:var(--text3);cursor:pointer;transition:all .15s;text-align:center}
+.toggle-btn{flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:5px 4px;font-size:9px;font-family:var(--ff-d);letter-spacing:.04em;color:var(--text3);cursor:pointer;transition:all .15s;text-align:center}
 .toggle-btn:hover{border-color:var(--gold-dim);color:var(--text2)}
 .toggle-btn.active{background:rgba(201,169,78,.1);border-color:var(--gold-dim);color:var(--gold)}
 .toggle-btn.on-green.active{background:rgba(42,96,64,.2);border-color:var(--green-bdr);color:var(--green2)}
-/* Pin list */
-.pin-list{flex:1;overflow-y:auto;padding:6px 0}
+.pin-list{flex:1;overflow-y:auto;padding:4px 0}
 .pin-item{display:flex;align-items:center;gap:8px;padding:7px 14px;cursor:pointer;transition:background .15s;border-left:2px solid transparent}
 .pin-item:hover{background:var(--surface)}
 .pin-item.active-pin{background:var(--surface);border-left-color:var(--gold)}
 .pin-item.found-pin{background:rgba(26,42,30,.4);border-left-color:var(--green-bdr)}
 .pin-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;border:1px solid currentColor;opacity:.9}
 .pin-img{width:24px;height:24px;flex-shrink:0;background:var(--surface2);border-radius:3px;border:1px solid var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:11px}
-.pin-img img{width:22px;height:22px;object-fit:contain}
+.pin-img img{width:22px;height:22px;object-fit:contain;display:block}
 .pin-info{flex:1;min-width:0}
 .pin-name{font-family:var(--ff-d);font-size:10px;color:var(--text);letter-spacing:.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pin-item.found-pin .pin-name{color:var(--green2)}
-.pin-cat{font-size:10px;color:var(--text3)}
+.pin-loc{font-size:10px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pin-check{font-size:10px;color:var(--green2);flex-shrink:0;width:14px;text-align:center}
 .pin-count{padding:6px 14px;font-size:10px;font-family:var(--ff-d);color:var(--text3);letter-spacing:.05em;border-top:1px solid var(--border);flex-shrink:0}
 /* MAP */
 .map-container{flex:1;position:relative}
 #map{width:100%;height:100%;background:#0a0908}
-/* Leaflet overrides */
 .leaflet-container{background:#0a0908;font-family:var(--ff-b)}
-.leaflet-control-zoom a{background:var(--surface)!important;color:var(--gold)!important;border-color:var(--border2)!important;font-family:var(--ff-d)}
-.leaflet-control-zoom a:hover{background:var(--surface2)!important}
+.leaflet-control-zoom a{background:var(--surface)!important;color:var(--gold)!important;border-color:var(--border2)!important}
 .leaflet-control-attribution{background:rgba(13,12,11,.8)!important;color:var(--text3)!important;font-size:9px}
 .leaflet-control-attribution a{color:var(--text2)!important}
-/* Custom marker */
-.map-marker{width:28px;height:28px;border-radius:50%;border:2px solid currentColor;background:rgba(13,12,11,.85);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s,box-shadow .15s;backdrop-filter:blur(4px)}
+/* Markers */
+.map-marker{width:28px;height:28px;border-radius:50%;border:2px solid currentColor;background:rgba(13,12,11,.85);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s,box-shadow .15s;backdrop-filter:blur(4px);position:relative}
 .map-marker:hover{transform:scale(1.25);box-shadow:0 0 10px currentColor}
-.map-marker.found-marker{opacity:.55}
-.map-marker.found-marker::after{content:'✓';position:absolute;font-size:10px;bottom:-2px;right:-2px;background:var(--green);border-radius:50%;width:12px;height:12px;display:flex;align-items:center;justify-content:center;color:#b0e8c0;font-family:var(--ff-d)}
-.marker-inner{width:20px;height:20px;object-fit:contain;pointer-events:none}
-.marker-inner-emoji{font-size:13px;line-height:1}
+.map-marker.found-m{opacity:.5}
+.map-marker.found-m::after{content:'✓';position:absolute;bottom:-3px;right:-3px;background:var(--green);border-radius:50%;width:12px;height:12px;display:flex;align-items:center;justify-content:center;color:#b0e8c0;font-size:8px;font-family:var(--ff-d);line-height:12px;text-align:center}
+.marker-img{width:20px;height:20px;object-fit:contain;pointer-events:none;display:block}
+.marker-emoji{font-size:13px;line-height:1;pointer-events:none}
 /* Popup */
 .leaflet-popup-content-wrapper{background:var(--surface)!important;border:1px solid var(--border2)!important;border-radius:8px!important;box-shadow:0 8px 32px rgba(0,0,0,.6)!important;padding:0!important}
 .leaflet-popup-content{margin:0!important;width:220px!important}
 .leaflet-popup-tip{background:var(--surface)!important}
-.popup-inner{padding:12px}
-.popup-img-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.popup-img{width:40px;height:40px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px}
-.popup-img img{width:36px;height:36px;object-fit:contain}
-.popup-title{font-family:var(--ff-d);font-size:12px;color:var(--gold);letter-spacing:.04em;line-height:1.3}
+.popup-body{padding:12px}
+.popup-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.popup-thumb{width:40px;height:40px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.popup-thumb img{width:36px;height:36px;object-fit:contain;display:block}
+.popup-name{font-family:var(--ff-d);font-size:12px;color:var(--gold);letter-spacing:.04em;line-height:1.3}
 .popup-loc{font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.4}
 .popup-badges{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
 .badge{display:inline-block;font-size:9px;font-family:var(--ff-d);letter-spacing:.06em;padding:2px 6px;border-radius:3px;white-space:nowrap}
@@ -118,34 +109,22 @@ a{color:var(--gold);text-decoration:none}
 .legend-title{font-family:var(--ff-d);font-size:10px;color:var(--gold);letter-spacing:.08em;margin-bottom:8px}
 .legend-item{display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:11px;color:var(--text2)}
 .legend-dot{width:10px;height:10px;border-radius:50%;border:1.5px solid currentColor;flex-shrink:0}
-/* Colors per category */
-.c-talismans{color:#c9a94e} .c-weapons{color:#e07070} .c-armor{color:#7099c8}
-.c-sorceries{color:#9070e8} .c-incantations{color:#e8c048} .c-spiritashes{color:#70c8b0} .c-shields{color:#80a870}
-/* Mobile */
-@media(max-width:700px){
-  :root{--panel:0px}
-  .side-panel{display:none}
-  .topnav-inner{padding:0 12px}
-}
-@media(max-width:900px){
-  .nav-logo span:last-child{display:none}
-  .nav-link span:not(:first-child){display:none}
-  .nav-link{padding:0 10px}
-  .nav-stat{display:none}
-}
+.c-tal{color:#c9a94e}.c-wep{color:#e07070}.c-arm{color:#7099c8}
+.c-sor{color:#9070e8}.c-inc{color:#e8c048}.c-spi{color:#70c8b0}.c-shi{color:#80a870}
+@media(max-width:900px){.nav-logo span:last-child,.nav-link span:not(:first-child),.nav-stat{display:none}.nav-link{padding:0 10px}}
+@media(max-width:700px){:root{--panel:0px}.side-panel{display:none}}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav class="topnav">
   <div class="topnav-inner">
-    <a href="index.html" class="nav-logo">⚔ <span>ELDEN RING</span></a>
+    <a href="index.html" class="nav-logo">&#9876; <span>ELDEN RING</span></a>
     <div class="nav-links">
-      <a href="index.html" class="nav-link"><span>📋</span><span id="lbl-tracker">Tracker</span></a>
-      <a href="map.html"   class="nav-link active"><span>🗺️</span><span id="lbl-map">Mappa</span></a>
-      <a href="build.html" class="nav-link"><span>⚙️</span><span id="lbl-build">Build Planner</span><span class="nav-wip" id="lbl-wip">In arrivo</span></a>
-      <a href="bestiary.html" class="nav-link"><span>📖</span><span id="lbl-bestiary">Bestiario</span><span class="nav-wip">In arrivo</span></a>
+      <a href="index.html"    class="nav-link"><span>&#128203;</span><span id="lb-tracker">Tracker</span></a>
+      <a href="map.html"      class="nav-link active"><span>&#128506;&#65039;</span><span id="lb-map">Mappa</span></a>
+      <a href="build.html"    class="nav-link"><span>&#9881;&#65039;</span><span id="lb-build">Build Planner</span><span class="nav-wip" id="lb-wip">In arrivo</span></a>
+      <a href="bestiary.html" class="nav-link"><span>&#128214;</span><span id="lb-bestiary">Bestiario</span><span class="nav-wip">In arrivo</span></a>
     </div>
     <div class="nav-right">
       <div class="nav-stat" id="navStat"></div>
@@ -158,115 +137,88 @@ a{color:var(--gold);text-decoration:none}
 </nav>
 
 <div class="map-layout">
-  <!-- SIDE PANEL -->
   <div class="side-panel">
     <div class="side-header">
-      <h2 id="map-title">🗺️ Mappa Interattiva</h2>
+      <div class="side-title" id="sideTitle">Mappa Interattiva</div>
       <div class="search-wrap">
-        <span class="search-icon">⌕</span>
+        <span class="search-icon">&#8981;</span>
         <input id="mapSearch" class="search-inp" placeholder="">
       </div>
     </div>
     <div class="cat-pills" id="catPills"></div>
     <div class="toggle-row">
-      <button class="toggle-btn active" id="btnDlcAll"  onclick="setDlcFilter('all')" id='btnDlcTxt'></button>
-      <button class="toggle-btn" id="btnDlcBase" onclick="setDlcFilter('base')">Base</button>
-      <button class="toggle-btn" id="btnDlcSote" onclick="setDlcFilter('sote')">DLC</button>
-      <button class="toggle-btn on-green" id="btnFound" onclick="toggleFoundFilter()">✓ Trovati</button>
+      <button class="toggle-btn active" id="btnAll"  onclick="setDlc('all')">Tutti</button>
+      <button class="toggle-btn"        id="btnBase" onclick="setDlc('base')">Base</button>
+      <button class="toggle-btn"        id="btnSote" onclick="setDlc('sote')">DLC</button>
+      <button class="toggle-btn on-green" id="btnFound" onclick="toggleFoundF()">&#10003; Trovati</button>
     </div>
     <div class="pin-list" id="pinList"></div>
     <div class="pin-count" id="pinCount"></div>
   </div>
-
-  <!-- MAP -->
   <div class="map-container">
     <div id="map"></div>
     <div class="map-legend">
-      <div class="legend-title" id="legend-title">Legenda</div>
-      <div class="legend-item c-talismans"><div class="legend-dot c-talismans"></div><span id="leg-tal">Talismani</span></div>
-      <div class="legend-item c-weapons">  <div class="legend-dot c-weapons"></div>  <span id="leg-wep">Armi</span></div>
-      <div class="legend-item c-armor">    <div class="legend-dot c-armor"></div>    <span id="leg-arm">Armature</span></div>
-      <div class="legend-item c-sorceries"><div class="legend-dot c-sorceries"></div><span id="leg-sor">Incantesimi</span></div>
-      <div class="legend-item c-incantations"><div class="legend-dot c-incantations"></div><span id="leg-inc">Incantazioni</span></div>
-      <div class="legend-item c-spiritashes"><div class="legend-dot c-spiritashes"></div><span id="leg-spi">Spirit Ashes</span></div>
-      <div class="legend-item c-shields">  <div class="legend-dot c-shields"></div>  <span id="leg-shi">Scudi</span></div>
+      <div class="legend-title" id="legendTitle">Legenda</div>
+      <div class="legend-item c-tal"><div class="legend-dot c-tal"></div><span id="lg-tal">Talismani</span></div>
+      <div class="legend-item c-wep"><div class="legend-dot c-wep"></div><span id="lg-wep">Armi</span></div>
+      <div class="legend-item c-arm"><div class="legend-dot c-arm"></div><span id="lg-arm">Armature</span></div>
+      <div class="legend-item c-sor"><div class="legend-dot c-sor"></div><span id="lg-sor">Incantesimi</span></div>
+      <div class="legend-item c-inc"><div class="legend-dot c-inc"></div><span id="lg-inc">Incantazioni</span></div>
+      <div class="legend-item c-spi"><div class="legend-dot c-spi"></div><span id="lg-spi">Spirit Ashes</span></div>
+      <div class="legend-item c-shi"><div class="legend-dot c-shi"></div><span id="lg-shi">Scudi</span></div>
     </div>
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
-// ── i18n ─────────────────────────────────────────────────────────────────────
+'use strict';
 
-const IB='https://eldenring.wiki.fextralife.com/file/Elden-Ring/';
-function imgUrl(s){
-  if(!s)return null;
-  if(s.indexOf('_elden_ring_wiki_guide')>=0)return IB+s+'_200px.png';
-  if(s.slice(-17)==='_elden_ring_wiki')return IB+s+'_guide_200px.png';
-  return IB+s+'_elden_ring_wiki_guide_200px.png';
+// ── i18n ──────────────────────────────────────────────────────────────────────
+var TR = {
+  it: {nav_tracker:'Tracker',nav_map:'Mappa',nav_build:'Build Planner',nav_bestiary:'Bestiario',nav_wip:'In arrivo',nav_found:'trovati',map_title:'Mappa Interattiva',search_ph:'Cerca item sulla mappa\u2026',legend:'Legenda',cat_talismans:'Talismani',cat_weapons:'Armi',cat_armor:'Armature',cat_sorceries:'Incantesimi',cat_incantations:'Incantazioni',cat_spiritashes:'Spirit Ashes',cat_shields:'Scudi',found_btn:'\u2713 Segna trovato',unfound_btn:'\u2717 Non trovato',all_f:'Tutti',all_pins:'pin visibili',footer:'Fan project non ufficiale \u00b7 Elden Ring \u00a9 FromSoftware / Bandai Namco'},
+  en: {nav_tracker:'Tracker',nav_map:'Map',nav_build:'Build Planner',nav_bestiary:'Bestiary',nav_wip:'Coming soon',nav_found:'found',map_title:'Interactive Map',search_ph:'Search items on map\u2026',legend:'Legend',cat_talismans:'Talismans',cat_weapons:'Weapons',cat_armor:'Armor',cat_sorceries:'Sorceries',cat_incantations:'Incantations',cat_spiritashes:'Spirit Ashes',cat_shields:'Shields',found_btn:'\u2713 Mark found',unfound_btn:'\u2717 Not found',all_f:'All',all_pins:'pins visible',footer:'Unofficial fan project \u00b7 Elden Ring \u00a9 FromSoftware / Bandai Namco'}
+};
+function getLang() { return localStorage.getItem('er_lang') || 'it'; }
+function setLang(l) { localStorage.setItem('er_lang', l); location.reload(); }
+function t(k) { return (TR[getLang()] || TR.it)[k] || k; }
+
+// ── Image URL builder ─────────────────────────────────────────────────────────
+// NOTE: named getImgUrl (not imgUrl) to avoid any local variable shadowing
+var IB = 'https://eldenring.wiki.fextralife.com/file/Elden-Ring/';
+function getImgUrl(slug) {
+  if (!slug) return null;
+  // Slug already contains full wiki guide tag → just add size suffix
+  if (slug.indexOf('_elden_ring_wiki_guide') >= 0) return IB + slug + '_200px.png';
+  // Armor slugs end in _elden_ring_wiki (missing _guide)
+  if (slug.slice(-17) === '_elden_ring_wiki') return IB + slug + '_guide_200px.png';
+  // Default: talismans, weapons → standard suffix
+  return IB + slug + '_elden_ring_wiki_guide_200px.png';
 }
-const TR={it:{nav_tracker:'Tracker',nav_map:'Mappa',nav_build:'Build Planner',nav_bestiary:'Bestiario',nav_wip:'In arrivo',nav_found:'trovati',map_title:'Mappa Interattiva',search_ph:'Cerca item sulla mappa…',legend:'Legenda',cat_talismans:'Talismani',cat_weapons:'Armi',cat_armor:'Armature',cat_sorceries:'Incantesimi',cat_incantations:'Incantazioni',cat_spiritashes:'Spirit Ashes',cat_shields:'Scudi',found_btn:'✓ Segna trovato',unfound_btn:'✗ Non trovato',all_filter:'Tutti',all_pins:'pin visibili'},en:{nav_tracker:'Tracker',nav_map:'Map',nav_build:'Build Planner',nav_bestiary:'Bestiary',nav_wip:'Coming soon',nav_found:'found',map_title:'Interactive Map',search_ph:'Search items on map…',legend:'Legend',cat_talismans:'Talismans',cat_weapons:'Weapons',cat_armor:'Armor',cat_sorceries:'Sorceries',cat_incantations:'Incantations',cat_spiritashes:'Spirit Ashes',cat_shields:'Shields',found_btn:'✓ Mark found',unfound_btn:'✗ Not found',all_filter:'All',all_pins:'pins visible'}};
-function getLang(){return localStorage.getItem('er_lang')||'it';}
-function setLang(l){localStorage.setItem('er_lang',l);location.reload();}
-function t(k){return (TR[getLang()]||TR.it)[k]||k;}
 
-// ── storage ───────────────────────────────────────────────────────────────────
-function getFound(){return JSON.parse(localStorage.getItem('er_found')||'{}');}
-function saveFound(o){localStorage.setItem('er_found',JSON.stringify(o));}
-function itemKey(cat,name){return cat+'::'+name;}
-function isFound(cat,name){return !!getFound()[itemKey(cat,name)];}
-function toggleFound(cat,name){
-  const f=getFound(),k=itemKey(cat,name);
-  f[k]=!f[k];if(!f[k])delete f[k];saveFound(f);return f[k]||false;
+// ── Storage ───────────────────────────────────────────────────────────────────
+function getFound() { return JSON.parse(localStorage.getItem('er_found') || '{}'); }
+function saveFound(o) { localStorage.setItem('er_found', JSON.stringify(o)); }
+function itemKey(cat, name) { return cat + '::' + name; }
+function isFound(cat, name) { return !!getFound()[itemKey(cat, name)]; }
+function toggleFound(cat, name) {
+  var f = getFound(), k = itemKey(cat, name);
+  f[k] = !f[k]; if (!f[k]) delete f[k]; saveFound(f); return f[k] || false;
 }
-function totalFound(){return Object.values(getFound()).filter(Boolean).length;}
+function totalFound() { return Object.values(getFound()).filter(Boolean).length; }
 
-// ── init lang UI ─────────────────────────────────────────────────────────────
-(function(){
-  const lang=getLang();
-  document.getElementById('btnIT').classList.toggle('active',lang==='it');
-  document.getElementById('btnEN').classList.toggle('active',lang==='en');
-  document.getElementById('navStat').textContent=totalFound()+' '+t('nav_found');
-  var _b=document.getElementById('btnDlcTxt');if(_b)_b.textContent=t('all_filter');
-  var _l=document.getElementById('legend-title');if(_l)_l.textContent=t('legend');
-  var _ms=document.getElementById('mapSearch');if(_ms)_ms.placeholder=t('search_ph');
-  var _ft=document.getElementById('footerTxt');if(_ft)_ft.textContent=t('footer');
-  var _mt=document.getElementById('map-title');if(_mt)_mt.textContent=t('map_title');
-
-  document.getElementById('map-title').textContent=t('map_title');
-  document.getElementById('mapSearch').placeholder=t('search_ph');
-  document.getElementById('legend-title').textContent=t('legend');
-  document.getElementById('lbl-tracker').textContent=t('nav_tracker');
-  document.getElementById('lbl-map').textContent=t('nav_map');
-  document.getElementById('lbl-build').textContent=t('nav_build');
-  document.getElementById('lbl-bestiary').textContent=t('nav_bestiary');
-  document.getElementById('lbl-wip').textContent=t('nav_wip');
-  document.getElementById('leg-tal').textContent=t('cat_talismans');
-  document.getElementById('leg-wep').textContent=t('cat_weapons');
-  document.getElementById('leg-arm').textContent=t('cat_armor');
-  document.getElementById('leg-sor').textContent=t('cat_sorceries');
-  document.getElementById('leg-inc').textContent=t('cat_incantations');
-  document.getElementById('leg-spi').textContent=t('cat_spiritashes');
-  document.getElementById('leg-shi').textContent=t('cat_shields');
-})();
-
-// ── CATEGORIES ────────────────────────────────────────────────────────────────
-const CAT_META={
-  talismans:   {icon:'🔮',color:'#c9a94e',labelKey:'cat_talismans'},
-  weapons:     {icon:'⚔️',color:'#e07070',labelKey:'cat_weapons'},
-  armor:       {icon:'🛡️',color:'#7099c8',labelKey:'cat_armor'},
-  sorceries:   {icon:'✨',color:'#9070e8',labelKey:'cat_sorceries'},
-  incantations:{icon:'🌟',color:'#e8c048',labelKey:'cat_incantations'},
-  spiritashes: {icon:'👻',color:'#70c8b0',labelKey:'cat_spiritashes'},
-  shields:     {icon:'🪖',color:'#80a870',labelKey:'cat_shields'},
+// ── Category metadata ─────────────────────────────────────────────────────────
+var CAT_META = {
+  talismans:    { icon: '&#128302;', color: '#c9a94e', key: 'cat_talismans' },
+  weapons:      { icon: '&#9876;&#65039;', color: '#e07070', key: 'cat_weapons' },
+  armor:        { icon: '&#128737;&#65039;', color: '#7099c8', key: 'cat_armor' },
+  sorceries:    { icon: '&#10024;', color: '#9070e8', key: 'cat_sorceries' },
+  incantations: { icon: '&#127775;', color: '#e8c048', key: 'cat_incantations' },
+  spiritashes:  { icon: '&#128123;', color: '#70c8b0', key: 'cat_spiritashes' },
+  shields:      { icon: '&#129390;', color: '#80a870', key: 'cat_shields' },
 };
 
-// ── MAP PINS DATA ─────────────────────────────────────────────────────────────
-// Map image: 4096×4096px coordinate system
-// Using publicly available Elden Ring fan map from wikimedia/community sources
-// Map bounds set to match pixel coordinates
-const MAP_IMG = 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Elden_Ring_Map.jpg/2048px-Elden_Ring_Map.jpg';
-
+// ── Pins data ─────────────────────────────────────────────────────────────────
 const PINS=[
   // Talismans
   {id:'t001',name:"Gold Scarab",           cat:'talismans',   dlc:'Base',y:2580,x:2820,loc:"Abandoned Cave – Caelid",         img:"gold_scarab_talisman"},
@@ -355,202 +307,217 @@ const PINS=[
   {id:'sh04',name:"Dragon Towershield",    cat:'shields',      dlc:'SotE',y:3200,x:3600,loc:"SotE – Ancient Ruins",            img:"dragon_towershield_shields_elden_ring_wiki_guide"},
 ];
 
-// ── FILTER STATE ─────────────────────────────────────────────────────────────
-const FT={cats:new Set(Object.keys(CAT_META)),dlc:'all',found:false,search:''};
+// ── Filter state ──────────────────────────────────────────────────────────────
+var FT = { cats: new Set(Object.keys(CAT_META)), dlc: 'all', found: false, search: '' };
 
-// ── LEAFLET MAP ───────────────────────────────────────────────────────────────
-// Use a simple image overlay with CRS.Simple
-// Map image is 2048×2048 for display; our pin coordinates are in 4096×4096 space
-// so we divide by 2
-
-const SCALE=0.5; // our coords are 4096-space, image is 2048
-const mapH=2048, mapW=2048;
-const bounds=[[0,0],[mapH,mapW]];
-
-const map=L.map('map',{
-  crs:L.CRS.Simple,
-  minZoom:-2,maxZoom:3,
-  zoomControl:true,
-  attributionControl:true,
+// ── Leaflet map setup ─────────────────────────────────────────────────────────
+var SCALE = 0.5, mapH = 2048, mapW = 2048;
+var bounds = [[0, 0], [mapH, mapW]];
+var erMap = L.map('map', {
+  crs: L.CRS.Simple, minZoom: -2, maxZoom: 3,
+  zoomControl: true, attributionControl: true
 });
+L.imageOverlay(
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Elden_Ring_Map.jpg/2048px-Elden_Ring_Map.jpg',
+  bounds,
+  { attribution: 'Map &copy; FromSoftware &middot; Fan data: eldenring.wiki.gg' }
+).addTo(erMap);
+erMap.fitBounds(bounds);
+erMap.setView([mapH / 2, mapW / 2], -1);
 
-// Try to load the map image; fallback to a dark canvas if it fails
-const imgLayer=L.imageOverlay(MAP_IMG, bounds, {
-  attribution:'Map © FromSoftware · Fan art/data: eldenring.wiki.gg',
-  errorOverlayUrl:''
-}).addTo(map);
-map.fitBounds(bounds);
-map.setView([mapH/2,mapW/2],-1);
+var markerMap = {};
+var markerLayer = L.layerGroup().addTo(erMap);
 
-// ── MARKERS ───────────────────────────────────────────────────────────────────
-const markerMap={};   // id → leaflet marker
-const markerLayer=L.layerGroup().addTo(map);
-
-function makeMarker(pin){
-  const meta=CAT_META[pin.cat]||{icon:'📦',color:'#888'};
-  const found=isFound(pin.cat,pin.name);
-  const imgUrl=pin.img?imgUrl(pin.img):null;
-  const inner=imgUrl
-    ? `<img class="marker-inner" src="${imgUrl}" onerror="this.outerHTML='<span class=marker-inner-emoji>${meta.icon}</span>'">`
-    : `<span class="marker-inner-emoji">${meta.icon}</span>`;
-  const html=`<div class="map-marker${found?' found-marker':''}" style="color:${meta.color};border-color:${meta.color}">${inner}</div>`;
-  const icon=L.divIcon({html,className:'',iconSize:[28,28],iconAnchor:[14,14]});
-  // Convert 4096-space to 2048-space
-  const latLng=[mapH-(pin.y*SCALE), pin.x*SCALE];
-  const marker=L.marker(latLng,{icon}).addTo(markerLayer);
-  marker.bindPopup(makePopup(pin),{maxWidth:240,className:'er-popup'});
-  marker.on('click',()=>{ highlightPin(pin.id); });
-  markerMap[pin.id]=marker;
+// ── Marker creation ───────────────────────────────────────────────────────────
+function buildMarkerHtml(pin, found) {
+  var meta = CAT_META[pin.cat] || { icon: '?', color: '#888' };
+  var url  = getImgUrl(pin.img);   // ← uses getImgUrl, no shadowing possible
+  var inner = url
+    ? '<img class="marker-img" src="' + url + '" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'block\'">'
+      + '<span class="marker-emoji" style="display:none">' + meta.icon + '</span>'
+    : '<span class="marker-emoji">' + meta.icon + '</span>';
+  return '<div class="map-marker' + (found ? ' found-m' : '') + '"'
+       + ' style="color:' + meta.color + ';border-color:' + meta.color + '">'
+       + inner + '</div>';
 }
 
-function makePopup(pin){
-  const meta=CAT_META[pin.cat]||{icon:'📦',color:'#888'};
-  const found=isFound(pin.cat,pin.name);
-  const imgUrl=pin.img?imgUrl(pin.img):null;
-  const imgHtml=imgUrl
-    ? `<img src="${imgUrl}" style="width:36px;height:36px;object-fit:contain" onerror="this.outerHTML='<span style=font-size:20px>${meta.icon}</span>'">`
-    : `<span style="font-size:24px">${meta.icon}</span>`;
-  return `<div class="popup-inner">
-    <div class="popup-img-row">
-      <div class="popup-img">${imgHtml}</div>
-      <div class="popup-title">${pin.name}</div>
-    </div>
-    <div class="popup-loc">📍 ${pin.loc}</div>
-    <div class="popup-badges">
-      <span class="badge ${pin.dlc==='SotE'?'badge-sote':'badge-base'}">${pin.dlc}</span>
-      <span class="badge" style="background:rgba(0,0,0,.3);color:var(--text2);border:1px solid var(--border2)">${t('cat_'+pin.cat.replace('spiritashes','spiritashes'))}</span>
-    </div>
-    <button class="popup-btn${found?' found-btn':''}" onclick="handlePopupToggle('${pin.id}','${pin.cat}','${pin.name.replace(/'/g,'\\\'')}')" id="pbtn-${pin.id}">
-      ${found?t('unfound_btn'):t('found_btn')}
-    </button>
-  </div>`;
+function makeMarker(pin) {
+  var found   = isFound(pin.cat, pin.name);
+  var icon    = L.divIcon({ html: buildMarkerHtml(pin, found), className: '', iconSize: [28,28], iconAnchor: [14,14] });
+  var latLng  = [mapH - (pin.y * SCALE), pin.x * SCALE];
+  var marker  = L.marker(latLng, { icon: icon }).addTo(markerLayer);
+  marker.bindPopup(buildPopup(pin), { maxWidth: 240 });
+  marker.on('click', function() { highlightPin(pin.id); });
+  markerMap[pin.id] = marker;
 }
 
-function handlePopupToggle(id,cat,name){
-  const found=toggleFound(cat,name);
-  refreshMarker(id,cat,name,found);
-  document.getElementById('navStat').textContent=totalFound()+' '+t('nav_found');
-  var _b=document.getElementById('btnDlcTxt');if(_b)_b.textContent=t('all_filter');
-  var _l=document.getElementById('legend-title');if(_l)_l.textContent=t('legend');
-  var _ms=document.getElementById('mapSearch');if(_ms)_ms.placeholder=t('search_ph');
-  var _ft=document.getElementById('footerTxt');if(_ft)_ft.textContent=t('footer');
-  var _mt=document.getElementById('map-title');if(_mt)_mt.textContent=t('map_title');
+// ── Popup builder ─────────────────────────────────────────────────────────────
+function buildPopup(pin) {
+  var meta  = CAT_META[pin.cat] || { icon: '?', color: '#888' };
+  var found = isFound(pin.cat, pin.name);
+  var url   = getImgUrl(pin.img);   // ← uses getImgUrl
+  var thumb = url
+    ? '<img src="' + url + '" style="width:36px;height:36px;object-fit:contain" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'block\'">'
+      + '<span style="font-size:22px;display:none">' + meta.icon + '</span>'
+    : '<span style="font-size:22px">' + meta.icon + '</span>';
+  var dlcBadge = pin.dlc === 'SotE'
+    ? '<span class="badge badge-sote">SotE</span>'
+    : '<span class="badge badge-base">Base</span>';
+  var btnCls  = found ? 'popup-btn found-btn' : 'popup-btn';
+  var btnTxt  = found ? t('unfound_btn') : t('found_btn');
+  return '<div class="popup-body">'
+    + '<div class="popup-head">'
+    +   '<div class="popup-thumb">' + thumb + '</div>'
+    +   '<div class="popup-name">' + pin.name + '</div>'
+    + '</div>'
+    + '<div class="popup-loc">&#128205; ' + pin.loc + '</div>'
+    + '<div class="popup-badges">' + dlcBadge + '</div>'
+    + '<button class="' + btnCls + '" onclick="handlePopupToggle(\'' + pin.id + '\',\'' + pin.cat + '\',\'' + pin.name.replace(/'/g,"\\'") + '\')">'
+    + btnTxt + '</button>'
+    + '</div>';
+}
 
+function handlePopupToggle(id, cat, name) {
+  var found = toggleFound(cat, name);
+  refreshMarker(id, cat, name, found);
+  document.getElementById('navStat').textContent = totalFound() + ' ' + t('nav_found');
   renderPinList();
 }
 
-function refreshMarker(id,cat,name,found){
-  const pin=PINS.find(p=>p.id===id);
-  if(!pin)return;
-  const marker=markerMap[id];
-  if(!marker)return;
-  const meta=CAT_META[cat]||{icon:'📦',color:'#888'};
-  const imgUrl=pin.img?imgUrl(pin.img):null;
-  const inner=imgUrl
-    ? `<img class="marker-inner" src="${imgUrl}" onerror="this.outerHTML='<span class=marker-inner-emoji>${meta.icon}</span>'">`
-    : `<span class="marker-inner-emoji">${meta.icon}</span>`;
-  const html=`<div class="map-marker${found?' found-marker':''}" style="color:${meta.color};border-color:${meta.color}">${inner}</div>`;
-  const icon=L.divIcon({html,className:'',iconSize:[28,28],iconAnchor:[14,14]});
-  marker.setIcon(icon);
-  marker.setPopupContent(makePopup(pin));
-  // update list item
-  const li=document.getElementById('li-'+id);
-  if(li){ li.classList.toggle('found-pin',found); li.querySelector('.pin-check').textContent=found?'✓':''; }
+function refreshMarker(id, cat, name, found) {
+  var pin = PINS.find(function(p) { return p.id === id; });
+  if (!pin) return;
+  var marker = markerMap[id];
+  if (!marker) return;
+  marker.setIcon(L.divIcon({ html: buildMarkerHtml(pin, found), className: '', iconSize: [28,28], iconAnchor: [14,14] }));
+  marker.setPopupContent(buildPopup(pin));
+  var li = document.getElementById('li-' + id);
+  if (li) {
+    li.classList.toggle('found-pin', found);
+    li.querySelector('.pin-check').textContent = found ? '\u2713' : '';
+  }
 }
 
-// ── SIDEBAR ───────────────────────────────────────────────────────────────────
-function getVisiblePins(){
-  let pins=PINS.slice();
-  // category filter
-  pins=pins.filter(p=>FT.cats.has(p.cat));
-  // dlc filter
-  if(FT.dlc==='base') pins=pins.filter(p=>p.dlc==='Base');
-  if(FT.dlc==='sote') pins=pins.filter(p=>p.dlc==='SotE');
-  // found filter
-  if(FT.found) pins=pins.filter(p=>isFound(p.cat,p.name));
-  // search
-  const q=FT.search.toLowerCase();
-  if(q) pins=pins.filter(p=>p.name.toLowerCase().includes(q)||p.loc.toLowerCase().includes(q));
+// ── Sidebar ───────────────────────────────────────────────────────────────────
+function getVisible() {
+  var pins = PINS.slice();
+  pins = pins.filter(function(p) { return FT.cats.has(p.cat); });
+  if (FT.dlc === 'base') pins = pins.filter(function(p) { return p.dlc === 'Base'; });
+  if (FT.dlc === 'sote') pins = pins.filter(function(p) { return p.dlc === 'SotE'; });
+  if (FT.found) pins = pins.filter(function(p) { return isFound(p.cat, p.name); });
+  var q = FT.search.toLowerCase();
+  if (q) pins = pins.filter(function(p) { return p.name.toLowerCase().indexOf(q) >= 0 || p.loc.toLowerCase().indexOf(q) >= 0; });
   return pins;
 }
 
-function renderPinList(){
-  const visible=getVisiblePins();
-  const visibleIds=new Set(visible.map(p=>p.id));
-  // Show/hide markers
-  PINS.forEach(p=>{
-    const m=markerMap[p.id];
-    if(!m)return;
-    if(visibleIds.has(p.id)) markerLayer.addLayer(m);
+function renderPinList() {
+  var visible = getVisible();
+  var visSet  = new Set(visible.map(function(p) { return p.id; }));
+  PINS.forEach(function(p) {
+    var m = markerMap[p.id];
+    if (!m) return;
+    if (visSet.has(p.id)) markerLayer.addLayer(m);
     else markerLayer.removeLayer(m);
   });
-  // Render list
-  const list=document.getElementById('pinList');
-  list.innerHTML=visible.map(pin=>{
-    const meta=CAT_META[pin.cat]||{icon:'📦',color:'#888'};
-    const found=isFound(pin.cat,pin.name);
-    const imgUrl=pin.img?imgUrl(pin.img):null;
-    const imgHtml=imgUrl?`<img src="${imgUrl}" style="width:22px;height:22px;object-fit:contain" onerror="this.outerHTML='${meta.icon}'">`:`<span>${meta.icon}</span>`;
-    return`<div class="pin-item${found?' found-pin':''}" id="li-${pin.id}" onclick="flyToPin('${pin.id}')">
-      <div class="pin-dot" style="color:${meta.color};border-color:${meta.color}"></div>
-      <div class="pin-img">${imgHtml}</div>
-      <div class="pin-info">
-        <div class="pin-name">${pin.name}</div>
-        <div class="pin-cat">${pin.loc.split('–')[0].trim()}</div>
-      </div>
-      <div class="pin-check">${found?'✓':''}</div>
-    </div>`;
+  var list = document.getElementById('pinList');
+  list.innerHTML = visible.map(function(pin) {
+    var meta  = CAT_META[pin.cat] || { icon: '?', color: '#888' };
+    var found = isFound(pin.cat, pin.name);
+    var url   = getImgUrl(pin.img);
+    var imgHtml = url
+      ? '<img src="' + url + '" style="width:22px;height:22px;object-fit:contain" onerror="this.style.display=\'none\'">'
+      : meta.icon;
+    var zoneName = pin.loc.split('\u2013')[0].trim();
+    return '<div class="pin-item' + (found ? ' found-pin' : '') + '" id="li-' + pin.id + '" onclick="flyTo(\'' + pin.id + '\')">'
+      + '<div class="pin-dot" style="color:' + meta.color + ';border-color:' + meta.color + '"></div>'
+      + '<div class="pin-img">' + imgHtml + '</div>'
+      + '<div class="pin-info">'
+      +   '<div class="pin-name">' + pin.name + '</div>'
+      +   '<div class="pin-loc">' + zoneName + '</div>'
+      + '</div>'
+      + '<div class="pin-check">' + (found ? '\u2713' : '') + '</div>'
+      + '</div>';
   }).join('');
-  document.getElementById('pinCount').textContent=visible.length+' '+t('all_pins');
+  document.getElementById('pinCount').textContent = visible.length + ' ' + t('all_pins');
 }
 
-function flyToPin(id){
-  const pin=PINS.find(p=>p.id===id);
-  if(!pin)return;
-  const latLng=[mapH-(pin.y*SCALE),pin.x*SCALE];
-  map.flyTo(latLng,1,{duration:.8});
-  setTimeout(()=>{ const m=markerMap[id]; if(m)m.openPopup(); },900);
-  document.querySelectorAll('.pin-item').forEach(li=>li.classList.remove('active-pin'));
-  const li=document.getElementById('li-'+id);
-  if(li){li.classList.add('active-pin');li.scrollIntoView({block:'nearest',behavior:'smooth'});}
-}
-function highlightPin(id){
-  document.querySelectorAll('.pin-item').forEach(li=>li.classList.remove('active-pin'));
-  const li=document.getElementById('li-'+id);
-  if(li){li.classList.add('active-pin');li.scrollIntoView({block:'nearest',behavior:'smooth'});}
+function flyTo(id) {
+  var pin = PINS.find(function(p) { return p.id === id; });
+  if (!pin) return;
+  var latLng = [mapH - (pin.y * SCALE), pin.x * SCALE];
+  erMap.flyTo(latLng, 1, { duration: 0.8 });
+  setTimeout(function() { var m = markerMap[id]; if (m) m.openPopup(); }, 900);
+  highlightPin(id);
 }
 
-// ── CATEGORY PILLS ────────────────────────────────────────────────────────────
-function renderCatPills(){
-  document.getElementById('catPills').innerHTML=Object.entries(CAT_META).map(([id,m])=>`
-    <button class="cat-pill${FT.cats.has(id)?' active':''}" data-cat="${id}" onclick="toggleCat('${id}')">
-      ${m.icon} ${t(m.labelKey)}
-    </button>`).join('');
+function highlightPin(id) {
+  document.querySelectorAll('.pin-item').forEach(function(li) { li.classList.remove('active-pin'); });
+  var li = document.getElementById('li-' + id);
+  if (li) { li.classList.add('active-pin'); li.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
 }
-function toggleCat(id){
-  if(FT.cats.has(id)&&FT.cats.size>1) FT.cats.delete(id);
+
+// ── Category pills ────────────────────────────────────────────────────────────
+function renderCatPills() {
+  document.getElementById('catPills').innerHTML = Object.entries(CAT_META).map(function(entry) {
+    var id = entry[0], m = entry[1];
+    return '<button class="cat-pill' + (FT.cats.has(id) ? ' active' : '') + '" onclick="toggleCat(\'' + id + '\')">'
+      + m.icon + ' ' + t(m.key) + '</button>';
+  }).join('');
+}
+
+function toggleCat(id) {
+  if (FT.cats.has(id) && FT.cats.size > 1) FT.cats.delete(id);
   else FT.cats.add(id);
   renderCatPills(); renderPinList();
 }
 
-// ── FILTER CONTROLS ───────────────────────────────────────────────────────────
-function setDlcFilter(v){
-  FT.dlc=v;
-  document.getElementById('btnDlcAll').classList.toggle('active',v==='all');
-  document.getElementById('btnDlcBase').classList.toggle('active',v==='base');
-  document.getElementById('btnDlcSote').classList.toggle('active',v==='sote');
+// ── DLC / Found filters ───────────────────────────────────────────────────────
+function setDlc(v) {
+  FT.dlc = v;
+  ['all','base','sote'].forEach(function(id) {
+    document.getElementById('btn' + id.charAt(0).toUpperCase() + id.slice(1)).classList.toggle('active', id === v);
+  });
   renderPinList();
 }
-function toggleFoundFilter(){
-  FT.found=!FT.found;
-  document.getElementById('btnFound').classList.toggle('active',FT.found);
+function toggleFoundF() {
+  FT.found = !FT.found;
+  document.getElementById('btnFound').classList.toggle('active', FT.found);
   renderPinList();
 }
-let st; document.getElementById('mapSearch').addEventListener('input',e=>{
-  clearTimeout(st); st=setTimeout(()=>{FT.search=e.target.value;renderPinList();},160);
+
+// ── Search ────────────────────────────────────────────────────────────────────
+var _st;
+document.getElementById('mapSearch').addEventListener('input', function(e) {
+  clearTimeout(_st);
+  _st = setTimeout(function() { FT.search = e.target.value; renderPinList(); }, 160);
 });
 
-// ── INIT ──────────────────────────────────────────────────────────────────────
+// ── Apply i18n labels ─────────────────────────────────────────────────────────
+function applyLabels() {
+  var lang = getLang();
+  document.getElementById('btnIT').classList.toggle('active', lang === 'it');
+  document.getElementById('btnEN').classList.toggle('active', lang === 'en');
+  document.getElementById('navStat').textContent     = totalFound() + ' ' + t('nav_found');
+  document.getElementById('mapSearch').placeholder   = t('search_ph');
+  document.getElementById('sideTitle').textContent   = t('map_title');
+  document.getElementById('legendTitle').textContent = t('legend');
+  document.getElementById('lb-tracker').textContent  = t('nav_tracker');
+  document.getElementById('lb-map').textContent      = t('nav_map');
+  document.getElementById('lb-build').textContent    = t('nav_build');
+  document.getElementById('lb-bestiary').textContent = t('nav_bestiary');
+  document.getElementById('lb-wip').textContent      = t('nav_wip');
+  document.getElementById('lg-tal').textContent = t('cat_talismans');
+  document.getElementById('lg-wep').textContent = t('cat_weapons');
+  document.getElementById('lg-arm').textContent = t('cat_armor');
+  document.getElementById('lg-sor').textContent = t('cat_sorceries');
+  document.getElementById('lg-inc').textContent = t('cat_incantations');
+  document.getElementById('lg-spi').textContent = t('cat_spiritashes');
+  document.getElementById('lg-shi').textContent = t('cat_shields');
+  document.getElementById('btnAll').textContent  = t('all_f');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+applyLabels();
 PINS.forEach(makeMarker);
 renderCatPills();
 renderPinList();
