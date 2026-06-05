@@ -123,14 +123,14 @@ footer p{font-size:10px;color:var(--text3);font-family:var(--ff-d);letter-spacin
     <div class="filter-row">
       <div class="search-wrap">
         <span class="search-icon">⌕</span>
-        <input id="searchInp" class="search-inp" placeholder="Cerca boss…">
+        <input id="searchInp" class="search-inp" placeholder="">
       </div>
-      <button class="chip active" data-f="all">Tutti</button>
-      <button class="chip" data-f="major">Boss Principali</button>
-      <button class="chip" data-f="field">Field Boss</button>
-      <button class="chip" data-f="optional">Opzionali</button>
-      <button class="chip" data-f="sote">DLC</button>
-      <button class="chip" data-f="defeated">✓ Sconfitti</button>
+      <button class="chip active" data-f="all" id="bc-all"></button>
+      <button class="chip" data-f="major" id="bc-major"></button>
+      <button class="chip" data-f="field" id="bc-field"></button>
+      <button class="chip" data-f="optional" id="bc-opt"></button>
+      <button class="chip" data-f="sote" id="bc-sote"></button>
+      <button class="chip" data-f="defeated" id="bc-def"></button>
       <span class="res-label" id="resLabel"></span>
     </div>
   </div>
@@ -138,13 +138,18 @@ footer p{font-size:10px;color:var(--text3);font-family:var(--ff-d);letter-spacin
     <div class="boss-grid" id="bossGrid"></div>
   </div>
 </div>
-<footer><p>Fan project non ufficiale · Elden Ring © FromSoftware / Bandai Namco · Dati: eldenring.wiki.gg</p></footer>
+<footer><p id="footerTxt"></p></footer>
 
 <script>
-const TR={
-  it:{nav_tracker:'Tracker',nav_map:'Mappa',nav_build:'Build Planner',nav_bestiary:'Bestiario',nav_found:'trovati',pg_title:'📖 Bestiario',pg_sub:'Boss, nemici, drop e strategie',results:'risultati',filter_all:'Tutti',filter_major:'Boss Principali',filter_field:'Field Boss',filter_optional:'Opzionali',filter_sote:'DLC',filter_defeated:'✓ Sconfitti',strategy:'Strategia'},
-  en:{nav_tracker:'Tracker',nav_map:'Map',nav_build:'Build Planner',nav_bestiary:'Bestiary',nav_found:'found',pg_title:'📖 Bestiary',pg_sub:'Bosses, enemies, drops & strategies',results:'results',filter_all:'All',filter_major:'Main Bosses',filter_field:'Field Bosses',filter_optional:'Optional',filter_sote:'DLC',filter_defeated:'✓ Defeated',strategy:'Strategy'}
-};
+
+const IB='https://eldenring.wiki.fextralife.com/file/Elden-Ring/';
+function imgUrl(s){
+  if(!s)return null;
+  if(s.indexOf('_elden_ring_wiki_guide')>=0)return IB+s+'_200px.png';
+  if(s.slice(-17)==='_elden_ring_wiki')return IB+s+'_guide_200px.png';
+  return IB+s+'_elden_ring_wiki_guide_200px.png';
+}
+const TR={it:{nav_tracker:'Tracker',nav_map:'Mappa',nav_build:'Build Planner',nav_bestiary:'Bestiario',nav_wip:'In arrivo',nav_found:'trovati',pg_title:'📖 Bestiario',pg_sub:'Boss, nemici, drop e strategie',results:'risultati',filter_all:'Tutti',filter_major:'Boss Principali',filter_field:'Field Boss',filter_optional:'Opzionali',filter_sote:'DLC',filter_defeated:'✓ Sconfitti',search_ph:'Cerca boss…',strategy:'Strategia',boss_major:'Boss Principale',boss_field:'Field Boss',boss_optional:'Opzionale',footer:'Fan project non ufficiale · Elden Ring © FromSoftware / Bandai Namco · Dati: eldenring.wiki.gg'},en:{nav_tracker:'Tracker',nav_map:'Map',nav_build:'Build Planner',nav_bestiary:'Bestiary',nav_wip:'Coming soon',nav_found:'found',pg_title:'📖 Bestiary',pg_sub:'Bosses, enemies, drops & strategies',results:'results',filter_all:'All',filter_major:'Main Bosses',filter_field:'Field Bosses',filter_optional:'Optional',filter_sote:'DLC',filter_defeated:'✓ Defeated',search_ph:'Search boss…',strategy:'Strategy',boss_major:'Main Boss',boss_field:'Field Boss',boss_optional:'Optional',footer:'Unofficial fan project · Elden Ring © FromSoftware / Bandai Namco · Data: eldenring.wiki.gg'}};
 function getLang(){return localStorage.getItem('er_lang')||'it';}
 function setLang(l){localStorage.setItem('er_lang',l);location.reload();}
 function t(k){return(TR[getLang()]||TR.it)[k]||k;}
@@ -162,6 +167,11 @@ function toggleDefeated(id){const d=getDefeated();d[id]=!d[id];if(!d[id])delete 
   document.getElementById('navStat').textContent=totalFound()+' '+t('nav_found');
   document.getElementById('pg-title').textContent=t('pg_title');
   document.getElementById('pg-sub').textContent=t('pg_sub');
+  var _ft=document.getElementById('footerTxt');if(_ft)_ft.textContent=t('footer');
+  var _si=document.getElementById('searchInp');if(_si)_si.placeholder=t('search_ph');
+  var _chips=[['all','filter_all'],['major','filter_major'],['field','filter_field'],['opt','filter_optional'],['sote','filter_sote'],['def','filter_defeated']];
+  _chips.forEach(function(p){var el=document.getElementById('bc-'+p[0]);if(el)el.textContent=t(p[1]);});
+
   ['tracker','map','build','bestiary'].forEach(k=>{
     const el=document.getElementById('lbl-'+k);if(el)el.textContent=t('nav_'+k);
   });
@@ -221,7 +231,7 @@ function renderGrid(){
   document.getElementById('bossGrid').innerHTML=bosses.map((boss,i)=>{
     const def=isDefeated(boss.id);
     const typeBadge=boss.type==='major'?'badge-major':boss.type==='field'?'badge-field':'badge-optional';
-    const typeLabel=boss.type==='major'?'Boss Principale':boss.type==='field'?'Field Boss':'Opzionale';
+    var typeLabel=boss.type==='major'?t('boss_major'):boss.type==='field'?t('boss_field'):t('boss_optional');
     const weakHtml=boss.weakness.map(w=>`<div class="wdot" style="background:${WEAK_COLORS[w]||'rgba(100,100,100,.2)'}" title="${w}">${WEAK[w]||w}</div>`).join('');
     const dropHtml=boss.drops.map(d=>`<span class="drop-tag${d.startsWith('Remembrance')?'remembrance':''}">${d}</span>`).join('');
     return`<div class="boss-card${def?' defeated':''}" data-id="${boss.id}" style="--banner-color:${boss.color}" style="animation-delay:${Math.min(i*.015,.25)}s">

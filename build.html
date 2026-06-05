@@ -221,7 +221,7 @@ footer p{font-size:10px;color:var(--text3);font-family:var(--ff-d);letter-spacin
     </div>
   </div>
 </div>
-<footer><p>Fan project non ufficiale · Elden Ring © FromSoftware / Bandai Namco</p></footer>
+<footer><p id="footerTxt"></p></footer>
 
 <!-- ITEM PICKER MODAL -->
 <div class="modal-overlay hidden" id="modalOverlay" onclick="closeModal(event)">
@@ -230,17 +230,22 @@ footer p{font-size:10px;color:var(--text3);font-family:var(--ff-d);letter-spacin
       <h3 id="modalTitle">Scegli item</h3>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
-    <div class="modal-search"><input id="modalSearch" placeholder="Cerca…" oninput="filterModal()"></div>
+    <div class="modal-search"><input id="modalSearch" placeholder="" oninput="filterModal()"></div>
     <div class="modal-list" id="modalList"></div>
   </div>
 </div>
 
 <script>
 // ── i18n ─────────────────────────────────────────────────────────────────────
-const TR={
-  it:{nav_tracker:'Tracker',nav_map:'Mappa',nav_build:'Build Planner',nav_bestiary:'Bestiario',nav_wip:'In arrivo',nav_found:'trovati',pg_title:'⚙️ Build Planner',pg_sub:'Pianifica il tuo personaggio',lbl_save:'Salva build',lbl_load:'Carica',lbl_reset:'Reset',lbl_share:'Condividi URL',lbl_class:'CLASSE',lbl_stats:'STATISTICHE',lbl_derived:'VALORI DERIVATI',lbl_equip:'EQUIPAGGIAMENTO',lbl_dmg:'DANNO STIMATO',lbl_talismans:'TALISMANI (4 slot)',lbl_tracker:'Tracker',lbl_map:'Mappa',lbl_bestiary:'Bestiario',lbl_wip:'In arrivo',stat_vig:'Vigore',stat_min:'Mente',stat_end:'Resistenza',stat_str:'Forza',stat_dex:'Destrezza',stat_int:'Intelligenza',stat_fai:'Fede',stat_arc:'Arcane',saved:'Build salvata!',shared:'URL copiato!',reset_q:'Resetta la build?'},
-  en:{nav_tracker:'Tracker',nav_map:'Map',nav_build:'Build Planner',nav_bestiary:'Bestiary',nav_wip:'Coming soon',nav_found:'found',pg_title:'⚙️ Build Planner',pg_sub:'Plan your character',lbl_save:'Save build',lbl_load:'Load',lbl_reset:'Reset',lbl_share:'Share URL',lbl_class:'CLASS',lbl_stats:'STATS',lbl_derived:'DERIVED VALUES',lbl_equip:'EQUIPMENT',lbl_dmg:'ESTIMATED DAMAGE',lbl_talismans:'TALISMANS (4 slots)',lbl_tracker:'Tracker',lbl_map:'Map',lbl_bestiary:'Bestiary',lbl_wip:'Coming soon',stat_vig:'Vigor',stat_min:'Mind',stat_end:'Endurance',stat_str:'Strength',stat_dex:'Dexterity',stat_int:'Intelligence',stat_fai:'Faith',stat_arc:'Arcane',saved:'Build saved!',shared:'URL copied!',reset_q:'Reset build?'}
-};
+
+const IB='https://eldenring.wiki.fextralife.com/file/Elden-Ring/';
+function imgUrl(s){
+  if(!s)return null;
+  if(s.indexOf('_elden_ring_wiki_guide')>=0)return IB+s+'_200px.png';
+  if(s.slice(-17)==='_elden_ring_wiki')return IB+s+'_guide_200px.png';
+  return IB+s+'_elden_ring_wiki_guide_200px.png';
+}
+const TR={it:{nav_tracker:'Tracker',nav_map:'Mappa',nav_build:'Build Planner',nav_bestiary:'Bestiario',nav_wip:'In arrivo',nav_found:'trovati',pg_title:'⚙️ Build Planner',pg_sub:'Pianifica il tuo personaggio',lbl_save:'Salva build',lbl_load:'Carica',lbl_reset:'Reset',lbl_share:'Condividi URL',lbl_class:'CLASSE',lbl_stats:'STATISTICHE',lbl_derived:'VALORI DERIVATI',lbl_equip:'EQUIPAGGIAMENTO',lbl_dmg:'DANNO STIMATO',lbl_talismans:'TALISMANI (4 slot)',stat_vig:'Vigore',stat_min:'Mente',stat_end:'Resistenza',stat_str:'Forza',stat_dex:'Destrezza',stat_int:'Intelligenza',stat_fai:'Fede',stat_arc:'Arcane',saved:'Build salvata!',shared:'URL copiato!',reset_q:'Resetta la build?',footer:'Fan project non ufficiale · Elden Ring © FromSoftware / Bandai Namco',search_modal:'Cerca…',slot_rh1:'Arma Dx 1',slot_rh2:'Arma Dx 2',slot_lh1:'Arma Sx 1',slot_lh2:'Arma Sx 2',slot_head:'Testa',slot_chest:'Petto',slot_arms:'Braccia',slot_legs:'Gambe',slot_empty:'Vuoto'},en:{nav_tracker:'Tracker',nav_map:'Map',nav_build:'Build Planner',nav_bestiary:'Bestiary',nav_wip:'Coming soon',nav_found:'found',pg_title:'⚙️ Build Planner',pg_sub:'Plan your character',lbl_save:'Save build',lbl_load:'Load',lbl_reset:'Reset',lbl_share:'Share URL',lbl_class:'CLASS',lbl_stats:'STATS',lbl_derived:'DERIVED VALUES',lbl_equip:'EQUIPMENT',lbl_dmg:'ESTIMATED DAMAGE',lbl_talismans:'TALISMANS (4 slots)',stat_vig:'Vigor',stat_min:'Mind',stat_end:'Endurance',stat_str:'Strength',stat_dex:'Dexterity',stat_int:'Intelligence',stat_fai:'Faith',stat_arc:'Arcane',saved:'Build saved!',shared:'URL copied!',reset_q:'Reset build?',footer:'Unofficial fan project · Elden Ring © FromSoftware / Bandai Namco',search_modal:'Search…',slot_rh1:'Right Hand 1',slot_rh2:'Right Hand 2',slot_lh1:'Left Hand 1',slot_lh2:'Left Hand 2',slot_head:'Head',slot_chest:'Chest',slot_arms:'Arms',slot_legs:'Legs',slot_empty:'Empty'}};
 function getLang(){return localStorage.getItem('er_lang')||'it';}
 function setLang(l){localStorage.setItem('er_lang',l);location.reload();}
 function t(k){return(TR[getLang()]||TR.it)[k]||k;}
@@ -258,6 +263,9 @@ function totalFound(){return Object.values(getFound()).filter(Boolean).length;}
   });
   document.getElementById('pg-title').textContent=t('pg_title');
   document.getElementById('pg-sub').textContent=t('pg_sub');
+  var _ft=document.getElementById('footerTxt');if(_ft)_ft.textContent=t('footer');
+  var _ms=document.getElementById('modalSearch');if(_ms)_ms.placeholder=t('search_modal');
+
   document.getElementById('lbl-class').textContent=t('lbl_class');
   document.getElementById('lbl-stats').textContent=t('lbl_stats');
   document.getElementById('lbl-derived').textContent=t('lbl_derived');
@@ -294,9 +302,6 @@ function calcStamina(end){return Math.floor(80+25*Math.min(end,60)/60*3);}
 function calcLoad(end){return Math.floor(45+30*Math.min(end,99)/99*2);}
 
 // ── BUILD STATE ───────────────────────────────────────────────────────────────
-const IB='https://eldenring.wiki.fextralife.com/file/Elden-Ring/';
-const IS='_elden_ring_wiki_guide_200px.png';
-
 let BUILD={
   classId:'vagabond',
   stats:{vig:15,min:10,end:11,str:14,dex:13,int:9,fai:9,arc:7},
@@ -396,14 +401,14 @@ const SHIELDS_LIST=[
 ];
 
 const SLOT_META={
-  rh1:{label:'Arma Dx 1', icon:'⚔️', list:'weapons'},
-  rh2:{label:'Arma Dx 2', icon:'⚔️', list:'weapons'},
-  lh1:{label:'Arma Sx 1', icon:'🛡️', list:'shields'},
-  lh2:{label:'Arma Sx 2', icon:'🛡️', list:'shields'},
-  head: {label:'Testa',   icon:'🪖', list:'head'},
-  chest:{label:'Petto',   icon:'🛡️', list:'chest'},
-  arms: {label:'Braccia', icon:'🧤', list:'arms'},
-  legs: {label:'Gambe',   icon:'👢', list:'legs'},
+  rh1:{labelKey:'slot_rh1',icon:'⚔️',list:'weapons'},
+  rh2:{labelKey:'slot_rh2',icon:'⚔️',list:'weapons'},
+  lh1:{labelKey:'slot_lh1',icon:'🛡️',list:'shields'},
+  lh2:{labelKey:'slot_lh2',icon:'🛡️',list:'shields'},
+  head:{labelKey:'slot_head',icon:'🪖',list:'head'},
+  chest:{labelKey:'slot_chest',icon:'🛡️',list:'chest'},
+  arms:{labelKey:'slot_arms',icon:'🧤',list:'arms'},
+  legs:{labelKey:'slot_legs',icon:'👢',list:'legs'},
 };
 
 // ── CALC level from stats ─────────────────────────────────────────────────────
@@ -483,12 +488,12 @@ function renderEquip(){
   document.getElementById('equipGrid').innerHTML=slots.map(s=>{
     const meta=SLOT_META[s];
     const item=BUILD.equip[s];
-    const imgUrl=item&&item.img?IB+item.img+IS:null;
+    const imgUrl=item&&item.img?imgUrl(item.img):null;
     const imgHtml=imgUrl?`<img src="${imgUrl}" style="width:24px;height:24px;object-fit:contain" onerror="this.style.display='none'">`:`<span>${meta.icon}</span>`;
     return`<div class="equip-slot${item?' filled':''}" onclick="openPicker('${s}')">
       <div class="slot-icon">${imgHtml}</div>
       <div class="slot-info">
-        <div class="slot-label">${meta.label}</div>
+        <div class="slot-label">${t(meta.labelKey)}</div>
         <div class="slot-name">${item?item.name:'—'}</div>
       </div>
     </div>`;
@@ -523,7 +528,7 @@ function renderTalismans(){
       <div class="tal-img">🔮</div>
       <div class="tal-info"><div class="tal-name" style="color:var(--text3)">— Vuoto —</div></div>
     </div>`;
-    const imgUrl=tal.img?IB+tal.img+IS:null;
+    const imgUrl=tal.img?imgUrl(tal.img):null;
     const imgHtml=imgUrl?`<img src="${imgUrl}" onerror="this.outerHTML='🔮'">`:'🔮';
     return`<div class="tal-slot filled" onclick="openTalismanPicker(${i})">
       <div class="tal-img">${imgHtml}</div>
@@ -560,7 +565,7 @@ function openPicker(slotId){
   else if(meta.list==='chest') list=ARMOR_CHEST;
   else if(meta.list==='arms') list=ARMOR_ARMS;
   else if(meta.list==='legs') list=ARMOR_LEGS;
-  document.getElementById('modalTitle').textContent=meta.label;
+  document.getElementById('modalTitle').textContent=t(meta.labelKey);
   document.getElementById('modalSearch').value='';
   renderModalList(list,'');
   document.getElementById('modalOverlay').classList.remove('hidden');
@@ -577,7 +582,7 @@ function openTalismanPicker(idx){
 function renderModalList(list,q){
   const filtered=q?list.filter(i=>i.name.toLowerCase().includes(q.toLowerCase())):list;
   document.getElementById('modalList').innerHTML=filtered.map((item,i)=>{
-    const url=item.img?IB+item.img+IS:null;
+    const url=item.img?imgUrl(item.img):null;
     const imgHtml=url?`<img src="${url}" style="width:28px;height:28px;object-fit:contain" onerror="this.style.display='none'">`:
       (item.type?'⚔️':item.effect?'🔮':'🛡️');
     return`<div class="modal-item" onclick="selectItem(${i})">

@@ -122,14 +122,14 @@ footer p{font-size:10px;color:var(--text3);font-family:var(--ff-d);letter-spacin
       <div class="filter-row">
         <div class="search-wrap">
           <span class="search-icon">⌕</span>
-          <input id="searchInp" class="search-inp" placeholder="Cerca item…">
+          <input id="searchInp" class="search-inp" placeholder="">
         </div>
-        <button class="chip active" data-f="all">Tutti</button>
-        <button class="chip" data-f="found">✓ Trovati</button>
-        <button class="chip" data-f="notfound">✗ Non trovati</button>
+        <button class="chip active" data-f="all" id="cp-all"></button>
+        <button class="chip" data-f="found" id="cp-found"></button>
+        <button class="chip" data-f="notfound" id="cp-nf"></button>
         <div class="fsep"></div>
-        <button class="chip" data-f="sote">DLC</button>
-        <button class="chip" data-f="base">Base</button>
+        <button class="chip" data-f="sote" id="cp-sote"></button>
+        <button class="chip" data-f="base" id="cp-base"></button>
         <span class="res-label" id="resLabel"></span>
       </div>
     </div>
@@ -137,14 +137,19 @@ footer p{font-size:10px;color:var(--text3);font-family:var(--ff-d);letter-spacin
   <div class="stats-bar" id="statsBar"></div>
   <div class="grid-wrap"><div class="grid" id="grid"></div></div>
 </div>
-<footer><p>Fan project non ufficiale · Elden Ring © FromSoftware / Bandai Namco · Dati: eldenring.wiki.gg</p></footer>
+<footer><p id="footerTxt"></p></footer>
 
 <script>
 // ── i18n ─────────────────────────────────────────────────────────────────────
-const TR={
-  it:{nav_tracker:'Tracker',nav_map:'Mappa',nav_build:'Build Planner',nav_bestiary:'Bestiario',nav_wip:'In arrivo',nav_found:'trovati',search_ph:'Cerca item, effetto, localizzazione…',filter_all:'Tutti',filter_found:'✓ Trovati',filter_notfound:'✗ Non trovati',cat_talismans:'Talismani',cat_weapons:'Armi',cat_armor:'Armature',cat_sorceries:'Incantesimi',cat_incantations:'Incantazioni',cat_spiritashes:'Spirit Ashes',cat_shields:'Scudi',results:'risultati'},
-  en:{nav_tracker:'Tracker',nav_map:'Map',nav_build:'Build Planner',nav_bestiary:'Bestiary',nav_wip:'Coming soon',nav_found:'found',search_ph:'Search items, effects, locations…',filter_all:'All',filter_found:'✓ Found',filter_notfound:'✗ Not found',cat_talismans:'Talismans',cat_weapons:'Weapons',cat_armor:'Armor',cat_sorceries:'Sorceries',cat_incantations:'Incantations',cat_spiritashes:'Spirit Ashes',cat_shields:'Shields',results:'results'}
-};
+
+const IB='https://eldenring.wiki.fextralife.com/file/Elden-Ring/';
+function imgUrl(s){
+  if(!s)return null;
+  if(s.indexOf('_elden_ring_wiki_guide')>=0)return IB+s+'_200px.png';
+  if(s.slice(-17)==='_elden_ring_wiki')return IB+s+'_guide_200px.png';
+  return IB+s+'_elden_ring_wiki_guide_200px.png';
+}
+const TR={it:{nav_tracker:'Tracker',nav_map:'Mappa',nav_build:'Build Planner',nav_bestiary:'Bestiario',nav_wip:'In arrivo',nav_found:'trovati',search_ph:'Cerca item, effetto, localizzazione…',filter_all:'Tutti',filter_found:'✓ Trovati',filter_notfound:'✗ Non trovati',filter_sote:'Solo DLC',filter_base:'Solo Base',results:'risultati',cat_talismans:'Talismani',cat_weapons:'Armi',cat_armor:'Armature',cat_sorceries:'Incantesimi',cat_incantations:'Incantazioni',cat_spiritashes:'Spirit Ashes',cat_shields:'Scudi',footer:'Fan project non ufficiale · Elden Ring © FromSoftware / Bandai Namco · Dati: eldenring.wiki.gg'},en:{nav_tracker:'Tracker',nav_map:'Map',nav_build:'Build Planner',nav_bestiary:'Bestiary',nav_wip:'Coming soon',nav_found:'found',search_ph:'Search items, effects, locations…',filter_all:'All',filter_found:'✓ Found',filter_notfound:'✗ Not found',filter_sote:'DLC only',filter_base:'Base only',results:'results',cat_talismans:'Talismans',cat_weapons:'Weapons',cat_armor:'Armor',cat_sorceries:'Sorceries',cat_incantations:'Incantations',cat_spiritashes:'Spirit Ashes',cat_shields:'Shields',footer:'Unofficial fan project · Elden Ring © FromSoftware / Bandai Namco · Data: eldenring.wiki.gg'}};
 function getLang(){return localStorage.getItem('er_lang')||'it';}
 function setLang(l){localStorage.setItem('er_lang',l);location.reload();}
 function t(k){return (TR[getLang()]||TR.it)[k]||k;}
@@ -202,8 +207,6 @@ const CATEGORIES=[
   {id:'spiritashes',key:'cat_spiritashes',icon:'👻'},
   {id:'shields',key:'cat_shields',icon:'🪖'},
 ];
-const IB='https://eldenring.wiki.fextralife.com/file/Elden-Ring/';
-const IS='_elden_ring_wiki_guide_200px.png';
 </script>
 <script id="item-data">
 const ITEMS = {
@@ -599,7 +602,7 @@ function renderGrid(){
   document.getElementById('grid').innerHTML=items.map((item,i)=>{
     const found=isFound(ST.tab,item.name);
     const isLeg=item.effect.includes('Legg')||item.name.includes('Legg');
-    const url=item.img?IB+item.img+IS:null;
+    const url=item.img?imgUrl(item.img):null;
     const imgTag=url?`<img src="${url}" alt="" loading="lazy" onerror="this.classList.add('err');this.nextElementSibling.style.opacity=1">`:'' ;
     return`<div class="card${found?' found':''}" data-cat="${ST.tab}" data-name="${item.name.replace(/"/g,'&quot;')}" style="animation-delay:${Math.min(i*.018,.28)}s">
       <div class="card-top">
@@ -629,7 +632,15 @@ function renderGrid(){
     });
   });
 }
-function renderAll(){renderTabs();renderStatsBar();renderGrid();updateNavStat();}
+
+function applyLabels(){
+  [['all','filter_all'],['found','filter_found'],['nf','filter_notfound'],['sote','filter_sote'],['base','filter_base']].forEach(function(p){
+    var el=document.getElementById('cp-'+p[0]);if(el)el.textContent=t(p[1]);
+  });
+  var si=document.getElementById('searchInp');if(si)si.placeholder=t('search_ph');
+  var ft=document.getElementById('footerTxt');if(ft)ft.textContent=t('footer');
+}
+function renderAll(){applyLabels();renderTabs();renderStatsBar();renderGrid();updateNavStat();}
 
 // chips
 document.querySelectorAll('[data-f]').forEach(c=>{

@@ -164,12 +164,12 @@ a{color:var(--gold);text-decoration:none}
       <h2 id="map-title">🗺️ Mappa Interattiva</h2>
       <div class="search-wrap">
         <span class="search-icon">⌕</span>
-        <input id="mapSearch" class="search-inp" placeholder="Cerca item sulla mappa…">
+        <input id="mapSearch" class="search-inp" placeholder="">
       </div>
     </div>
     <div class="cat-pills" id="catPills"></div>
     <div class="toggle-row">
-      <button class="toggle-btn active" id="btnDlcAll"  onclick="setDlcFilter('all')">Tutti</button>
+      <button class="toggle-btn active" id="btnDlcAll"  onclick="setDlcFilter('all')" id='btnDlcTxt'></button>
       <button class="toggle-btn" id="btnDlcBase" onclick="setDlcFilter('base')">Base</button>
       <button class="toggle-btn" id="btnDlcSote" onclick="setDlcFilter('sote')">DLC</button>
       <button class="toggle-btn on-green" id="btnFound" onclick="toggleFoundFilter()">✓ Trovati</button>
@@ -197,10 +197,15 @@ a{color:var(--gold);text-decoration:none}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 // ── i18n ─────────────────────────────────────────────────────────────────────
-const TR={
-  it:{nav_tracker:'Tracker',nav_map:'Mappa',nav_build:'Build Planner',nav_bestiary:'Bestiario',nav_wip:'In arrivo',nav_found:'trovati',map_title:'🗺️ Mappa Interattiva',search_ph:'Cerca item sulla mappa…',legend:'Legenda',cat_talismans:'Talismani',cat_weapons:'Armi',cat_armor:'Armature',cat_sorceries:'Incantesimi',cat_incantations:'Incantazioni',cat_spiritashes:'Spirit Ashes',cat_shields:'Scudi',found_btn:'✓ Segna trovato',unfound_btn:'✗ Non trovato'},
-  en:{nav_tracker:'Tracker',nav_map:'Map',nav_build:'Build Planner',nav_bestiary:'Bestiary',nav_wip:'Coming soon',nav_found:'found',map_title:'🗺️ Interactive Map',search_ph:'Search items on map…',legend:'Legend',cat_talismans:'Talismans',cat_weapons:'Weapons',cat_armor:'Armor',cat_sorceries:'Sorceries',cat_incantations:'Incantations',cat_spiritashes:'Spirit Ashes',cat_shields:'Shields',found_btn:'✓ Mark found',unfound_btn:'✗ Not found'}
-};
+
+const IB='https://eldenring.wiki.fextralife.com/file/Elden-Ring/';
+function imgUrl(s){
+  if(!s)return null;
+  if(s.indexOf('_elden_ring_wiki_guide')>=0)return IB+s+'_200px.png';
+  if(s.slice(-17)==='_elden_ring_wiki')return IB+s+'_guide_200px.png';
+  return IB+s+'_elden_ring_wiki_guide_200px.png';
+}
+const TR={it:{nav_tracker:'Tracker',nav_map:'Mappa',nav_build:'Build Planner',nav_bestiary:'Bestiario',nav_wip:'In arrivo',nav_found:'trovati',map_title:'Mappa Interattiva',search_ph:'Cerca item sulla mappa…',legend:'Legenda',cat_talismans:'Talismani',cat_weapons:'Armi',cat_armor:'Armature',cat_sorceries:'Incantesimi',cat_incantations:'Incantazioni',cat_spiritashes:'Spirit Ashes',cat_shields:'Scudi',found_btn:'✓ Segna trovato',unfound_btn:'✗ Non trovato',all_filter:'Tutti',all_pins:'pin visibili'},en:{nav_tracker:'Tracker',nav_map:'Map',nav_build:'Build Planner',nav_bestiary:'Bestiary',nav_wip:'Coming soon',nav_found:'found',map_title:'Interactive Map',search_ph:'Search items on map…',legend:'Legend',cat_talismans:'Talismans',cat_weapons:'Weapons',cat_armor:'Armor',cat_sorceries:'Sorceries',cat_incantations:'Incantations',cat_spiritashes:'Spirit Ashes',cat_shields:'Shields',found_btn:'✓ Mark found',unfound_btn:'✗ Not found',all_filter:'All',all_pins:'pins visible'}};
 function getLang(){return localStorage.getItem('er_lang')||'it';}
 function setLang(l){localStorage.setItem('er_lang',l);location.reload();}
 function t(k){return (TR[getLang()]||TR.it)[k]||k;}
@@ -222,6 +227,12 @@ function totalFound(){return Object.values(getFound()).filter(Boolean).length;}
   document.getElementById('btnIT').classList.toggle('active',lang==='it');
   document.getElementById('btnEN').classList.toggle('active',lang==='en');
   document.getElementById('navStat').textContent=totalFound()+' '+t('nav_found');
+  var _b=document.getElementById('btnDlcTxt');if(_b)_b.textContent=t('all_filter');
+  var _l=document.getElementById('legend-title');if(_l)_l.textContent=t('legend');
+  var _ms=document.getElementById('mapSearch');if(_ms)_ms.placeholder=t('search_ph');
+  var _ft=document.getElementById('footerTxt');if(_ft)_ft.textContent=t('footer');
+  var _mt=document.getElementById('map-title');if(_mt)_mt.textContent=t('map_title');
+
   document.getElementById('map-title').textContent=t('map_title');
   document.getElementById('mapSearch').placeholder=t('search_ph');
   document.getElementById('legend-title').textContent=t('legend');
@@ -372,15 +383,13 @@ map.fitBounds(bounds);
 map.setView([mapH/2,mapW/2],-1);
 
 // ── MARKERS ───────────────────────────────────────────────────────────────────
-const IB='https://eldenring.wiki.fextralife.com/file/Elden-Ring/';
-const IS='_elden_ring_wiki_guide_200px.png';
 const markerMap={};   // id → leaflet marker
 const markerLayer=L.layerGroup().addTo(map);
 
 function makeMarker(pin){
   const meta=CAT_META[pin.cat]||{icon:'📦',color:'#888'};
   const found=isFound(pin.cat,pin.name);
-  const imgUrl=pin.img?IB+pin.img+IS:null;
+  const imgUrl=pin.img?imgUrl(pin.img):null;
   const inner=imgUrl
     ? `<img class="marker-inner" src="${imgUrl}" onerror="this.outerHTML='<span class=marker-inner-emoji>${meta.icon}</span>'">`
     : `<span class="marker-inner-emoji">${meta.icon}</span>`;
@@ -397,7 +406,7 @@ function makeMarker(pin){
 function makePopup(pin){
   const meta=CAT_META[pin.cat]||{icon:'📦',color:'#888'};
   const found=isFound(pin.cat,pin.name);
-  const imgUrl=pin.img?IB+pin.img+IS:null;
+  const imgUrl=pin.img?imgUrl(pin.img):null;
   const imgHtml=imgUrl
     ? `<img src="${imgUrl}" style="width:36px;height:36px;object-fit:contain" onerror="this.outerHTML='<span style=font-size:20px>${meta.icon}</span>'">`
     : `<span style="font-size:24px">${meta.icon}</span>`;
@@ -421,6 +430,12 @@ function handlePopupToggle(id,cat,name){
   const found=toggleFound(cat,name);
   refreshMarker(id,cat,name,found);
   document.getElementById('navStat').textContent=totalFound()+' '+t('nav_found');
+  var _b=document.getElementById('btnDlcTxt');if(_b)_b.textContent=t('all_filter');
+  var _l=document.getElementById('legend-title');if(_l)_l.textContent=t('legend');
+  var _ms=document.getElementById('mapSearch');if(_ms)_ms.placeholder=t('search_ph');
+  var _ft=document.getElementById('footerTxt');if(_ft)_ft.textContent=t('footer');
+  var _mt=document.getElementById('map-title');if(_mt)_mt.textContent=t('map_title');
+
   renderPinList();
 }
 
@@ -430,7 +445,7 @@ function refreshMarker(id,cat,name,found){
   const marker=markerMap[id];
   if(!marker)return;
   const meta=CAT_META[cat]||{icon:'📦',color:'#888'};
-  const imgUrl=pin.img?IB+pin.img+IS:null;
+  const imgUrl=pin.img?imgUrl(pin.img):null;
   const inner=imgUrl
     ? `<img class="marker-inner" src="${imgUrl}" onerror="this.outerHTML='<span class=marker-inner-emoji>${meta.icon}</span>'">`
     : `<span class="marker-inner-emoji">${meta.icon}</span>`;
@@ -474,7 +489,7 @@ function renderPinList(){
   list.innerHTML=visible.map(pin=>{
     const meta=CAT_META[pin.cat]||{icon:'📦',color:'#888'};
     const found=isFound(pin.cat,pin.name);
-    const imgUrl=pin.img?IB+pin.img+IS:null;
+    const imgUrl=pin.img?imgUrl(pin.img):null;
     const imgHtml=imgUrl?`<img src="${imgUrl}" style="width:22px;height:22px;object-fit:contain" onerror="this.outerHTML='${meta.icon}'">`:`<span>${meta.icon}</span>`;
     return`<div class="pin-item${found?' found-pin':''}" id="li-${pin.id}" onclick="flyToPin('${pin.id}')">
       <div class="pin-dot" style="color:${meta.color};border-color:${meta.color}"></div>
@@ -486,7 +501,7 @@ function renderPinList(){
       <div class="pin-check">${found?'✓':''}</div>
     </div>`;
   }).join('');
-  document.getElementById('pinCount').textContent=`${visible.length} pin visibili`;
+  document.getElementById('pinCount').textContent=visible.length+' '+t('all_pins');
 }
 
 function flyToPin(id){
