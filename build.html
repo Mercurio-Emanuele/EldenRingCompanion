@@ -238,13 +238,29 @@ footer p{font-size:10px;color:var(--text3);font-family:var(--ff-d);letter-spacin
 <script>
 // ── i18n ─────────────────────────────────────────────────────────────────────
 
-const IB='https://eldenring.wiki.fextralife.com/file/Elden-Ring/';
-function imgUrl(s){
-  if(!s)return null;
-  if(s.indexOf('_elden_ring_wiki_guide')>=0)return IB+s+'_200px.png';
-  if(s.slice(-17)==='_elden_ring_wiki')return IB+s+'_guide_200px.png';
-  return IB+s+'_elden_ring_wiki_guide_200px.png';
+
+var IB = 'https://eldenring.wiki.fextralife.com/file/Elden-Ring/';
+function getImgUrl(slug, cat) {
+  if (!slug) return null;
+  // Try local path first (if user ran download_images.py)
+  var local = 'images/' + (cat||'talismans') + '/' + slug + '.png';
+  // Remote fallback URL
+  var remote;
+  if (slug.indexOf('_elden_ring_wiki_guide') >= 0) remote = IB + slug + '_200px.png';
+  else if (slug.slice(-17) === '_elden_ring_wiki') remote = IB + slug + '_guide_200px.png';
+  else remote = IB + slug + '_elden_ring_wiki_guide_200px.png';
+  return { local: local, remote: remote };
 }
+function makeImgTag(slug, cat, w, h) {
+  if (!slug) return '<span style="font-size:'+(h||32)+'px;line-height:1">'+getCatEmoji(cat)+'</span>';
+  var urls = getImgUrl(slug, cat);
+  var size = 'width:'+(w||32)+'px;height:'+(h||32)+'px;object-fit:contain';
+  return '<img src="'+urls.local+'" style="'+size+'" alt="" '
+       + 'onerror="this.src=\''+urls.remote+'\';this.onerror=function(){this.style.display=\'none\';this.nextElementSibling.style.display=\'inline\'}">'
+       + '<span style="font-size:'+(Math.round((h||32)*0.6))+'px;display:none">'+getCatEmoji(cat)+'</span>';
+}
+var CAT_EMOJI = {talismans:'🔮',weapons:'⚔️',armor:'🛡️',sorceries:'✨',incantations:'🌟',spiritashes:'👻',shields:'🪖'};
+function getCatEmoji(cat){ return CAT_EMOJI[cat]||'📦'; }
 const TR={it:{nav_tracker:'Tracker',nav_map:'Mappa',nav_build:'Build Planner',nav_bestiary:'Bestiario',nav_wip:'In arrivo',nav_found:'trovati',pg_title:'⚙️ Build Planner',pg_sub:'Pianifica il tuo personaggio',lbl_save:'Salva build',lbl_load:'Carica',lbl_reset:'Reset',lbl_share:'Condividi URL',lbl_class:'CLASSE',lbl_stats:'STATISTICHE',lbl_derived:'VALORI DERIVATI',lbl_equip:'EQUIPAGGIAMENTO',lbl_dmg:'DANNO STIMATO',lbl_talismans:'TALISMANI (4 slot)',stat_vig:'Vigore',stat_min:'Mente',stat_end:'Resistenza',stat_str:'Forza',stat_dex:'Destrezza',stat_int:'Intelligenza',stat_fai:'Fede',stat_arc:'Arcane',saved:'Build salvata!',shared:'URL copiato!',reset_q:'Resetta la build?',footer:'Fan project non ufficiale · Elden Ring © FromSoftware / Bandai Namco',search_modal:'Cerca…',slot_rh1:'Arma Dx 1',slot_rh2:'Arma Dx 2',slot_lh1:'Arma Sx 1',slot_lh2:'Arma Sx 2',slot_head:'Testa',slot_chest:'Petto',slot_arms:'Braccia',slot_legs:'Gambe',slot_empty:'Vuoto'},en:{nav_tracker:'Tracker',nav_map:'Map',nav_build:'Build Planner',nav_bestiary:'Bestiary',nav_wip:'Coming soon',nav_found:'found',pg_title:'⚙️ Build Planner',pg_sub:'Plan your character',lbl_save:'Save build',lbl_load:'Load',lbl_reset:'Reset',lbl_share:'Share URL',lbl_class:'CLASS',lbl_stats:'STATS',lbl_derived:'DERIVED VALUES',lbl_equip:'EQUIPMENT',lbl_dmg:'ESTIMATED DAMAGE',lbl_talismans:'TALISMANS (4 slots)',stat_vig:'Vigor',stat_min:'Mind',stat_end:'Endurance',stat_str:'Strength',stat_dex:'Dexterity',stat_int:'Intelligence',stat_fai:'Faith',stat_arc:'Arcane',saved:'Build saved!',shared:'URL copied!',reset_q:'Reset build?',footer:'Unofficial fan project · Elden Ring © FromSoftware / Bandai Namco',search_modal:'Search…',slot_rh1:'Right Hand 1',slot_rh2:'Right Hand 2',slot_lh1:'Left Hand 1',slot_lh2:'Left Hand 2',slot_head:'Head',slot_chest:'Chest',slot_arms:'Arms',slot_legs:'Legs',slot_empty:'Empty'}};
 function getLang(){return localStorage.getItem('er_lang')||'it';}
 function setLang(l){localStorage.setItem('er_lang',l);location.reload();}
@@ -483,12 +499,19 @@ function renderDerived(){
 }
 
 // ── RENDER EQUIP SLOTS ────────────────────────────────────────────────────────
+
+function slotCat(s){
+  if(s==='rh1'||s==='rh2')return 'weapons';
+  if(s==='lh1'||s==='lh2')return 'shields';
+  if(s==='head'||s==='chest'||s==='arms'||s==='legs')return 'armor';
+  return 'talismans';
+}
 function renderEquip(){
   const slots=['rh1','rh2','lh1','lh2','head','chest','arms','legs'];
   document.getElementById('equipGrid').innerHTML=slots.map(s=>{
     const meta=SLOT_META[s];
     const item=BUILD.equip[s];
-    const imgUrl=item&&item.img?imgUrl(item.img):null;
+    const imgUrl=item&&item.img?getCatEmoji('weapons'):null;
     const imgHtml=imgUrl?`<img src="${imgUrl}" style="width:24px;height:24px;object-fit:contain" onerror="this.style.display='none'">`:`<span>${meta.icon}</span>`;
     return`<div class="equip-slot${item?' filled':''}" onclick="openPicker('${s}')">
       <div class="slot-icon">${imgHtml}</div>
@@ -528,7 +551,7 @@ function renderTalismans(){
       <div class="tal-img">🔮</div>
       <div class="tal-info"><div class="tal-name" style="color:var(--text3)">— Vuoto —</div></div>
     </div>`;
-    const imgUrl=tal.img?imgUrl(tal.img):null;
+    const imgUrl=tal.img?getCatEmoji('weapons'):null;
     const imgHtml=imgUrl?`<img src="${imgUrl}" onerror="this.outerHTML='🔮'">`:'🔮';
     return`<div class="tal-slot filled" onclick="openTalismanPicker(${i})">
       <div class="tal-img">${imgHtml}</div>
@@ -582,7 +605,7 @@ function openTalismanPicker(idx){
 function renderModalList(list,q){
   const filtered=q?list.filter(i=>i.name.toLowerCase().includes(q.toLowerCase())):list;
   document.getElementById('modalList').innerHTML=filtered.map((item,i)=>{
-    const url=item.img?imgUrl(item.img):null;
+    const url=item.img?getCatEmoji('weapons'):null;
     const imgHtml=url?`<img src="${url}" style="width:28px;height:28px;object-fit:contain" onerror="this.style.display='none'">`:
       (item.type?'⚔️':item.effect?'🔮':'🛡️');
     return`<div class="modal-item" onclick="selectItem(${i})">

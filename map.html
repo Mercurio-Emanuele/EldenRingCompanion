@@ -174,6 +174,29 @@ a{color:var(--gold);text-decoration:none}
 <script>
 'use strict';
 
+var IB = 'https://eldenring.wiki.fextralife.com/file/Elden-Ring/';
+function getImgUrl(slug, cat) {
+  if (!slug) return null;
+  // Try local path first (if user ran download_images.py)
+  var local = 'images/' + (cat||'talismans') + '/' + slug + '.png';
+  // Remote fallback URL
+  var remote;
+  if (slug.indexOf('_elden_ring_wiki_guide') >= 0) remote = IB + slug + '_200px.png';
+  else if (slug.slice(-17) === '_elden_ring_wiki') remote = IB + slug + '_guide_200px.png';
+  else remote = IB + slug + '_elden_ring_wiki_guide_200px.png';
+  return { local: local, remote: remote };
+}
+function makeImgTag(slug, cat, w, h) {
+  if (!slug) return '<span style="font-size:'+(h||32)+'px;line-height:1">'+getCatEmoji(cat)+'</span>';
+  var urls = getImgUrl(slug, cat);
+  var size = 'width:'+(w||32)+'px;height:'+(h||32)+'px;object-fit:contain';
+  return '<img src="'+urls.local+'" style="'+size+'" alt="" '
+       + 'onerror="this.src=\''+urls.remote+'\';this.onerror=function(){this.style.display=\'none\';this.nextElementSibling.style.display=\'inline\'}">'
+       + '<span style="font-size:'+(Math.round((h||32)*0.6))+'px;display:none">'+getCatEmoji(cat)+'</span>';
+}
+var CAT_EMOJI = {talismans:'🔮',weapons:'⚔️',armor:'🛡️',sorceries:'✨',incantations:'🌟',spiritashes:'👻',shields:'🪖'};
+function getCatEmoji(cat){ return CAT_EMOJI[cat]||'📦'; }
+
 // ── i18n ──────────────────────────────────────────────────────────────────────
 var TR = {
   it: {nav_tracker:'Tracker',nav_map:'Mappa',nav_build:'Build Planner',nav_bestiary:'Bestiario',nav_wip:'In arrivo',nav_found:'trovati',map_title:'Mappa Interattiva',search_ph:'Cerca item sulla mappa\u2026',legend:'Legenda',cat_talismans:'Talismani',cat_weapons:'Armi',cat_armor:'Armature',cat_sorceries:'Incantesimi',cat_incantations:'Incantazioni',cat_spiritashes:'Spirit Ashes',cat_shields:'Scudi',found_btn:'\u2713 Segna trovato',unfound_btn:'\u2717 Non trovato',all_f:'Tutti',all_pins:'pin visibili',footer:'Fan project non ufficiale \u00b7 Elden Ring \u00a9 FromSoftware / Bandai Namco'},
@@ -185,16 +208,6 @@ function t(k) { return (TR[getLang()] || TR.it)[k] || k; }
 
 // ── Image URL builder ─────────────────────────────────────────────────────────
 // NOTE: named getImgUrl (not imgUrl) to avoid any local variable shadowing
-var IB = 'https://eldenring.wiki.fextralife.com/file/Elden-Ring/';
-function getImgUrl(slug) {
-  if (!slug) return null;
-  // Slug already contains full wiki guide tag → just add size suffix
-  if (slug.indexOf('_elden_ring_wiki_guide') >= 0) return IB + slug + '_200px.png';
-  // Armor slugs end in _elden_ring_wiki (missing _guide)
-  if (slug.slice(-17) === '_elden_ring_wiki') return IB + slug + '_guide_200px.png';
-  // Default: talismans, weapons → standard suffix
-  return IB + slug + '_elden_ring_wiki_guide_200px.png';
-}
 
 // ── Storage ───────────────────────────────────────────────────────────────────
 function getFound() { return JSON.parse(localStorage.getItem('er_found') || '{}'); }
@@ -317,13 +330,62 @@ var erMap = L.map('map', {
   crs: L.CRS.Simple, minZoom: -2, maxZoom: 3,
   zoomControl: true, attributionControl: true
 });
-L.imageOverlay(
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Elden_Ring_Map.jpg/2048px-Elden_Ring_Map.jpg',
-  bounds,
-  { attribution: 'Map &copy; FromSoftware &middot; Fan data: eldenring.wiki.gg' }
-).addTo(erMap);
-erMap.fitBounds(bounds);
-erMap.setView([mapH / 2, mapW / 2], -1);
+(function(){
+  var canvas = document.createElement('canvas');
+  canvas.width = 2048; canvas.height = 2048;
+  var ctx = canvas.getContext('2d');
+  // Dark parchment background
+  var bg = ctx.createRadialGradient(1024,900,0,1024,900,1300);
+  bg.addColorStop(0,'#201a08');bg.addColorStop(0.5,'#161208');bg.addColorStop(1,'#0a0802');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,2048,2048);
+  // Grid
+  ctx.strokeStyle='rgba(201,169,78,0.05)'; ctx.lineWidth=1;
+  for(var i=0;i<2048;i+=128){
+    ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,2048);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(2048,i);ctx.stroke();
+  }
+  // Zone blobs
+  var zones=[
+    {x:975,y:1350,rx:220,ry:180,c:'rgba(50,75,30,0.45)',  label:'Limgrave'},
+    {x:975,y:1600,rx:180,ry:160,c:'rgba(40,65,25,0.4)',   label:'Weeping Peninsula'},
+    {x:760,y:960, rx:240,ry:290,c:'rgba(30,50,80,0.45)',  label:'Liurnia of the Lakes'},
+    {x:550,y:740, rx:160,ry:170,c:'rgba(55,35,80,0.4)',   label:'Caria Manor'},
+    {x:1350,y:1250,rx:260,ry:210,c:'rgba(90,20,20,0.45)', label:'Caelid'},
+    {x:1010,y:790, rx:230,ry:175,c:'rgba(80,60,20,0.45)', label:'Altus Plateau'},
+    {x:700,y:650,  rx:185,ry:165,c:'rgba(90,35,10,0.4)',  label:'Mt. Gelmir'},
+    {x:1050,y:870, rx:155,ry:130,c:'rgba(140,120,30,0.35)',label:'Leyndell'},
+    {x:1400,y:490, rx:230,ry:160,c:'rgba(70,90,110,0.4)', label:'Mountaintops'},
+    {x:660,y:490,  rx:195,ry:150,c:'rgba(90,100,120,0.4)',label:'Consecrated Snowfield'},
+    {x:520,y:310,  rx:155,ry:130,c:'rgba(110,55,75,0.4)', label:"Haligtree"},
+    {x:1600,y:380, rx:185,ry:160,c:'rgba(80,40,15,0.45)', label:'Farum Azula'},
+    {x:400,y:1100, rx:130,ry:160,c:'rgba(60,0,40,0.4)',   label:'Mohgwyn'},
+    {x:1700,y:1600,rx:280,ry:250,c:'rgba(70,40,100,0.45)',label:'Shadow of the Erdtree'},
+  ];
+  zones.forEach(function(z){
+    var g=ctx.createRadialGradient(z.x,z.y,0,z.x,z.y,Math.max(z.rx,z.ry));
+    g.addColorStop(0,z.c);g.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(z.x,z.y,z.rx,z.ry,0,0,Math.PI*2);ctx.fill();
+  });
+  // Erdtree glow
+  var et=ctx.createRadialGradient(970,870,0,970,870,200);
+  et.addColorStop(0,'rgba(201,169,78,0.3)');et.addColorStop(0.6,'rgba(201,169,78,0.08)');et.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=et;ctx.beginPath();ctx.ellipse(970,870,160,260,0,0,Math.PI*2);ctx.fill();
+  // Zone labels
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  zones.forEach(function(z){
+    ctx.font='bold 16px serif';
+    ctx.fillStyle='rgba(201,169,78,0.6)';
+    ctx.fillText(z.label,z.x,z.y);
+  });
+  // Vignette
+  var vig=ctx.createRadialGradient(1024,1024,700,1024,1024,1200);
+  vig.addColorStop(0,'rgba(0,0,0,0)');vig.addColorStop(1,'rgba(0,0,0,0.7)');
+  ctx.fillStyle=vig;ctx.fillRect(0,0,2048,2048);
+  L.imageOverlay(canvas.toDataURL('image/png'),[[0,0],[2048,2048]],
+    {attribution:'Elden Ring &copy; FromSoftware &middot; Fan project'}).addTo(erMap);
+  erMap.fitBounds([[0,0],[2048,2048]]);
+  erMap.setView([1024,1024],-1);
+})();
 
 var markerMap = {};
 var markerLayer = L.layerGroup().addTo(erMap);
@@ -331,7 +393,7 @@ var markerLayer = L.layerGroup().addTo(erMap);
 // ── Marker creation ───────────────────────────────────────────────────────────
 function buildMarkerHtml(pin, found) {
   var meta = CAT_META[pin.cat] || { icon: '?', color: '#888' };
-  var url  = getImgUrl(pin.img);   // ← uses getImgUrl, no shadowing possible
+  var url  = getCatEmoji(pin.cat);   // ← uses getImgUrl, no shadowing possible
   var inner = url
     ? '<img class="marker-img" src="' + url + '" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'block\'">'
       + '<span class="marker-emoji" style="display:none">' + meta.icon + '</span>'
@@ -355,7 +417,7 @@ function makeMarker(pin) {
 function buildPopup(pin) {
   var meta  = CAT_META[pin.cat] || { icon: '?', color: '#888' };
   var found = isFound(pin.cat, pin.name);
-  var url   = getImgUrl(pin.img);   // ← uses getImgUrl
+  var url   = getCatEmoji(pin.cat);   // ← uses getImgUrl
   var thumb = url
     ? '<img src="' + url + '" style="width:36px;height:36px;object-fit:contain" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'block\'">'
       + '<span style="font-size:22px;display:none">' + meta.icon + '</span>'
@@ -423,7 +485,7 @@ function renderPinList() {
   list.innerHTML = visible.map(function(pin) {
     var meta  = CAT_META[pin.cat] || { icon: '?', color: '#888' };
     var found = isFound(pin.cat, pin.name);
-    var url   = getImgUrl(pin.img);
+    var url   = getCatEmoji(pin.cat);
     var imgHtml = url
       ? '<img src="' + url + '" style="width:22px;height:22px;object-fit:contain" onerror="this.style.display=\'none\'">'
       : meta.icon;

@@ -142,13 +142,29 @@ footer p{font-size:10px;color:var(--text3);font-family:var(--ff-d);letter-spacin
 
 <script>
 
-const IB='https://eldenring.wiki.fextralife.com/file/Elden-Ring/';
-function imgUrl(s){
-  if(!s)return null;
-  if(s.indexOf('_elden_ring_wiki_guide')>=0)return IB+s+'_200px.png';
-  if(s.slice(-17)==='_elden_ring_wiki')return IB+s+'_guide_200px.png';
-  return IB+s+'_elden_ring_wiki_guide_200px.png';
+
+var IB = 'https://eldenring.wiki.fextralife.com/file/Elden-Ring/';
+function getImgUrl(slug, cat) {
+  if (!slug) return null;
+  // Try local path first (if user ran download_images.py)
+  var local = 'images/' + (cat||'talismans') + '/' + slug + '.png';
+  // Remote fallback URL
+  var remote;
+  if (slug.indexOf('_elden_ring_wiki_guide') >= 0) remote = IB + slug + '_200px.png';
+  else if (slug.slice(-17) === '_elden_ring_wiki') remote = IB + slug + '_guide_200px.png';
+  else remote = IB + slug + '_elden_ring_wiki_guide_200px.png';
+  return { local: local, remote: remote };
 }
+function makeImgTag(slug, cat, w, h) {
+  if (!slug) return '<span style="font-size:'+(h||32)+'px;line-height:1">'+getCatEmoji(cat)+'</span>';
+  var urls = getImgUrl(slug, cat);
+  var size = 'width:'+(w||32)+'px;height:'+(h||32)+'px;object-fit:contain';
+  return '<img src="'+urls.local+'" style="'+size+'" alt="" '
+       + 'onerror="this.src=\''+urls.remote+'\';this.onerror=function(){this.style.display=\'none\';this.nextElementSibling.style.display=\'inline\'}">'
+       + '<span style="font-size:'+(Math.round((h||32)*0.6))+'px;display:none">'+getCatEmoji(cat)+'</span>';
+}
+var CAT_EMOJI = {talismans:'🔮',weapons:'⚔️',armor:'🛡️',sorceries:'✨',incantations:'🌟',spiritashes:'👻',shields:'🪖'};
+function getCatEmoji(cat){ return CAT_EMOJI[cat]||'📦'; }
 const TR={it:{nav_tracker:'Tracker',nav_map:'Mappa',nav_build:'Build Planner',nav_bestiary:'Bestiario',nav_wip:'In arrivo',nav_found:'trovati',pg_title:'📖 Bestiario',pg_sub:'Boss, nemici, drop e strategie',results:'risultati',filter_all:'Tutti',filter_major:'Boss Principali',filter_field:'Field Boss',filter_optional:'Opzionali',filter_sote:'DLC',filter_defeated:'✓ Sconfitti',search_ph:'Cerca boss…',strategy:'Strategia',boss_major:'Boss Principale',boss_field:'Field Boss',boss_optional:'Opzionale',footer:'Fan project non ufficiale · Elden Ring © FromSoftware / Bandai Namco · Dati: eldenring.wiki.gg'},en:{nav_tracker:'Tracker',nav_map:'Map',nav_build:'Build Planner',nav_bestiary:'Bestiary',nav_wip:'Coming soon',nav_found:'found',pg_title:'📖 Bestiary',pg_sub:'Bosses, enemies, drops & strategies',results:'results',filter_all:'All',filter_major:'Main Bosses',filter_field:'Field Bosses',filter_optional:'Optional',filter_sote:'DLC',filter_defeated:'✓ Defeated',search_ph:'Search boss…',strategy:'Strategy',boss_major:'Main Boss',boss_field:'Field Boss',boss_optional:'Optional',footer:'Unofficial fan project · Elden Ring © FromSoftware / Bandai Namco · Data: eldenring.wiki.gg'}};
 function getLang(){return localStorage.getItem('er_lang')||'it';}
 function setLang(l){localStorage.setItem('er_lang',l);location.reload();}

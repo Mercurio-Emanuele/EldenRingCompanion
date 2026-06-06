@@ -142,13 +142,29 @@ footer p{font-size:10px;color:var(--text3);font-family:var(--ff-d);letter-spacin
 <script>
 // ── i18n ─────────────────────────────────────────────────────────────────────
 
-const IB='https://eldenring.wiki.fextralife.com/file/Elden-Ring/';
-function imgUrl(s){
-  if(!s)return null;
-  if(s.indexOf('_elden_ring_wiki_guide')>=0)return IB+s+'_200px.png';
-  if(s.slice(-17)==='_elden_ring_wiki')return IB+s+'_guide_200px.png';
-  return IB+s+'_elden_ring_wiki_guide_200px.png';
+
+var IB = 'https://eldenring.wiki.fextralife.com/file/Elden-Ring/';
+function getImgUrl(slug, cat) {
+  if (!slug) return null;
+  // Try local path first (if user ran download_images.py)
+  var local = 'images/' + (cat||'talismans') + '/' + slug + '.png';
+  // Remote fallback URL
+  var remote;
+  if (slug.indexOf('_elden_ring_wiki_guide') >= 0) remote = IB + slug + '_200px.png';
+  else if (slug.slice(-17) === '_elden_ring_wiki') remote = IB + slug + '_guide_200px.png';
+  else remote = IB + slug + '_elden_ring_wiki_guide_200px.png';
+  return { local: local, remote: remote };
 }
+function makeImgTag(slug, cat, w, h) {
+  if (!slug) return '<span style="font-size:'+(h||32)+'px;line-height:1">'+getCatEmoji(cat)+'</span>';
+  var urls = getImgUrl(slug, cat);
+  var size = 'width:'+(w||32)+'px;height:'+(h||32)+'px;object-fit:contain';
+  return '<img src="'+urls.local+'" style="'+size+'" alt="" '
+       + 'onerror="this.src=\''+urls.remote+'\';this.onerror=function(){this.style.display=\'none\';this.nextElementSibling.style.display=\'inline\'}">'
+       + '<span style="font-size:'+(Math.round((h||32)*0.6))+'px;display:none">'+getCatEmoji(cat)+'</span>';
+}
+var CAT_EMOJI = {talismans:'🔮',weapons:'⚔️',armor:'🛡️',sorceries:'✨',incantations:'🌟',spiritashes:'👻',shields:'🪖'};
+function getCatEmoji(cat){ return CAT_EMOJI[cat]||'📦'; }
 const TR={it:{nav_tracker:'Tracker',nav_map:'Mappa',nav_build:'Build Planner',nav_bestiary:'Bestiario',nav_wip:'In arrivo',nav_found:'trovati',search_ph:'Cerca item, effetto, localizzazione…',filter_all:'Tutti',filter_found:'✓ Trovati',filter_notfound:'✗ Non trovati',filter_sote:'Solo DLC',filter_base:'Solo Base',results:'risultati',cat_talismans:'Talismani',cat_weapons:'Armi',cat_armor:'Armature',cat_sorceries:'Incantesimi',cat_incantations:'Incantazioni',cat_spiritashes:'Spirit Ashes',cat_shields:'Scudi',footer:'Fan project non ufficiale · Elden Ring © FromSoftware / Bandai Namco · Dati: eldenring.wiki.gg'},en:{nav_tracker:'Tracker',nav_map:'Map',nav_build:'Build Planner',nav_bestiary:'Bestiary',nav_wip:'Coming soon',nav_found:'found',search_ph:'Search items, effects, locations…',filter_all:'All',filter_found:'✓ Found',filter_notfound:'✗ Not found',filter_sote:'DLC only',filter_base:'Base only',results:'results',cat_talismans:'Talismans',cat_weapons:'Weapons',cat_armor:'Armor',cat_sorceries:'Sorceries',cat_incantations:'Incantations',cat_spiritashes:'Spirit Ashes',cat_shields:'Shields',footer:'Unofficial fan project · Elden Ring © FromSoftware / Bandai Namco · Data: eldenring.wiki.gg'}};
 function getLang(){return localStorage.getItem('er_lang')||'it';}
 function setLang(l){localStorage.setItem('er_lang',l);location.reload();}
@@ -606,7 +622,7 @@ function renderGrid(){
     const imgTag=url?`<img src="${url}" alt="" loading="lazy" onerror="this.classList.add('err');this.nextElementSibling.style.opacity=1">`:'' ;
     return`<div class="card${found?' found':''}" data-cat="${ST.tab}" data-name="${item.name.replace(/"/g,'&quot;')}" style="animation-delay:${Math.min(i*.018,.28)}s">
       <div class="card-top">
-        <div class="card-img">${imgTag}<span class="img-fb">${icon}</span></div>
+        <div class="card-img">${makeImgTag(item.img,ST.tab,32,32)}</div>
         <div class="card-body">
           <div class="card-name">${item.name}</div>
           <div class="card-effect">${item.effect}</div>
