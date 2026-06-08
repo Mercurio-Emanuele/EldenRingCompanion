@@ -239,28 +239,126 @@ footer p{font-size:10px;color:var(--text3);font-family:var(--ff-d);letter-spacin
 // ── i18n ─────────────────────────────────────────────────────────────────────
 
 
-var IB = 'https://eldenring.wiki.fextralife.com/file/Elden-Ring/';
+
+
+var WIKI_BASE = 'https://eldenring.wiki.gg/images/';
+var IB_FEXT   = 'https://eldenring.wiki.fextralife.com/file/Elden-Ring/';
+
+// Map slug → wiki.gg filename
+var SLUG_TO_WIKI = (function(){
+  // Format: slug: 'ER_Icon_Category_Name.png'
+  // Talisman slugs end in _talisman or _talisman_N
+  // Weapon slugs end in _weapon
+  // Armor slugs end in _elden_ring_wiki
+  // Sorcery/Incantation/Spirit/Shield slugs contain their category name
+  return {
+    // Talismans
+    'gold_scarab_talisman':'ER_Icon_Talisman_Gold_Scarab.png',
+    'green_turtle_talisman':'ER_Icon_Talisman_Green_Turtle_Talisman.png',
+    'radagon_icon_talisman':'ER_Icon_Talisman_Radagon_Icon.png',
+    'shard_of_alexander_talisman':'ER_Icon_Talisman_Shard_of_Alexander.png',
+    'erdtrees_favor_2_talisman':'ER_Icon_Talisman_Erdtree%27s_Favor%2B2.png',
+    'moon_of_nokstella_talisman':'ER_Icon_Talisman_Moon_of_Nokstella.png',
+    'marikas_soreseal_talisman':'ER_Icon_Talisman_Marika%27s_Soreseal.png',
+    'radagons_soreseal_talisman':'ER_Icon_Talisman_Radagon%27s_Soreseal.png',
+    'dragoncrest_greatshield_talisman':'ER_Icon_Talisman_Dragoncrest_Greatshield_Talisman.png',
+    'winged_sword_insignia_talisman':'ER_Icon_Talisman_Winged_Sword_Insignia.png',
+    'lord_of_bloods_exultation_talisman':'ER_Icon_Talisman_Lord_of_Blood%27s_Exultation.png',
+    'millicents_prosthesis_talisman':'ER_Icon_Talisman_Millicent%27s_Prosthesis.png',
+    'old_lords_talisman':'ER_Icon_Talisman_Old_Lord%27s_Talisman.png',
+    'silver_scarab_talisman':'ER_Icon_Talisman_Silver_Scarab.png',
+    'godfrey_icon_talisman':'ER_Icon_Talisman_Godfrey_Icon.png',
+    'bull-goats_talisman':'ER_Icon_Talisman_Bull-Goat%27s_Talisman.png',
+    'arsenal_charm_talisman':'ER_Icon_Talisman_Arsenal_Charm.png',
+    'arsenal_charm_1_talisman':'ER_Icon_Talisman_Arsenal_Charm%2B1.png',
+    'crimson_seed_talisman':'ER_Icon_Talisman_Crimson_Seed_Talisman.png',
+    'pearldrake_talisman':'ER_Icon_Talisman_Pearldrake_Talisman.png',
+    'flamedrake_talisman':'ER_Icon_Talisman_Flamedrake_Talisman.png',
+    'spelldrake_talisman':'ER_Icon_Talisman_Spelldrake_Talisman.png',
+    'haligdrake_talisman':'ER_Icon_Talisman_Haligdrake_Talisman.png',
+    'boltdrake_talisman':'ER_Icon_Talisman_Boltdrake_Talisman.png',
+    'viridian_amber_medallion_talisman':'ER_Icon_Talisman_Viridian_Amber_Medallion.png',
+    'cerulean_amber_medallion_talisman':'ER_Icon_Talisman_Cerulean_Amber_Medallion.png',
+    'crimson_amber_medallion_talisman':'ER_Icon_Talisman_Crimson_Amber_Medallion.png',
+    'blessed_dew_talisman':'ER_Icon_Talisman_Blessed_Dew_Talisman.png',
+    'claw_talisman':'ER_Icon_Talisman_Claw_Talisman.png',
+    'ritual_sword_talisman':'ER_Icon_Talisman_Ritual_Sword_Talisman.png',
+    'ritual_shield_talisman':'ER_Icon_Talisman_Ritual_Shield_Talisman.png',
+    'great-jars_arsenal_talisman':'ER_Icon_Talisman_Great-Jar%27s_Arsenal.png',
+    'takers_cameo_talisman':'ER_Icon_Talisman_Taker%27s_Cameo.png',
+    // Weapons
+    'moonveil_katana_weapon':'ER_Icon_Weapon_Moonveil.png',
+    'rivers_of_blood_katana_weapon':'ER_Icon_Weapon_Rivers_of_Blood.png',
+    'blasphemous_blade_greatsword_weapon':'ER_Icon_Weapon_Blasphemous_Blade.png',
+    'bloodhounds_fang_curved_greatsword_weapon':'ER_Icon_Weapon_Bloodhound%27s_Fang.png',
+    'greatsword_colossal_sword_weapon':'ER_Icon_Weapon_Greatsword.png',
+    'reduvia_dagger_weapon':'ER_Icon_Weapon_Reduvia.png',
+    'misericorde_dagger_weapon':'ER_Icon_Weapon_Misericorde.png',
+    'nagakiba_katana_weapon':'ER_Icon_Weapon_Nagakiba.png',
+    'hand_of_malenia_katana_weapon':'ER_Icon_Weapon_Hand_of_Malenia.png',
+    'uchigatana_katana_weapon':'ER_Icon_Weapon_Uchigatana.png',
+    'claymore_greatsword_weapon':'ER_Icon_Weapon_Claymore.png',
+    'sword_of_night_and_flame_straight_sword_weapon':'ER_Icon_Weapon_Sword_of_Night_and_Flame.png',
+    'sacred_relic_sword_greatsword_weapon':'ER_Icon_Weapon_Sacred_Relic_Sword.png',
+    'winged_scythe_reaper_weapon':'ER_Icon_Weapon_Winged_Scythe.png',
+    'bolt_of_gransax_spear_weapon':'ER_Icon_Weapon_Bolt_of_Gransax.png',
+    'mohgwyns_sacred_spear_weapon':'ER_Icon_Weapon_Mohgwyn%27s_Sacred_Spear.png',
+    'malikeths_black_blade_colossal_sword_weapon':'ER_Icon_Weapon_Maliketh%27s_Black_Blade.png',
+    'meteoric_ore_blade_katana_weapon':'ER_Icon_Weapon_Meteoric_Ore_Blade.png',
+    // Armor
+    'malenias_armor_elden_ring_wiki':'ER_Icon_Armor_Malenia%27s_Armor.png',
+    'blaids_armor_elden_ring_wiki':'ER_Icon_Armor_Blaidd%27s_Armor.png',
+    'raging_wolf_armor_elden_ring_wiki':'ER_Icon_Armor_Raging_Wolf_Armor.png',
+    'bull-goat_armor_elden_ring_wiki':'ER_Icon_Armor_Bull-Goat_Armor.png',
+    'veterans_armor_elden_ring_wiki':'ER_Icon_Armor_Veteran%27s_Armor.png',
+    'black_knife_armor_elden_ring_wiki':'ER_Icon_Armor_Black_Knife_Armor.png',
+    'crucible_axe_armor_elden_ring_wiki':'ER_Icon_Armor_Crucible_Axe_Armor.png',
+    // Sorceries
+    'comet_azur_sorcery_elden_ring_wiki_guide':'ER_Icon_Sorcery_Comet_Azur.png',
+    'rock_sling_sorcery_elden_ring_wiki_guide':'ER_Icon_Sorcery_Rock_Sling.png',
+    'stars_of_ruin_sorcery_elden_ring_wiki_guide':'ER_Icon_Sorcery_Stars_of_Ruin.png',
+    'night_comet_sorcery_elden_ring_wiki_guide':'ER_Icon_Sorcery_Night_Comet.png',
+    'glintstone_pebble_sorcery_elden_ring_wiki_guide':'ER_Icon_Sorcery_Glintstone_Pebble.png',
+    'carian_slicer_sorcery_elden_ring_wiki_guide':'ER_Icon_Sorcery_Carian_Slicer.png',
+    // Incantations
+    'golden_vow_incantation_elden_ring_wiki_guide':'ER_Icon_Incantation_Golden_Vow.png',
+    'flame_grant_me_strength_incantation_elden_ring_wiki_guide':'ER_Icon_Incantation_Flame%2C_Grant_Me_Strength.png',
+    'swarm_of_flies_incantation_elden_ring_wiki_guide':'ER_Icon_Incantation_Swarm_of_Flies.png',
+    'black_flame_incantation_elden_ring_wiki_guide':'ER_Icon_Incantation_Black_Flame.png',
+    'catch_flame_incantation_elden_ring_wiki_guide':'ER_Icon_Incantation_Catch_Flame.png',
+    // Spirit Ashes
+    'mimic_tear_ashes_spirit_elden_ring_wiki_guide':'ER_Icon_SpiritAsh_Mimic_Tear_Ashes.png',
+    'lone_wolf_ashes_spirit_elden_ring_wiki_guide':'ER_Icon_SpiritAsh_Lone_Wolf_Ashes.png',
+    'black_knife_tiche_spirit_ashes_elden_ring_wiki_guide':'ER_Icon_SpiritAsh_Black_Knife_Tiche_Ashes.png',
+  };
+})();
+
 function getImgUrl(slug, cat) {
   if (!slug) return null;
-  // Try local path first (if user ran download_images.py)
-  var local = 'images/' + (cat||'talismans') + '/' + slug + '.png';
-  // Remote fallback URL
-  var remote;
-  if (slug.indexOf('_elden_ring_wiki_guide') >= 0) remote = IB + slug + '_200px.png';
-  else if (slug.slice(-17) === '_elden_ring_wiki') remote = IB + slug + '_guide_200px.png';
-  else remote = IB + slug + '_elden_ring_wiki_guide_200px.png';
-  return { local: local, remote: remote };
+  var local = 'images/' + (cat || 'talismans') + '/' + slug + '.png';
+  // Try wiki.gg first (best quality, correct format)
+  var wikiFile = SLUG_TO_WIKI[slug];
+  var remote = wikiFile ? WIKI_BASE + wikiFile : null;
+  // Fallback: fextralife (may be blocked by CORB but try anyway)
+  var fext;
+  if (slug.indexOf('_elden_ring_wiki_guide') >= 0) fext = IB_FEXT + slug + '_200px.png';
+  else if (slug.slice(-17) === '_elden_ring_wiki') fext = IB_FEXT + slug + '_guide_200px.png';
+  else fext = IB_FEXT + slug + '_elden_ring_wiki_guide_200px.png';
+  return { local: local, remote: remote || fext, fext: fext };
 }
 function makeImgTag(slug, cat, w, h) {
-  if (!slug) return '<span style="font-size:'+(h||32)+'px;line-height:1">'+getCatEmoji(cat)+'</span>';
-  var urls = getImgUrl(slug, cat);
-  var size = 'width:'+(w||32)+'px;height:'+(h||32)+'px;object-fit:contain';
-  return '<img src="'+urls.local+'" style="'+size+'" alt="" '
-       + 'onerror="this.src=\''+urls.remote+'\';this.onerror=function(){this.style.display=\'none\';this.nextElementSibling.style.display=\'inline\'}">'
-       + '<span style="font-size:'+(Math.round((h||32)*0.6))+'px;display:none">'+getCatEmoji(cat)+'</span>';
+  if (!slug) return '<span style="font-size:' + (h||32) + 'px;line-height:1">' + getCatEmoji(cat) + '</span>';
+  var u = getImgUrl(slug, cat);
+  var size = 'width:' + (w||32) + 'px;height:' + (h||32) + 'px;object-fit:contain;display:block';
+  // Try local → wiki.gg → fextralife → emoji fallback
+  var fb1 = u.remote ? 'this.src=\'' + u.remote + '\';this.onerror=fb2' : 'fb2.call(this)';
+  var fb2 = 'this.src=\'' + u.fext + '\';this.onerror=function(){this.style.display=\'none\';this.nextElementSibling.style.display=\'inline\'}';
+  return '<img src="' + u.local + '" style="' + size + '" alt="" '
+       + 'onerror="var fb2=function(){' + fb2 + '};' + fb1 + '">'
+       + '<span style="font-size:' + Math.round((h||32)*0.6) + 'px;display:none">' + getCatEmoji(cat) + '</span>';
 }
 var CAT_EMOJI = {talismans:'🔮',weapons:'⚔️',armor:'🛡️',sorceries:'✨',incantations:'🌟',spiritashes:'👻',shields:'🪖'};
-function getCatEmoji(cat){ return CAT_EMOJI[cat]||'📦'; }
+function getCatEmoji(cat) { return CAT_EMOJI[cat] || '📦'; }
 const TR={it:{nav_tracker:'Tracker',nav_map:'Mappa',nav_build:'Build Planner',nav_bestiary:'Bestiario',nav_wip:'In arrivo',nav_found:'trovati',pg_title:'⚙️ Build Planner',pg_sub:'Pianifica il tuo personaggio',lbl_save:'Salva build',lbl_load:'Carica',lbl_reset:'Reset',lbl_share:'Condividi URL',lbl_class:'CLASSE',lbl_stats:'STATISTICHE',lbl_derived:'VALORI DERIVATI',lbl_equip:'EQUIPAGGIAMENTO',lbl_dmg:'DANNO STIMATO',lbl_talismans:'TALISMANI (4 slot)',stat_vig:'Vigore',stat_min:'Mente',stat_end:'Resistenza',stat_str:'Forza',stat_dex:'Destrezza',stat_int:'Intelligenza',stat_fai:'Fede',stat_arc:'Arcane',saved:'Build salvata!',shared:'URL copiato!',reset_q:'Resetta la build?',footer:'Fan project non ufficiale · Elden Ring © FromSoftware / Bandai Namco',search_modal:'Cerca…',slot_rh1:'Arma Dx 1',slot_rh2:'Arma Dx 2',slot_lh1:'Arma Sx 1',slot_lh2:'Arma Sx 2',slot_head:'Testa',slot_chest:'Petto',slot_arms:'Braccia',slot_legs:'Gambe',slot_empty:'Vuoto'},en:{nav_tracker:'Tracker',nav_map:'Map',nav_build:'Build Planner',nav_bestiary:'Bestiary',nav_wip:'Coming soon',nav_found:'found',pg_title:'⚙️ Build Planner',pg_sub:'Plan your character',lbl_save:'Save build',lbl_load:'Load',lbl_reset:'Reset',lbl_share:'Share URL',lbl_class:'CLASS',lbl_stats:'STATS',lbl_derived:'DERIVED VALUES',lbl_equip:'EQUIPMENT',lbl_dmg:'ESTIMATED DAMAGE',lbl_talismans:'TALISMANS (4 slots)',stat_vig:'Vigor',stat_min:'Mind',stat_end:'Endurance',stat_str:'Strength',stat_dex:'Dexterity',stat_int:'Intelligence',stat_fai:'Faith',stat_arc:'Arcane',saved:'Build saved!',shared:'URL copied!',reset_q:'Reset build?',footer:'Unofficial fan project · Elden Ring © FromSoftware / Bandai Namco',search_modal:'Search…',slot_rh1:'Right Hand 1',slot_rh2:'Right Hand 2',slot_lh1:'Left Hand 1',slot_lh2:'Left Hand 2',slot_head:'Head',slot_chest:'Chest',slot_arms:'Arms',slot_legs:'Legs',slot_empty:'Empty'}};
 function getLang(){return localStorage.getItem('er_lang')||'it';}
 function setLang(l){localStorage.setItem('er_lang',l);location.reload();}
